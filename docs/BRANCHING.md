@@ -9,6 +9,17 @@
 
 기본 병합 경로는 `feature/*` 또는 `fix/*` → `dev` → `main`이다.
 
+## 역할별 기본 브랜치
+
+| 역할 | 기본 브랜치 | dev 직접 push |
+|---|---|---|
+| 백엔드 담당 | `feature/mock-backend` | 금지 |
+| 프론트엔드 담당 | `feature/customer-frontend` | 금지 |
+| QA 및 디버깅 담당 | `fix/qa-<issue-name>` | 금지 |
+| 병합 및 배포 담당 | PR 병합, 필요 시 `fix/integration-<name>` | 기능 개발 목적 직접 push 금지 |
+
+세부 책임과 역할별 시작 프롬프트는 [TEAM_WORKFLOW.md](TEAM_WORKFLOW.md)를 따른다.
+
 ## 2. 작업 시작
 
 ```bash
@@ -104,4 +115,3 @@ GitHub branch protection에서 `main`과 `dev`에 다음을 설정한다.
 - force push 및 브랜치 삭제 금지
 
 문서와 CI는 저장소에 포함되지만 branch protection은 GitHub 저장소 설정에서 별도로 활성화해야 한다.
-
