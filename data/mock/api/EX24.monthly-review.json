@@ -1,0 +1,171 @@
+{
+  "contractVersion": "mock-api-v1",
+  "ruleVersion": "RULE_2026_09_V2",
+  "personaId": "EX24",
+  "previousAsOf": "2026-09-10",
+  "currentAsOf": "2026-10-10",
+  "nextCollectionAt": "2026-11-10T09:00:00+09:00",
+  "overallType": "INFO",
+  "routing": "REPORT_ONLY",
+  "events": [
+    {
+      "id": "evt-cust-example-24-2026-09-CHG-STABLE",
+      "ruleVersion": "RULE_2026_09_V2",
+      "dataAsOf": "2026-10-10",
+      "ruleId": "CHG-STABLE",
+      "type": "INFO",
+      "title": "재무 상태 안정",
+      "message": "소득과 주요 지출에 기준 이상의 변화가 없습니다. 기존 계획을 유지합니다.",
+      "metric": "재무 지표",
+      "oldValue": "안정",
+      "newValue": "안정",
+      "evidence": {
+        "months": [
+          "2026-09"
+        ],
+        "transactionIds": []
+      },
+      "suggestedAction": "MAINTAIN"
+    }
+  ],
+  "previousMetrics": {
+    "monthlyIncome": 2600000,
+    "monthlySalary": 2600000,
+    "monthlyOtherIncome": 0,
+    "fixedExpenses": 757000,
+    "variableExpenses": 1235000,
+    "irregularExpensesMonthly": 0,
+    "debtPayment": 58000,
+    "availableSurplus": 550000,
+    "recommendedEmergencyFund": 5976000,
+    "emergencyFundBalance": 1800000
+  },
+  "currentMetrics": {
+    "monthlyIncome": 2600000,
+    "monthlySalary": 2600000,
+    "monthlyOtherIncome": 0,
+    "fixedExpenses": 757000,
+    "variableExpenses": 1235000,
+    "irregularExpensesMonthly": 0,
+    "debtPayment": 58000,
+    "availableSurplus": 550000,
+    "recommendedEmergencyFund": 5976000,
+    "emergencyFundBalance": 1800000
+  },
+  "currentWindow": {
+    "startAt": "2026-06-01",
+    "endAt": "2026-09-27",
+    "monthsCovered": 4,
+    "monthsUsed": 4,
+    "transactionCount": 80,
+    "duplicatesRemoved": 0,
+    "internalTransfersExcluded": 4,
+    "completeness": "COMPLETE",
+    "missingMonths": [],
+    "notes": [
+      "본인 계좌 간 이체·카드 대금 결제 4건은 소득·지출에서 제외했습니다."
+    ]
+  },
+  "previousPlan": {
+    "planId": "plan-cust-example-24-v1-snap-cust-example-24-2026-09-10",
+    "customerId": "cust-example-24",
+    "version": 1,
+    "baselineSnapshotId": "snap-cust-example-24-2026-09-10",
+    "ruleVersion": "RULE_2026_09_V2",
+    "boundaryId": "GOAL_FOCUSED",
+    "createdAt": "2026-09-10T09:00:00+09:00",
+    "availableSurplus": 550000,
+    "totalMonthlyAmount": 550000,
+    "unallocatedAmount": 0,
+    "isFeasible": false,
+    "allocations": [
+      {
+        "goalId": "ex-emergency",
+        "goalTitle": "비상자금",
+        "category": "EMERGENCY",
+        "productId": null,
+        "productName": "iM 자유저축통장",
+        "remainingAmount": 2400000,
+        "requiredMonthly": 100000,
+        "targetMonths": 24,
+        "monthlyAmount": 100000,
+        "expectedMonths": 24,
+        "expectedCompletionMonth": "2028-09",
+        "feasibility": "ON_TRACK",
+        "monthlyShortfall": 0,
+        "reasons": [
+          "목표 기한 24개월 내 달성에 필요한 월 100,000원을 배분했습니다."
+        ]
+      },
+      {
+        "goalId": "ex-doyak",
+        "goalTitle": "청년도약계좌",
+        "category": "POLICY_SAVINGS",
+        "productId": "policy-doyak",
+        "productName": "정부 청년도약계좌 (iM뱅크 연계)",
+        "remainingAmount": 12000000,
+        "requiredMonthly": 200000,
+        "targetMonths": 60,
+        "monthlyAmount": 200000,
+        "expectedMonths": 60,
+        "expectedCompletionMonth": "2031-09",
+        "feasibility": "ON_TRACK",
+        "monthlyShortfall": 0,
+        "reasons": [
+          "목표 기한 60개월 내 달성에 필요한 월 200,000원을 배분했습니다."
+        ]
+      },
+      {
+        "goalId": "ex-subscription",
+        "goalTitle": "주택청약",
+        "category": "HOUSING_SUBSCRIPTION",
+        "productId": "policy-housing-dream",
+        "productName": "iM 청년 주택드림 청약종합저축",
+        "remainingAmount": 2400000,
+        "requiredMonthly": 100000,
+        "targetMonths": 24,
+        "monthlyAmount": 100000,
+        "expectedMonths": 24,
+        "expectedCompletionMonth": "2028-09",
+        "feasibility": "ON_TRACK",
+        "monthlyShortfall": 0,
+        "reasons": [
+          "목표 기한 24개월 내 달성에 필요한 월 100,000원을 배분했습니다."
+        ]
+      },
+      {
+        "goalId": "ex-deposit",
+        "goalTitle": "전세 보증금 자기자금",
+        "category": "WEALTH_BUILDING",
+        "productId": "finlife-BANK08-SAVE008",
+        "productName": "자동이체 우대 적금 예시",
+        "remainingAmount": 10800000,
+        "requiredMonthly": 450000,
+        "targetMonths": 24,
+        "monthlyAmount": 150000,
+        "expectedMonths": 72,
+        "expectedCompletionMonth": "2032-09",
+        "feasibility": "DELAYED",
+        "monthlyShortfall": 300000,
+        "reasons": [
+          "우선순위가 높은 목표에 먼저 배분해 남은 여력이 부족합니다.",
+          "현재 배분으로는 72개월이 걸려 목표 기한보다 48개월 늦어집니다."
+        ]
+      }
+    ],
+    "assumptions": [
+      "월 납입액은 만원 단위로 내림하며 총 배분은 월 저축 여력을 넘지 않습니다.",
+      "예상 달성 기간은 이자·우대금리·정부기여금을 반영하지 않은 보수적 추정입니다.",
+      "자격이 확인되지 않은 정책 상품에는 자동 배분하지 않습니다.",
+      "모든 실행은 모의 실행이며 실제 가입·이체가 일어나지 않습니다."
+    ],
+    "notices": [
+      "모든 목표를 기한 내 달성하려면 월 300,000원이 더 필요합니다. 기한 연장 또는 목표 금액 조정을 검토하세요."
+    ],
+    "status": "PROPOSED",
+    "isSynthetic": true
+  },
+  "proposedPlan": null,
+  "consultationCase": null,
+  "isSynthetic": true
+}

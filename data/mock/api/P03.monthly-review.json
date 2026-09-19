@@ -1,0 +1,264 @@
+{
+  "contractVersion": "mock-api-v1",
+  "ruleVersion": "RULE_2026_09_V2",
+  "personaId": "P03",
+  "previousAsOf": "2026-08-31",
+  "currentAsOf": "2026-09-30",
+  "nextCollectionAt": "2026-10-31T09:00:00+09:00",
+  "overallType": "RISK",
+  "routing": "CONSULTATION",
+  "events": [
+    {
+      "id": "evt-cust-persona-03-2026-09-CHG-INCOME-DROP-RISK",
+      "ruleVersion": "RULE_2026_09_V2",
+      "dataAsOf": "2026-09-30",
+      "ruleId": "CHG-INCOME-DROP-RISK",
+      "type": "RISK",
+      "title": "소득 급감 감지",
+      "message": "이번 달 소득 1,300,000원이 직전 3개월 평균 2,100,000원보다 38% 줄었습니다. 저축 납입액 하향 조정이 필요합니다.",
+      "metric": "월 소득",
+      "oldValue": 2100000,
+      "newValue": 1300000,
+      "evidence": {
+        "months": [
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09"
+        ],
+        "transactionIds": []
+      },
+      "suggestedAction": "CONSULT_REQUIRED"
+    },
+    {
+      "id": "evt-cust-persona-03-2026-09-CHG-NEGATIVE-SURPLUS",
+      "ruleVersion": "RULE_2026_09_V2",
+      "dataAsOf": "2026-09-30",
+      "ruleId": "CHG-NEGATIVE-SURPLUS",
+      "type": "RISK",
+      "title": "필수 지출이 소득 초과",
+      "message": "이번 달 고정·변동 지출과 부채 상환이 소득보다 318,300원 많습니다. 연체 위험이 있어 상담 검토가 필요합니다.",
+      "metric": "월 저축 여력",
+      "oldValue": null,
+      "newValue": -318300,
+      "evidence": {
+        "months": [
+          "2026-09"
+        ],
+        "transactionIds": []
+      },
+      "suggestedAction": "CONSULT_REQUIRED"
+    },
+    {
+      "id": "evt-cust-persona-03-2026-09-CHG-AGE-LIMIT",
+      "ruleVersion": "RULE_2026_09_V2",
+      "dataAsOf": "2026-09-30",
+      "ruleId": "CHG-AGE-LIMIT",
+      "type": "INFO",
+      "title": "청년 연령 요건 종료 임박",
+      "message": "2026-12-10에 만 34세가 됩니다. 만 34세 이하 대상 청년 상품·제도는 요건이 끝나기 전에 가입 여부를 확인하세요.",
+      "metric": "만 나이",
+      "oldValue": 33,
+      "newValue": "2026-12-10 만 34세",
+      "evidence": {
+        "months": [
+          "2026-09"
+        ],
+        "transactionIds": []
+      },
+      "suggestedAction": "MAINTAIN"
+    }
+  ],
+  "previousMetrics": {
+    "monthlyIncome": 2200000,
+    "monthlySalary": 2200000,
+    "monthlyOtherIncome": 0,
+    "fixedExpenses": 581600,
+    "variableExpenses": 784400,
+    "irregularExpensesMonthly": 0,
+    "debtPayment": 345000,
+    "availableSurplus": 489000,
+    "recommendedEmergencyFund": 4098000,
+    "emergencyFundBalance": 800000
+  },
+  "currentMetrics": {
+    "monthlyIncome": 2050000,
+    "monthlySalary": 2050000,
+    "monthlyOtherIncome": 0,
+    "fixedExpenses": 581000,
+    "variableExpenses": 769550,
+    "irregularExpensesMonthly": 0,
+    "debtPayment": 345000,
+    "availableSurplus": 354450,
+    "recommendedEmergencyFund": 4051650,
+    "emergencyFundBalance": 800000
+  },
+  "currentWindow": {
+    "startAt": "2026-03-01",
+    "endAt": "2026-09-23",
+    "monthsCovered": 7,
+    "monthsUsed": 6,
+    "transactionCount": 87,
+    "duplicatesRemoved": 0,
+    "internalTransfersExcluded": 6,
+    "completeness": "PARTIAL",
+    "missingMonths": [
+      "2026-04"
+    ],
+    "notes": [
+      "본인 계좌 간 이체·카드 대금 결제 6건은 소득·지출에서 제외했습니다.",
+      "2026-04 p03-card 수집 실패: 카드사 응답 지연(합성 재현). 해당 월은 월평균에서 제외했습니다."
+    ]
+  },
+  "previousPlan": {
+    "planId": "plan-cust-persona-03-v1-snap-cust-persona-03-2026-08-31",
+    "customerId": "cust-persona-03",
+    "version": 1,
+    "baselineSnapshotId": "snap-cust-persona-03-2026-08-31",
+    "ruleVersion": "RULE_2026_09_V2",
+    "boundaryId": "STABLE",
+    "createdAt": "2026-08-31T09:00:00+09:00",
+    "availableSurplus": 489000,
+    "totalMonthlyAmount": 480000,
+    "unallocatedAmount": 9000,
+    "isFeasible": false,
+    "allocations": [
+      {
+        "goalId": "p3-emergency",
+        "goalTitle": "소득 공백 비상금",
+        "category": "EMERGENCY",
+        "productId": null,
+        "productName": "iM 자유저축통장",
+        "remainingAmount": 3700000,
+        "requiredMonthly": 210000,
+        "targetMonths": 18,
+        "monthlyAmount": 210000,
+        "expectedMonths": 18,
+        "expectedCompletionMonth": "2028-02",
+        "feasibility": "ON_TRACK",
+        "monthlyShortfall": 0,
+        "reasons": [
+          "목표 기한 18개월 내 달성에 필요한 월 210,000원을 배분했습니다."
+        ]
+      },
+      {
+        "goalId": "p3-debt",
+        "goalTitle": "생활비 대출 상환 자금",
+        "category": "WEALTH_BUILDING",
+        "productId": null,
+        "productName": "iM 자유저축통장",
+        "remainingAmount": 5000000,
+        "requiredMonthly": 280000,
+        "targetMonths": 18,
+        "monthlyAmount": 270000,
+        "expectedMonths": 19,
+        "expectedCompletionMonth": "2028-03",
+        "feasibility": "DELAYED",
+        "monthlyShortfall": 10000,
+        "reasons": [
+          "우선순위가 높은 목표에 먼저 배분해 남은 여력이 부족합니다.",
+          "현재 배분으로는 19개월이 걸려 목표 기한보다 1개월 늦어집니다."
+        ]
+      }
+    ],
+    "assumptions": [
+      "월 납입액은 만원 단위로 내림하며 총 배분은 월 저축 여력을 넘지 않습니다.",
+      "예상 달성 기간은 이자·우대금리·정부기여금을 반영하지 않은 보수적 추정입니다.",
+      "자격이 확인되지 않은 정책 상품에는 자동 배분하지 않습니다.",
+      "모든 실행은 모의 실행이며 실제 가입·이체가 일어나지 않습니다."
+    ],
+    "notices": [
+      "모든 목표를 기한 내 달성하려면 월 10,000원이 더 필요합니다. 기한 연장 또는 목표 금액 조정을 검토하세요.",
+      "월 9,000원은 배분하지 않고 생활 유동성으로 남깁니다."
+    ],
+    "status": "PROPOSED",
+    "isSynthetic": true
+  },
+  "proposedPlan": {
+    "planId": "plan-cust-persona-03-v2-snap-cust-persona-03-2026-09-30",
+    "customerId": "cust-persona-03",
+    "version": 2,
+    "baselineSnapshotId": "snap-cust-persona-03-2026-09-30",
+    "ruleVersion": "RULE_2026_09_V2",
+    "boundaryId": "STABLE",
+    "createdAt": "2026-09-30T09:00:00+09:00",
+    "availableSurplus": 354450,
+    "totalMonthlyAmount": 350000,
+    "unallocatedAmount": 4450,
+    "isFeasible": false,
+    "allocations": [
+      {
+        "goalId": "p3-emergency",
+        "goalTitle": "소득 공백 비상금",
+        "category": "EMERGENCY",
+        "productId": null,
+        "productName": "iM 자유저축통장",
+        "remainingAmount": 3700000,
+        "requiredMonthly": 210000,
+        "targetMonths": 18,
+        "monthlyAmount": 210000,
+        "expectedMonths": 18,
+        "expectedCompletionMonth": "2028-03",
+        "feasibility": "ON_TRACK",
+        "monthlyShortfall": 0,
+        "reasons": [
+          "목표 기한 18개월 내 달성에 필요한 월 210,000원을 배분했습니다."
+        ]
+      },
+      {
+        "goalId": "p3-debt",
+        "goalTitle": "생활비 대출 상환 자금",
+        "category": "WEALTH_BUILDING",
+        "productId": null,
+        "productName": "iM 자유저축통장",
+        "remainingAmount": 5000000,
+        "requiredMonthly": 280000,
+        "targetMonths": 18,
+        "monthlyAmount": 140000,
+        "expectedMonths": 36,
+        "expectedCompletionMonth": "2029-09",
+        "feasibility": "DELAYED",
+        "monthlyShortfall": 140000,
+        "reasons": [
+          "우선순위가 높은 목표에 먼저 배분해 남은 여력이 부족합니다.",
+          "현재 배분으로는 36개월이 걸려 목표 기한보다 18개월 늦어집니다."
+        ]
+      }
+    ],
+    "assumptions": [
+      "월 납입액은 만원 단위로 내림하며 총 배분은 월 저축 여력을 넘지 않습니다.",
+      "예상 달성 기간은 이자·우대금리·정부기여금을 반영하지 않은 보수적 추정입니다.",
+      "자격이 확인되지 않은 정책 상품에는 자동 배분하지 않습니다.",
+      "모든 실행은 모의 실행이며 실제 가입·이체가 일어나지 않습니다."
+    ],
+    "notices": [
+      "[RISK] 소득 급감 감지: 이번 달 소득 1,300,000원이 직전 3개월 평균 2,100,000원보다 38% 줄었습니다. 저축 납입액 하향 조정이 필요합니다.",
+      "[RISK] 필수 지출이 소득 초과: 이번 달 고정·변동 지출과 부채 상환이 소득보다 318,300원 많습니다. 연체 위험이 있어 상담 검토가 필요합니다.",
+      "모든 목표를 기한 내 달성하려면 월 140,000원이 더 필요합니다. 기한 연장 또는 목표 금액 조정을 검토하세요.",
+      "월 4,450원은 배분하지 않고 생활 유동성으로 남깁니다."
+    ],
+    "status": "PROPOSED",
+    "isSynthetic": true
+  },
+  "consultationCase": {
+    "id": "case-cust-persona-03-2026-09",
+    "riskEventIds": [
+      "evt-cust-persona-03-2026-09-CHG-INCOME-DROP-RISK",
+      "evt-cust-persona-03-2026-09-CHG-NEGATIVE-SURPLUS"
+    ],
+    "customerId": "cust-persona-03",
+    "customerName": "이도윤",
+    "riskType": "소득 급감 감지 · 필수 지출이 소득 초과",
+    "severity": "CRITICAL",
+    "briefing": {
+      "coreRisk": "이번 달 소득 1,300,000원이 직전 3개월 평균 2,100,000원보다 38% 줄었습니다. 저축 납입액 하향 조정이 필요합니다. 이번 달 고정·변동 지출과 부채 상환이 소득보다 318,300원 많습니다. 연체 위험이 있어 상담 검토가 필요합니다.",
+      "financialState": "이번 달 기준 소득 2,050,000원, 고정 581,000원, 변동 769,550원, 부채 상환 345,000원, 월 저축 여력 354,450원, 비상자금 800,000원.",
+      "impactOnGoals": "기존 계획 월 480,000원 → 조정안 월 350,000원. 지연·보류 목표: 생활비 대출 상환 자금. 목표 2개.",
+      "recommendedHumanAction": "납입 유예·축소와 생활비 확보를 우선 상담하고, 부채 상담 지원 제도 확인을 안내하세요."
+    },
+    "createdAt": "2026-09-30T09:00:00+09:00",
+    "status": "WAITING",
+    "isMockCase": true
+  },
+  "isSynthetic": true
+}

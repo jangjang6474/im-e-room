@@ -17,6 +17,12 @@ export interface DemoCustomer {
   jobStatus: string;
   annualIncomeEstimated: number;
   isSynthetic: true; // 데모 및 합성 데이터 명시
+  // 자격 판정용 선택 필드. 모르면 null (충족으로 간주하지 않음)
+  birthDate?: string | null;
+  residenceRegion?: string | null;
+  employmentType?: "SALARIED" | "FREELANCER" | "UNEMPLOYED" | null;
+  householdMedianIncomeRatio?: number | null;
+  isHomeless?: boolean | null;
 }
 
 export interface ConsentState {

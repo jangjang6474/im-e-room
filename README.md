@@ -81,5 +81,7 @@ docs/               PRD, TRD, 디자인 및 개발 현황
 - [UI 디자인 기준](docs/DESIGN.md)
 - [개발 에이전트 지침](AGENTS.md)
 - [개발 현황](docs/DEVELOPMENT_STATUS.md)
+- [팀 역할과 작업 프롬프트](docs/TEAM_WORKFLOW.md)
+- [브랜치·PR 운영](docs/BRANCHING.md)
 
 AI Studio 원본: https://ai.studio/apps/56ac0402-8da0-4ab0-8621-7541387fa500

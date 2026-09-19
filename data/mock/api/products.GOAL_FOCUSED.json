@@ -1,0 +1,277 @@
+{
+  "contractVersion": "mock-api-v1",
+  "ruleVersion": "RULE_2026_09_V2",
+  "boundaryId": "GOAL_FOCUSED",
+  "boundaryLabel": "목표집중형",
+  "limits": {
+    "allowedProductTypes": [
+      "SAVING"
+    ],
+    "maxMaturityMonths": 36,
+    "maxMonthlyDeposit": 1000000
+  },
+  "includedCount": 10,
+  "products": [
+    {
+      "productId": "finlife-DBANK01-DEPOSIT001",
+      "name": "생활안정 정기예금 예시",
+      "provider": "iM뱅크 예시",
+      "productType": "DEPOSIT",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 300000,
+      "baseRate": 3,
+      "maxRate": 3.5,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK02-DEPOSIT002",
+      "name": "6개월 안심예금 예시",
+      "provider": "가상은행 A",
+      "productType": "DEPOSIT",
+      "maturityMonths": 6,
+      "maxMonthlyDeposit": 200000,
+      "baseRate": 2.7,
+      "maxRate": 3.1,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK03-DEPOSIT003",
+      "name": "첫 목돈 예금 예시",
+      "provider": "가상은행 B",
+      "productType": "DEPOSIT",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 500000,
+      "baseRate": 3.1,
+      "maxRate": 3.6,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK04-DEPOSIT004",
+      "name": "비상자금 예금 예시",
+      "provider": "가상은행 C",
+      "productType": "DEPOSIT",
+      "maturityMonths": 6,
+      "maxMonthlyDeposit": 250000,
+      "baseRate": 2.6,
+      "maxRate": 3,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK05-DEPOSIT005",
+      "name": "12개월 목표예금 예시",
+      "provider": "가상은행 D",
+      "productType": "DEPOSIT",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 600000,
+      "baseRate": 3.2,
+      "maxRate": 3.7,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK06-DEPOSIT006",
+      "name": "급여연계 예금 예시",
+      "provider": "가상은행 E",
+      "productType": "DEPOSIT",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 700000,
+      "baseRate": 3.3,
+      "maxRate": 3.9,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK07-DEPOSIT007",
+      "name": "9개월 단기예금 예시",
+      "provider": "가상은행 F",
+      "productType": "DEPOSIT",
+      "maturityMonths": 9,
+      "maxMonthlyDeposit": 400000,
+      "baseRate": 2.9,
+      "maxRate": 3.4,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK08-DEPOSIT008",
+      "name": "18개월 성장예금 예시",
+      "provider": "가상은행 G",
+      "productType": "DEPOSIT",
+      "maturityMonths": 18,
+      "maxMonthlyDeposit": 800000,
+      "baseRate": 3.4,
+      "maxRate": 4,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK09-DEPOSIT009",
+      "name": "모바일 전용예금 예시",
+      "provider": "가상은행 H",
+      "productType": "DEPOSIT",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 350000,
+      "baseRate": 3,
+      "maxRate": 3.8,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-DBANK10-DEPOSIT010",
+      "name": "24개월 목돈예금 예시",
+      "provider": "가상은행 I",
+      "productType": "DEPOSIT",
+      "maturityMonths": 24,
+      "maxMonthlyDeposit": 1000000,
+      "baseRate": 3.5,
+      "maxRate": 4.1,
+      "included": false,
+      "exclusionReasons": [
+        "목표집중형은 적금만 허용"
+      ]
+    },
+    {
+      "productId": "finlife-BANK01-SAVE001",
+      "name": "청년 목표 적금 예시",
+      "provider": "iM뱅크 예시",
+      "productType": "SAVING",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 500000,
+      "baseRate": 3.2,
+      "maxRate": 4.1,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK02-SAVE002",
+      "name": "첫 월급 적금 예시",
+      "provider": "가상은행 A",
+      "productType": "SAVING",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 300000,
+      "baseRate": 3,
+      "maxRate": 3.8,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK03-SAVE003",
+      "name": "주거 준비 적금 예시",
+      "provider": "가상은행 B",
+      "productType": "SAVING",
+      "maturityMonths": 24,
+      "maxMonthlyDeposit": 400000,
+      "baseRate": 3.4,
+      "maxRate": 4.2,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK04-SAVE004",
+      "name": "비상금 적금 예시",
+      "provider": "가상은행 C",
+      "productType": "SAVING",
+      "maturityMonths": 6,
+      "maxMonthlyDeposit": 200000,
+      "baseRate": 2.8,
+      "maxRate": 3.5,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK05-SAVE005",
+      "name": "장기 목표 적금 예시",
+      "provider": "가상은행 D",
+      "productType": "SAVING",
+      "maturityMonths": 36,
+      "maxMonthlyDeposit": 700000,
+      "baseRate": 3.6,
+      "maxRate": 4.5,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK06-SAVE006",
+      "name": "취업 준비 적금 예시",
+      "provider": "가상은행 E",
+      "productType": "SAVING",
+      "maturityMonths": 12,
+      "maxMonthlyDeposit": 250000,
+      "baseRate": 3.1,
+      "maxRate": 4,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK07-SAVE007",
+      "name": "여행 목표 적금 예시",
+      "provider": "가상은행 F",
+      "productType": "SAVING",
+      "maturityMonths": 18,
+      "maxMonthlyDeposit": 300000,
+      "baseRate": 3.3,
+      "maxRate": 4,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK08-SAVE008",
+      "name": "자동이체 우대 적금 예시",
+      "provider": "가상은행 G",
+      "productType": "SAVING",
+      "maturityMonths": 24,
+      "maxMonthlyDeposit": 600000,
+      "baseRate": 3.5,
+      "maxRate": 4.6,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK09-SAVE009",
+      "name": "단기 생활비 적금 예시",
+      "provider": "가상은행 H",
+      "productType": "SAVING",
+      "maturityMonths": 6,
+      "maxMonthlyDeposit": 150000,
+      "baseRate": 2.7,
+      "maxRate": 3.4,
+      "included": true,
+      "exclusionReasons": []
+    },
+    {
+      "productId": "finlife-BANK10-SAVE010",
+      "name": "목돈 마련 적금 예시",
+      "provider": "가상은행 I",
+      "productType": "SAVING",
+      "maturityMonths": 36,
+      "maxMonthlyDeposit": 1000000,
+      "baseRate": 3.8,
+      "maxRate": 4.8,
+      "included": true,
+      "exclusionReasons": []
+    }
+  ],
+  "isSynthetic": true
+}

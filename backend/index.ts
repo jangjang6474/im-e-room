@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
+import { createMockApiRouter } from "./mockApi";
 
 dotenv.config();
 
@@ -14,6 +15,9 @@ const app = express();
 const PORT = Number(process.env.PORT || 3000);
 
 app.use(express.json());
+
+// 외부 API 키 없이 동작하는 합성 데이터 Mock API
+app.use("/api/mock", createMockApiRouter());
 
 // Gemini SDK lazy initialization
 let genAIClient: GoogleGenAI | null = null;
