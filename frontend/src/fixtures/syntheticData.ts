@@ -10,6 +10,9 @@ import {
   FinancialSnapshot,
   ConsentState,
 } from "../types";
+import { REFERENCE_CATALOG } from "./generated/referenceCatalog";
+
+const MOCK_SAVING_PRODUCT = REFERENCE_CATALOG.financialProducts[0];
 
 export const DEFAULT_CUSTOMER: DemoCustomer = {
   id: "cust-demo-2026-001",
@@ -121,18 +124,19 @@ export const POLICIES_DATA: PolicyProduct[] = [
   },
   {
     id: "policy-emergency-saver",
-    name: "iM 청년 스마트 비상금 통장",
-    provider: "iM뱅크",
+    name: MOCK_SAVING_PRODUCT?.name ?? "청년 목표 적금 예시",
+    provider: MOCK_SAVING_PRODUCT?.provider ?? "iM뱅크 예시",
     category: "COMMERCIAL",
-    maxMonthlyDeposit: 500000,
-    baseRate: 2.5,
-    maxRate: 3.8,
+    maxMonthlyDeposit: MOCK_SAVING_PRODUCT?.maxMonthlyDeposit ?? 500000,
+    baseRate: MOCK_SAVING_PRODUCT?.baseRate ?? 3.2,
+    maxRate: MOCK_SAVING_PRODUCT?.maxRate ?? 4.1,
     targetAgeRange: [19, 39],
     incomeLimitDescription: "제한 없음 (수시 입출금 및 비상 출금 우대)",
     eligibility: "ELIGIBLE",
     eligibilityReason: "누구나 개설 가능, 마이데이터 연동 우대금리 적용",
-    officialReference: "iM뱅크 상품약관 2026-B03",
-    asOfPolicy: "2026-09-10",
+    sourceUrl: MOCK_SAVING_PRODUCT?.detailUrl,
+    officialReference: "금융감독원 금융상품 한눈에 응답 구조 기반 합성 레코드",
+    asOfPolicy: MOCK_SAVING_PRODUCT?.disclosureMonth ?? "202609",
   },
 ];
 

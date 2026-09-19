@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useEroom } from "../../context/EroomContext";
 import { PolicyProduct } from "../../types";
+import { PRODUCT_BOUNDARIES, selectProductsByBoundary } from "../../data/adapters";
+import { REFERENCE_CATALOG } from "../../fixtures/generated/referenceCatalog";
 import {
   FileText,
   ShieldCheck,
@@ -13,9 +15,10 @@ import {
 } from "lucide-react";
 
 export const PolicyCenterTab: React.FC = () => {
-  const { policies, customer } = useEroom();
+  const { policies, customer, productBoundaryId, setProductBoundaryId } = useEroom();
   const [mockAppliedId, setMockAppliedId] = useState<string | null>(null);
   const [showApplyModal, setShowApplyModal] = useState<PolicyProduct | null>(null);
+  const productCandidates = selectProductsByBoundary(REFERENCE_CATALOG.financialProducts, productBoundaryId);
 
   const handleMockApplyConfirm = () => {
     if (showApplyModal) {
@@ -39,6 +42,39 @@ export const PolicyCenterTab: React.FC = () => {
           공식 정책 고시 및 약관 기준일에 기반하여 연령(만 {customer.age}세)·거주지({customer.residence})·소득 구간별 적격 여부를 자동 평가했습니다. 본 화면의 신청은 안전한 모의 연계입니다.
         </p>
       </div>
+
+      <section className="bg-white rounded-2xl border border-[#DCE7E4] p-5 shadow-2xs" aria-labelledby="product-boundary-title">
+        <div className="mb-4">
+          <p className="text-xs font-bold text-[#006B5B]">상품 탐색 범위</p>
+          <h3 id="product-boundary-title" className="text-lg font-bold text-[#142B29]">어느 정도의 기간과 납입 부담이 편한가요?</h3>
+          <p className="text-xs text-[#526562] mt-1">투자위험 진단이 아니라 예·적금의 유형, 만기, 월 납입 상한을 정하는 선택입니다.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {PRODUCT_BOUNDARIES.map((boundary) => (
+            <button
+              key={boundary.id}
+              type="button"
+              aria-pressed={productBoundaryId === boundary.id}
+              onClick={() => setProductBoundaryId(boundary.id)}
+              className={`text-left rounded-xl border p-4 transition-colors ${productBoundaryId === boundary.id ? "border-[#00C4A6] bg-[#EAFBF6]" : "border-[#DCE7E4] hover:border-[#00C4A6]"}`}
+            >
+              <strong className="text-sm text-[#142B29]">{boundary.label}</strong>
+              <p className="text-xs text-[#526562] mt-1 leading-relaxed">{boundary.description}</p>
+            </button>
+          ))}
+        </div>
+        <div className="mt-4 rounded-xl bg-[#F6F9F8] border border-[#DCE7E4] p-4">
+          <p className="text-xs font-semibold text-[#142B29]">현재 범위에 맞는 합성 상품 {productCandidates.length}건</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {productCandidates.slice(0, 5).map((product) => (
+              <span key={product.id} className="px-2.5 py-1 rounded-full bg-white border border-[#DCE7E4] text-[11px] text-[#526562]">
+                {product.productType === "DEPOSIT" ? "예금" : "적금"} · {product.name} · {product.maturityMonths}개월
+              </span>
+            ))}
+            {productCandidates.length > 5 && <span className="px-2.5 py-1 text-[11px] text-[#526562]">외 {productCandidates.length - 5}건</span>}
+          </div>
+        </div>
+      </section>
 
       {/* 정책 카드 그리드 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

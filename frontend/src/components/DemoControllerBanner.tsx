@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useEroom } from "../context/EroomContext";
 import { ScenarioPresetId } from "../types";
+import { PERSONA_SCENARIOS } from "../fixtures/personaScenarios";
 import {
   PlayCircle,
   ShieldAlert,
@@ -25,6 +26,8 @@ export const DemoControllerBanner: React.FC<{
     currentDate,
     setViewMode,
     setActiveTab,
+    activePersonaId,
+    selectPersona,
   } = useEroom();
 
   if (!isOpen) return null;
@@ -129,6 +132,21 @@ export const DemoControllerBanner: React.FC<{
               </button>
             )}
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3" aria-label="고객 페르소나 선택">
+          {PERSONA_SCENARIOS.map((persona) => (
+            <button
+              key={persona.id}
+              type="button"
+              onClick={() => selectPersona(persona.id)}
+              className={`rounded-xl border p-3 text-left transition-colors ${activePersonaId === persona.id ? "bg-[#EAFBF6] border-[#00C4A6] text-[#142B29]" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}`}
+            >
+              <span className="text-[10px] font-bold opacity-70">{persona.id.split("_")[0]}</span>
+              <strong className="block text-xs mt-0.5">{persona.title}</strong>
+              <span className="block text-[10px] mt-1 opacity-75 leading-relaxed">{persona.summary}</span>
+            </button>
+          ))}
         </div>
 
         {/* 시나리오 프리셋 버튼 그리드 */}

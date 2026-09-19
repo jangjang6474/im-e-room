@@ -4,12 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
-    "build": "vite build && esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
+    "dev": "tsx backend/index.ts",
+    "build": "vite build && esbuild backend/index.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
     "start": "node dist/server.js",
     "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "clean": "rm -rf dist",
+    "lint": "tsc --noEmit",
+    "data:sync": "node scripts/data/run.mjs sync-reference-data.ts",
+    "data:mock": "node scripts/data/run.mjs build-mock-data.ts",
+    "data:validate": "node scripts/data/run.mjs validate-reference-data.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

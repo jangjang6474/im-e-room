@@ -1,0 +1,69 @@
+{
+  "youthPolicyList": [
+    {
+      "bizId": "mock-youth-001",
+      "polyBizSjnm": "대구 청년 자산형성 지원",
+      "cnsgNmor": "대구광역시",
+      "polyItcnCn": "근로 청년의 정기 저축을 지원하는 합성 정책 레코드",
+      "ageInfo": "만 19~34세",
+      "earnCndSeCd": "기준 중위소득 조건 확인 필요",
+      "rqutPrdCn": "공고문 확인",
+      "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-002",
+      "polyBizSjnm": "청년 주거비 지원 예시",
+      "cnsgNmor": "대구광역시",
+      "polyItcnCn": "독립 거주 청년의 월세 부담을 낮추는 합성 정책 레코드",
+      "ageInfo": "만 19~34세",
+      "earnCndSeCd": "소득 및 주거 요건 확인 필요",
+      "rqutPrdCn": "상반기 공고 예정",
+      "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-003",
+      "polyBizSjnm": "청년 재무상담 지원 예시",
+      "cnsgNmor": "한국고용정보원",
+      "polyItcnCn": "청년에게 재무 진단과 상담을 제공하는 합성 정책 레코드",
+      "ageInfo": "만 19~39세",
+      "earnCndSeCd": "소득 제한 없음",
+      "rqutPrdCn": "상시 신청",
+      "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-004",
+      "polyBizSjnm": "청년 취업역량 강화 예시",
+      "cnsgNmor": "고용노동부",
+      "polyItcnCn": "구직 청년의 교육비와 취업 준비를 지원하는 합성 정책 레코드",
+      "ageInfo": "만 18~34세",
+      "earnCndSeCd": "미취업 상태 확인 필요",
+      "rqutPrdCn": "분기별 모집",
+      "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-005",
+      "polyBizSjnm": "청년 생활안정 지원 예시",
+      "cnsgNmor": "대구광역시",
+      "polyItcnCn": "소득 감소를 겪은 청년의 생활 안정을 돕는 합성 정책 레코드",
+      "ageInfo": "만 19~34세",
+      "earnCndSeCd": "중위소득 기준 확인 필요",
+      "rqutPrdCn": "예산 소진 시까지",
+      "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-006", "polyBizSjnm": "청년 창업 초기비용 지원 예시", "cnsgNmor": "중소벤처기업부", "polyItcnCn": "예비 창업 청년의 사업화 비용을 지원하는 합성 정책 레코드", "ageInfo": "만 19~39세", "earnCndSeCd": "사업 단계 및 매출 조건 확인 필요", "rqutPrdCn": "연 1회 모집", "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-007", "polyBizSjnm": "청년 교통비 지원 예시", "cnsgNmor": "대구광역시", "polyItcnCn": "근로·구직 청년의 대중교통 비용을 지원하는 합성 정책 레코드", "ageInfo": "만 19~34세", "earnCndSeCd": "거주 및 소득 조건 확인 필요", "rqutPrdCn": "하반기 공고 예정", "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-008", "polyBizSjnm": "청년 직무교육 지원 예시", "cnsgNmor": "고용노동부", "polyItcnCn": "전직과 취업을 준비하는 청년의 직무교육을 지원하는 합성 정책 레코드", "ageInfo": "만 18~34세", "earnCndSeCd": "고용 상태 확인 필요", "rqutPrdCn": "과정별 모집", "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-009", "polyBizSjnm": "청년 문화생활 지원 예시", "cnsgNmor": "문화체육관광부", "polyItcnCn": "청년의 문화 활동 비용 일부를 지원하는 합성 정책 레코드", "ageInfo": "만 19~24세", "earnCndSeCd": "소득 제한 없음", "rqutPrdCn": "예산 소진 시까지", "rqutUrla": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "bizId": "mock-youth-010", "polyBizSjnm": "청년 부채상담 지원 예시", "cnsgNmor": "서민금융진흥원", "polyItcnCn": "부채 부담이 있는 청년에게 상담과 상환계획 수립을 지원하는 합성 정책 레코드", "ageInfo": "만 19~39세", "earnCndSeCd": "부채 및 상환 여력 확인 필요", "rqutPrdCn": "상시 신청", "rqutUrla": "https://www.youthcenter.go.kr/"
+    }
+  ]
+}

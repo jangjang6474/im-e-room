@@ -15,6 +15,7 @@
 
 - 실제 마이데이터를 연결하지 않는다. 완전 합성 고객·계좌·거래로 구현한다.
 - 고객 데이터 수집은 모의 동의 후 최초 1회, 이후 동의일 기준 매월 1회이다.
+- 재무진단 입력은 고정 12개월이 아니라 확보된 최근 거래이며 분석 기간·거래 수·완전성을 함께 표시한다.
 - 정책·상품 갱신은 고객 수집과 분리한다.
 - 사용자 승인 전에 가입·이체를 실행하지 않는다. 현재 범위의 실행은 전부 모의 실행이다.
 - 대출 승인·정책 최종 수혜 여부를 확정하지 않는다.
@@ -37,11 +38,11 @@
 현재는 AI Studio에서 생성된 단일 Node.js 프로젝트 구조를 유지한다. 구현 범위가 커지기 전까지 불필요하게 모노레포로 재구성하지 않는다.
 
 ```text
-src/components/           # 소개·고객·상담사 UI
-src/context/              # 현재 클라이언트 오케스트레이션과 상태
-src/domain/               # 계산·자격·배분·이벤트 규칙
-src/fixtures/             # 합성 고객·거래·정책 데이터
-server.ts                 # Express API와 Gemini 어댑터
+frontend/src/components/  # 소개·고객·상담사 UI
+frontend/src/context/     # 현재 클라이언트 오케스트레이션과 상태
+frontend/src/domain/      # 계산·자격·배분·이벤트 규칙
+frontend/src/fixtures/    # 합성 고객·거래·정책 데이터
+backend/index.ts          # Express API와 Gemini 어댑터
 docs/                     # PRD, TRD, IDEATION, 개발 현황
 tests/                    # 도입 예정인 단위·시나리오 검증
 AGENTS.md                 # 저장소 루트의 작업 지침

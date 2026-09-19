@@ -1,0 +1,487 @@
+import type { ReferenceCatalog } from "../../data/contracts";
+
+// Generated file. Edit data/mock/raw and run npm run data:mock.
+export const REFERENCE_CATALOG: ReferenceCatalog = {
+  "generatedAt": "2026-09-19T00:00:00+09:00",
+  "mode": "mock",
+  "sources": [
+    {
+      "source": "ONTONG_YOUTH",
+      "sourceUrl": "https://www.youthcenter.go.kr/opi/youthPlcyList.do",
+      "schemaVersion": "1.0",
+      "collectedAt": "2026-09-19T00:00:00+09:00",
+      "isMock": true
+    },
+    {
+      "source": "FINLIFE",
+      "sourceUrl": "https://finlife.fss.or.kr/finlifeapi",
+      "schemaVersion": "1.0",
+      "collectedAt": "2026-09-19T00:00:00+09:00",
+      "isMock": true
+    }
+  ],
+  "youthPolicies": [
+    {
+      "id": "mock-youth-001",
+      "name": "대구 청년 자산형성 지원",
+      "organization": "대구광역시",
+      "description": "근로 청년의 정기 저축을 지원하는 합성 정책 레코드",
+      "ageDescription": "만 19~34세",
+      "ageRange": [
+        19,
+        34
+      ],
+      "incomeDescription": "기준 중위소득 조건 확인 필요",
+      "applicationPeriod": "공고문 확인",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-002",
+      "name": "청년 주거비 지원 예시",
+      "organization": "대구광역시",
+      "description": "독립 거주 청년의 월세 부담을 낮추는 합성 정책 레코드",
+      "ageDescription": "만 19~34세",
+      "ageRange": [
+        19,
+        34
+      ],
+      "incomeDescription": "소득 및 주거 요건 확인 필요",
+      "applicationPeriod": "상반기 공고 예정",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-003",
+      "name": "청년 재무상담 지원 예시",
+      "organization": "한국고용정보원",
+      "description": "청년에게 재무 진단과 상담을 제공하는 합성 정책 레코드",
+      "ageDescription": "만 19~39세",
+      "ageRange": [
+        19,
+        39
+      ],
+      "incomeDescription": "소득 제한 없음",
+      "applicationPeriod": "상시 신청",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-004",
+      "name": "청년 취업역량 강화 예시",
+      "organization": "고용노동부",
+      "description": "구직 청년의 교육비와 취업 준비를 지원하는 합성 정책 레코드",
+      "ageDescription": "만 18~34세",
+      "ageRange": [
+        18,
+        34
+      ],
+      "incomeDescription": "미취업 상태 확인 필요",
+      "applicationPeriod": "분기별 모집",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-005",
+      "name": "청년 생활안정 지원 예시",
+      "organization": "대구광역시",
+      "description": "소득 감소를 겪은 청년의 생활 안정을 돕는 합성 정책 레코드",
+      "ageDescription": "만 19~34세",
+      "ageRange": [
+        19,
+        34
+      ],
+      "incomeDescription": "중위소득 기준 확인 필요",
+      "applicationPeriod": "예산 소진 시까지",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-006",
+      "name": "청년 창업 초기비용 지원 예시",
+      "organization": "중소벤처기업부",
+      "description": "예비 창업 청년의 사업화 비용을 지원하는 합성 정책 레코드",
+      "ageDescription": "만 19~39세",
+      "ageRange": [
+        19,
+        39
+      ],
+      "incomeDescription": "사업 단계 및 매출 조건 확인 필요",
+      "applicationPeriod": "연 1회 모집",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-007",
+      "name": "청년 교통비 지원 예시",
+      "organization": "대구광역시",
+      "description": "근로·구직 청년의 대중교통 비용을 지원하는 합성 정책 레코드",
+      "ageDescription": "만 19~34세",
+      "ageRange": [
+        19,
+        34
+      ],
+      "incomeDescription": "거주 및 소득 조건 확인 필요",
+      "applicationPeriod": "하반기 공고 예정",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-008",
+      "name": "청년 직무교육 지원 예시",
+      "organization": "고용노동부",
+      "description": "전직과 취업을 준비하는 청년의 직무교육을 지원하는 합성 정책 레코드",
+      "ageDescription": "만 18~34세",
+      "ageRange": [
+        18,
+        34
+      ],
+      "incomeDescription": "고용 상태 확인 필요",
+      "applicationPeriod": "과정별 모집",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-009",
+      "name": "청년 문화생활 지원 예시",
+      "organization": "문화체육관광부",
+      "description": "청년의 문화 활동 비용 일부를 지원하는 합성 정책 레코드",
+      "ageDescription": "만 19~24세",
+      "ageRange": [
+        19,
+        24
+      ],
+      "incomeDescription": "소득 제한 없음",
+      "applicationPeriod": "예산 소진 시까지",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    },
+    {
+      "id": "mock-youth-010",
+      "name": "청년 부채상담 지원 예시",
+      "organization": "서민금융진흥원",
+      "description": "부채 부담이 있는 청년에게 상담과 상환계획 수립을 지원하는 합성 정책 레코드",
+      "ageDescription": "만 19~39세",
+      "ageRange": [
+        19,
+        39
+      ],
+      "incomeDescription": "부채 및 상환 여력 확인 필요",
+      "applicationPeriod": "상시 신청",
+      "detailUrl": "https://www.youthcenter.go.kr/"
+    }
+  ],
+  "financialProducts": [
+    {
+      "id": "finlife-DBANK01-DEPOSIT001",
+      "productCode": "DEPOSIT001",
+      "providerCode": "DBANK01",
+      "name": "생활안정 정기예금 예시",
+      "provider": "iM뱅크 예시",
+      "productType": "DEPOSIT",
+      "burdenLevel": "LOW",
+      "joinWay": "영업점, 스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3,
+      "maxRate": 3.5,
+      "maxMonthlyDeposit": 300000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK02-DEPOSIT002",
+      "productCode": "DEPOSIT002",
+      "providerCode": "DBANK02",
+      "name": "6개월 안심예금 예시",
+      "provider": "가상은행 A",
+      "productType": "DEPOSIT",
+      "burdenLevel": "LOW",
+      "joinWay": "스마트폰",
+      "maturityMonths": 6,
+      "baseRate": 2.7,
+      "maxRate": 3.1,
+      "maxMonthlyDeposit": 200000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK03-DEPOSIT003",
+      "productCode": "DEPOSIT003",
+      "providerCode": "DBANK03",
+      "name": "첫 목돈 예금 예시",
+      "provider": "가상은행 B",
+      "productType": "DEPOSIT",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "인터넷",
+      "maturityMonths": 12,
+      "baseRate": 3.1,
+      "maxRate": 3.6,
+      "maxMonthlyDeposit": 500000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK04-DEPOSIT004",
+      "productCode": "DEPOSIT004",
+      "providerCode": "DBANK04",
+      "name": "비상자금 예금 예시",
+      "provider": "가상은행 C",
+      "productType": "DEPOSIT",
+      "burdenLevel": "LOW",
+      "joinWay": "영업점",
+      "maturityMonths": 6,
+      "baseRate": 2.6,
+      "maxRate": 3,
+      "maxMonthlyDeposit": 250000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK05-DEPOSIT005",
+      "productCode": "DEPOSIT005",
+      "providerCode": "DBANK05",
+      "name": "12개월 목표예금 예시",
+      "provider": "가상은행 D",
+      "productType": "DEPOSIT",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3.2,
+      "maxRate": 3.7,
+      "maxMonthlyDeposit": 600000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK06-DEPOSIT006",
+      "productCode": "DEPOSIT006",
+      "providerCode": "DBANK06",
+      "name": "급여연계 예금 예시",
+      "provider": "가상은행 E",
+      "productType": "DEPOSIT",
+      "burdenLevel": "HIGH",
+      "joinWay": "인터넷, 스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3.3,
+      "maxRate": 3.9,
+      "maxMonthlyDeposit": 700000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK07-DEPOSIT007",
+      "productCode": "DEPOSIT007",
+      "providerCode": "DBANK07",
+      "name": "9개월 단기예금 예시",
+      "provider": "가상은행 F",
+      "productType": "DEPOSIT",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "스마트폰",
+      "maturityMonths": 9,
+      "baseRate": 2.9,
+      "maxRate": 3.4,
+      "maxMonthlyDeposit": 400000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK08-DEPOSIT008",
+      "productCode": "DEPOSIT008",
+      "providerCode": "DBANK08",
+      "name": "18개월 성장예금 예시",
+      "provider": "가상은행 G",
+      "productType": "DEPOSIT",
+      "burdenLevel": "HIGH",
+      "joinWay": "영업점, 인터넷",
+      "maturityMonths": 18,
+      "baseRate": 3.4,
+      "maxRate": 4,
+      "maxMonthlyDeposit": 800000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK09-DEPOSIT009",
+      "productCode": "DEPOSIT009",
+      "providerCode": "DBANK09",
+      "name": "모바일 전용예금 예시",
+      "provider": "가상은행 H",
+      "productType": "DEPOSIT",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3,
+      "maxRate": 3.8,
+      "maxMonthlyDeposit": 350000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-DBANK10-DEPOSIT010",
+      "productCode": "DEPOSIT010",
+      "providerCode": "DBANK10",
+      "name": "24개월 목돈예금 예시",
+      "provider": "가상은행 I",
+      "productType": "DEPOSIT",
+      "burdenLevel": "HIGH",
+      "joinWay": "영업점, 스마트폰",
+      "maturityMonths": 24,
+      "baseRate": 3.5,
+      "maxRate": 4.1,
+      "maxMonthlyDeposit": 1000000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK01-SAVE001",
+      "productCode": "SAVE001",
+      "providerCode": "BANK01",
+      "name": "청년 목표 적금 예시",
+      "provider": "iM뱅크 예시",
+      "productType": "SAVING",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "영업점, 스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3.2,
+      "maxRate": 4.1,
+      "maxMonthlyDeposit": 500000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK02-SAVE002",
+      "productCode": "SAVE002",
+      "providerCode": "BANK02",
+      "name": "첫 월급 적금 예시",
+      "provider": "가상은행 A",
+      "productType": "SAVING",
+      "burdenLevel": "LOW",
+      "joinWay": "스마트폰",
+      "maturityMonths": 12,
+      "baseRate": 3,
+      "maxRate": 3.8,
+      "maxMonthlyDeposit": 300000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK03-SAVE003",
+      "productCode": "SAVE003",
+      "providerCode": "BANK03",
+      "name": "주거 준비 적금 예시",
+      "provider": "가상은행 B",
+      "productType": "SAVING",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "인터넷, 스마트폰",
+      "maturityMonths": 24,
+      "baseRate": 3.4,
+      "maxRate": 4.2,
+      "maxMonthlyDeposit": 400000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK04-SAVE004",
+      "productCode": "SAVE004",
+      "providerCode": "BANK04",
+      "name": "비상금 적금 예시",
+      "provider": "가상은행 C",
+      "productType": "SAVING",
+      "burdenLevel": "LOW",
+      "joinWay": "영업점, 스마트폰",
+      "maturityMonths": 6,
+      "baseRate": 2.8,
+      "maxRate": 3.5,
+      "maxMonthlyDeposit": 200000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK05-SAVE005",
+      "productCode": "SAVE005",
+      "providerCode": "BANK05",
+      "name": "장기 목표 적금 예시",
+      "provider": "가상은행 D",
+      "productType": "SAVING",
+      "burdenLevel": "HIGH",
+      "joinWay": "스마트폰",
+      "maturityMonths": 36,
+      "baseRate": 3.6,
+      "maxRate": 4.5,
+      "maxMonthlyDeposit": 700000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK06-SAVE006",
+      "productCode": "SAVE006",
+      "providerCode": "BANK06",
+      "name": "취업 준비 적금 예시",
+      "provider": "가상은행 E",
+      "productType": "SAVING",
+      "burdenLevel": "LOW",
+      "joinWay": "인터넷",
+      "maturityMonths": 12,
+      "baseRate": 3.1,
+      "maxRate": 4,
+      "maxMonthlyDeposit": 250000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK07-SAVE007",
+      "productCode": "SAVE007",
+      "providerCode": "BANK07",
+      "name": "여행 목표 적금 예시",
+      "provider": "가상은행 F",
+      "productType": "SAVING",
+      "burdenLevel": "LOW",
+      "joinWay": "스마트폰",
+      "maturityMonths": 18,
+      "baseRate": 3.3,
+      "maxRate": 4,
+      "maxMonthlyDeposit": 300000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK08-SAVE008",
+      "productCode": "SAVE008",
+      "providerCode": "BANK08",
+      "name": "자동이체 우대 적금 예시",
+      "provider": "가상은행 G",
+      "productType": "SAVING",
+      "burdenLevel": "MEDIUM",
+      "joinWay": "영업점, 인터넷",
+      "maturityMonths": 24,
+      "baseRate": 3.5,
+      "maxRate": 4.6,
+      "maxMonthlyDeposit": 600000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK09-SAVE009",
+      "productCode": "SAVE009",
+      "providerCode": "BANK09",
+      "name": "단기 생활비 적금 예시",
+      "provider": "가상은행 H",
+      "productType": "SAVING",
+      "burdenLevel": "LOW",
+      "joinWay": "스마트폰",
+      "maturityMonths": 6,
+      "baseRate": 2.7,
+      "maxRate": 3.4,
+      "maxMonthlyDeposit": 150000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    },
+    {
+      "id": "finlife-BANK10-SAVE010",
+      "productCode": "SAVE010",
+      "providerCode": "BANK10",
+      "name": "목돈 마련 적금 예시",
+      "provider": "가상은행 I",
+      "productType": "SAVING",
+      "burdenLevel": "HIGH",
+      "joinWay": "영업점, 스마트폰",
+      "maturityMonths": 36,
+      "baseRate": 3.8,
+      "maxRate": 4.8,
+      "maxMonthlyDeposit": 1000000,
+      "disclosureMonth": "202609",
+      "detailUrl": "https://finlife.fss.or.kr/"
+    }
+  ]
+};
