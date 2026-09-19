@@ -11,6 +11,7 @@ import { YouthView } from "./components/YouthView";
 import { ConsultantView } from "./components/ConsultantView";
 import { ServiceIntroView } from "./components/ServiceIntroView";
 import { AiAssistantModal } from "./components/AiAssistantModal";
+import { ExampleJourneyDashboard } from "./components/ExampleJourneyDashboard";
 import { ShieldCheck, Info, Sparkles, SlidersHorizontal } from "lucide-react";
 
 function MainContent() {
@@ -18,6 +19,9 @@ function MainContent() {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const isDemoMode = new URLSearchParams(window.location.search).get("demo") === "true";
   const [isDemoToolOpen, setIsDemoToolOpen] = useState(false);
+  const isExampleMode = new URLSearchParams(window.location.search).get("example") === "true";
+
+  if (isExampleMode) return <ExampleJourneyDashboard />;
 
   return (
     <div className="min-h-screen bg-[#F6F9F8] flex flex-col text-[#142B29] selection:bg-[#00C4A6]/20">
