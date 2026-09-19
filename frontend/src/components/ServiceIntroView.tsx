@@ -91,6 +91,12 @@ export const ServiceIntroView: React.FC = () => {
           >
             월간 관리 방식 보기
           </button>
+          <a
+            href="?example=true"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-[#F5EFFF] hover:bg-[#eee4ff] border border-[#e4d5fb] text-[#6842a6] font-bold text-sm transition-colors"
+          >
+            2년 적용 예시 보기
+          </a>
         </div>
 
         {/* 가상 데이터 고지문 */}
