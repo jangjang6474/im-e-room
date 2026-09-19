@@ -141,7 +141,8 @@ export const POLICIES_DATA: PolicyProduct[] = [
 ];
 
 /**
- * 12개월 가상 거래 내역 생성기
+ * (레거시) 기존 데모 시나리오 S01~S06용 월 스냅샷 생성기.
+ * 고정 12개월을 전제하지 않는 최근 거래 진단은 fixtures/mockDatasets.ts + domain/diagnosis.ts를 사용한다.
  */
 export function generate12MonthTransactions(baseMonth: string): FinancialSnapshot {
   return {

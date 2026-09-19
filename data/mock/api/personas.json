@@ -1,0 +1,46 @@
+[
+  {
+    "personaId": "P01",
+    "title": "안정적인 사회초년생",
+    "summary": "월급은 일정하지만 비상자금이 부족해 단기 안정성을 우선하는 고객",
+    "customerName": "김이룸",
+    "age": 24,
+    "residence": "대구광역시 수성구",
+    "boundaryId": "STABLE",
+    "asOf": "2026-09-15",
+    "isSynthetic": true
+  },
+  {
+    "personaId": "P02",
+    "title": "주거 독립 준비 청년",
+    "summary": "2년 안에 보증금을 마련하기 위해 정책과 적금을 함께 비교하는 고객",
+    "customerName": "박하늘",
+    "age": 29,
+    "residence": "대구광역시 달서구",
+    "boundaryId": "BALANCED",
+    "asOf": "2026-09-27",
+    "isSynthetic": true
+  },
+  {
+    "personaId": "P03",
+    "title": "소득 변동 위험 청년",
+    "summary": "프리랜서 소득 감소로 장기 납입보다 상담과 유동성 확보가 먼저인 고객",
+    "customerName": "이도윤",
+    "age": 33,
+    "residence": "대구광역시 북구",
+    "boundaryId": "STABLE",
+    "asOf": "2026-08-31",
+    "isSynthetic": true
+  },
+  {
+    "personaId": "EX24",
+    "title": "최종기획서 24개월 적용 예시",
+    "summary": "대구 거주 만 28세, 세후 월 260만원, 전세 보증금 3,000만원을 24개월 동안 준비하는 합성 고객",
+    "customerName": "정다온",
+    "age": 28,
+    "residence": "대구광역시 동구",
+    "boundaryId": "GOAL_FOCUSED",
+    "asOf": "2026-09-10",
+    "isSynthetic": true
+  }
+]

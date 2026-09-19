@@ -1,0 +1,394 @@
+{
+  "contractVersion": "mock-api-v1",
+  "ruleVersion": "RULE_2026_09_V2",
+  "customer": {
+    "id": "cust-example-24",
+    "personaId": "EX24",
+    "name": "정다온",
+    "age": 28,
+    "birthDate": "1998-04-11",
+    "residenceRegion": "대구광역시",
+    "residenceDistrict": "동구",
+    "employmentType": "SALARIED",
+    "jobDescription": "제조업 사무직 3년차",
+    "annualIncome": 31200000,
+    "householdMedianIncomeRatio": 110,
+    "isHomeless": true,
+    "isSynthetic": true
+  },
+  "baseline": {
+    "monthlyIncome": 2600000,
+    "initialSurplus": 550000,
+    "leakageMonthly": 100000,
+    "rentSupportMonthly": 200000,
+    "executableMonthly": 850000,
+    "depositTarget": 30000000,
+    "depositSelfFundTarget": 10800000,
+    "depositLoanPortion": 19200000
+  },
+  "stages": [
+    {
+      "month": 0,
+      "date": "2026-09-10",
+      "label": "가입",
+      "monthlyManagedAmount": 0,
+      "depositSavedAmount": 0,
+      "depositProgressPercent": 0,
+      "title": "3분 재무진단",
+      "summary": "최근 3개월 거래로 월 저축 여력 550,000원을 확인하고, 새는 돈 후보 월 100,000원(미사용 구독·리볼빙 이자)을 찾았어요.",
+      "eventType": "INFO",
+      "ruleId": "DIAGNOSIS",
+      "headlineLabel": "월 저축 여력",
+      "headlineAmount": 550000,
+      "details": [
+        {
+          "label": "OTT 프리미엄 구독",
+          "value": "월 17,000원 (HIGH)"
+        },
+        {
+          "label": "음악 스트리밍 구독",
+          "value": "월 10,900원 (HIGH)"
+        },
+        {
+          "label": "전자책 구독 구독",
+          "value": "월 14,100원 (HIGH)"
+        },
+        {
+          "label": "iM카드 리볼빙 리볼빙 이자",
+          "value": "월 58,000원 (HIGH)"
+        }
+      ],
+      "allocations": [],
+      "action": "최근 거래 진단 완료"
+    },
+    {
+      "month": 1,
+      "date": "2026-10-10",
+      "label": "1개월",
+      "monthlyManagedAmount": 850000,
+      "depositSavedAmount": 450000,
+      "depositProgressPercent": 4,
+      "title": "포트폴리오 실행",
+      "summary": "새는 돈 정리 100,000원과 월세지원 200,000원을 반영해 월 850,000원을 네 가지 목표로 나눴어요.",
+      "eventType": "ADJUSTMENT",
+      "ruleId": "PLAN-INITIAL",
+      "headlineLabel": "월 배분 합계",
+      "headlineAmount": 850000,
+      "details": [
+        {
+          "label": "비상자금",
+          "value": "100,000원 · iM 자유저축통장"
+        },
+        {
+          "label": "청년도약계좌",
+          "value": "200,000원 · 정부 청년도약계좌 (iM뱅크 연계)"
+        },
+        {
+          "label": "주택청약",
+          "value": "100,000원 · iM 청년 주택드림 청약종합저축"
+        },
+        {
+          "label": "전세 보증금 자기자금",
+          "value": "450,000원 · 자동이체 우대 적금 예시"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-emergency",
+          "label": "비상자금",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 200000
+        },
+        {
+          "goalId": "ex-subscription",
+          "label": "주택청약",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-deposit",
+          "label": "전세 보증금 자기자금",
+          "amount": 450000
+        }
+      ],
+      "action": "모의 자동이체 승인"
+    },
+    {
+      "month": 7,
+      "date": "2027-04-10",
+      "label": "7개월",
+      "monthlyManagedAmount": 970000,
+      "depositSavedAmount": 3150000,
+      "depositProgressPercent": 29,
+      "title": "급여 200,000원 인상",
+      "summary": "3개월 연속 인상을 확인하고 증가분 중 120,000원을 정부기여금이 붙는 청년도약계좌에 더 배분했어요.",
+      "eventType": "ADJUSTMENT",
+      "ruleId": "CHG-SALARY-RISE",
+      "headlineLabel": "월 배분 합계",
+      "headlineAmount": 970000,
+      "details": [
+        {
+          "label": "기존 급여",
+          "value": "2,600,000원"
+        },
+        {
+          "label": "인상 후 급여",
+          "value": "2,800,000원"
+        },
+        {
+          "label": "저축 증액 후보",
+          "value": "120,000원"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-emergency",
+          "label": "비상자금",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 320000
+        },
+        {
+          "goalId": "ex-subscription",
+          "label": "주택청약",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-deposit",
+          "label": "전세 보증금 자기자금",
+          "amount": 450000
+        }
+      ],
+      "action": "증액안 확인"
+    },
+    {
+      "month": 11,
+      "date": "2027-08-10",
+      "label": "11개월",
+      "monthlyManagedAmount": 970000,
+      "depositSavedAmount": 4950000,
+      "depositProgressPercent": 45,
+      "title": "중도해지 방어",
+      "summary": "급전 2,000,000원이 필요한 상황에서 적금 해지 시 이자 손실 89,100원과 담보대출 3개월 이자 28,000원을 비교했어요.",
+      "eventType": "ADJUSTMENT",
+      "ruleId": "CHG-EARLY-TERMINATION",
+      "headlineLabel": "월 배분 합계",
+      "headlineAmount": 970000,
+      "details": [
+        {
+          "label": "적금 납입 누적",
+          "value": "4,950,000원"
+        },
+        {
+          "label": "만기 유지 시 이자 (4.6%)",
+          "value": "113,850원"
+        },
+        {
+          "label": "중도해지 이자 (1%)",
+          "value": "24,750원"
+        },
+        {
+          "label": "중도해지 손실",
+          "value": "89,100원"
+        },
+        {
+          "label": "예·적금담보대출 이자 (5.6%, 3개월)",
+          "value": "28,000원"
+        },
+        {
+          "label": "권장",
+          "value": "담보대출 후 적금 유지"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-emergency",
+          "label": "비상자금",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 320000
+        },
+        {
+          "goalId": "ex-subscription",
+          "label": "주택청약",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-deposit",
+          "label": "전세 보증금 자기자금",
+          "amount": 450000
+        }
+      ],
+      "action": "대안 비교"
+    },
+    {
+      "month": 15,
+      "date": "2027-12-10",
+      "label": "15개월",
+      "monthlyManagedAmount": 970000,
+      "depositSavedAmount": 6750000,
+      "depositProgressPercent": 62,
+      "title": "신규 정책 발견",
+      "summary": "대구 청년 전세보증금 이자지원 (신규 합성 예시)의 합성 자격 조건을 확인했어요. 판정: ELIGIBLE. 신청 기간 2027-12-01 ~ 2028-01-31.",
+      "eventType": "ADJUSTMENT",
+      "ruleId": "CHG-POLICY-NEW",
+      "headlineLabel": "월 배분 합계",
+      "headlineAmount": 970000,
+      "details": [
+        {
+          "label": "만 19~34세",
+          "value": "MET (만 29세)"
+        },
+        {
+          "label": "대구광역시 거주",
+          "value": "MET (대구광역시)"
+        },
+        {
+          "label": "가구 기준 중위소득 150% 이하",
+          "value": "MET (110%)"
+        },
+        {
+          "label": "무주택",
+          "value": "MET (무주택)"
+        },
+        {
+          "label": "2027-12-01 ~ 2028-01-31",
+          "value": "MET (신청 기간)"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-emergency",
+          "label": "비상자금",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 320000
+        },
+        {
+          "goalId": "ex-subscription",
+          "label": "주택청약",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-deposit",
+          "label": "전세 보증금 자기자금",
+          "amount": 450000
+        }
+      ],
+      "action": "지원제도 확인"
+    },
+    {
+      "month": 21,
+      "date": "2028-06-10",
+      "label": "21개월",
+      "monthlyManagedAmount": 970000,
+      "depositSavedAmount": 9450000,
+      "depositProgressPercent": 87,
+      "title": "전세 계약 준비",
+      "summary": "자기자금 9,450,000원을 모았어요. 남은 보증금 19,200,000원에 대한 전세자금대출 조건과 모의 영업점 상담을 안내했어요.",
+      "eventType": "INFO",
+      "ruleId": "JOURNEY-HOUSING-PREP",
+      "headlineLabel": "월 배분 합계",
+      "headlineAmount": 970000,
+      "details": [
+        {
+          "label": "보증금 목표",
+          "value": "30,000,000원"
+        },
+        {
+          "label": "자기자금 목표",
+          "value": "10,800,000원"
+        },
+        {
+          "label": "전세자금대출 필요액 (심사·승인 아님)",
+          "value": "19,200,000원"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-emergency",
+          "label": "비상자금",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 320000
+        },
+        {
+          "goalId": "ex-subscription",
+          "label": "주택청약",
+          "amount": 100000
+        },
+        {
+          "goalId": "ex-deposit",
+          "label": "전세 보증금 자기자금",
+          "amount": 450000
+        }
+      ],
+      "action": "상담 준비"
+    },
+    {
+      "month": 24,
+      "date": "2028-09-10",
+      "label": "24개월",
+      "monthlyManagedAmount": 770000,
+      "depositSavedAmount": 10800000,
+      "depositProgressPercent": 100,
+      "title": "만기·다음 목표",
+      "summary": "보증금 적금이 2028-10-10에 만기돼요(D-30). 자기자금 목표를 채웠고, 사라지는 월세 대신 결혼자금 월 450,000원 적립을 제안했어요.",
+      "eventType": "ADJUSTMENT",
+      "ruleId": "CHG-MATURITY",
+      "headlineLabel": "결혼자금 월 적립",
+      "headlineAmount": 450000,
+      "details": [
+        {
+          "label": "만기일",
+          "value": "2028-10-10"
+        },
+        {
+          "label": "보증금 적금 원금",
+          "value": "10,800,000원"
+        },
+        {
+          "label": "비상자금·청약",
+          "value": "목표 달성"
+        }
+      ],
+      "allocations": [
+        {
+          "goalId": "ex-doyak",
+          "label": "청년도약계좌",
+          "amount": 320000
+        },
+        {
+          "goalId": "ex-marriage",
+          "label": "결혼자금 (다음 목표)",
+          "amount": 450000
+        }
+      ],
+      "action": "다음 목표 시작"
+    }
+  ],
+  "assumptions": [
+    "월세지원 200,000원은 선정을 가정한 시나리오 값입니다. 실제 정책 수혜를 확정하지 않습니다.",
+    "새는 돈 후보(미사용 구독·리볼빙 이자)는 사용자가 정리했다고 가정합니다.",
+    "5개월차부터 급여가 200,000원 오른다고 가정합니다.",
+    "보증금 3,000만원 = 자기자금 1,080만원(목표 적금) + 전세자금대출 1,920만원. 대출은 조건 안내일 뿐 심사·승인이 아닙니다.",
+    "진행률은 자기자금 목표 대비 적금 원금 누적이며 이자는 제외합니다.",
+    "중도해지 이율 1%, 담보대출 가산 1%p는 합성 가정값입니다."
+  ],
+  "isSynthetic": true
+}

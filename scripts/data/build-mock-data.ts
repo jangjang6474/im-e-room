@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
 import { normalizeFinlife, normalizeOntongYouth } from "../../frontend/src/data/adapters";
@@ -29,3 +30,6 @@ await writeFile(
   "utf8",
 );
 console.log(`Generated offline catalog: ${catalog.youthPolicies.length} youth policies, ${catalog.financialProducts.length} financial products.`);
+
+// Mock API 예시 응답은 방금 생성한 catalog를 새로 번들해 만들어야 하므로 별도 프로세스로 실행한다.
+execFileSync(process.execPath, [path.join("scripts", "data", "run.mjs"), "build-mock-api-fixtures.ts"], { stdio: "inherit" });
