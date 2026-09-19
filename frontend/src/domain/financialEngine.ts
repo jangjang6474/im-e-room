@@ -12,6 +12,8 @@ import {
   ChangeEvent,
   DemoCustomer,
 } from "../types";
+import { findPolicyRule } from "../fixtures/policyRules";
+import { evaluateCriteria, summarizeCriteria, type EligibilitySubject } from "./eligibility";
 
 /**
  * 1. 거래 정규화 및 월간 스냅샷 재무 집계
@@ -311,62 +313,30 @@ export function detectChanges(
 
 /**
  * 5. 정책 및 금융상품 자격 검증 (Eligibility Evaluator)
+ * fixtures/policyRules의 구조화 규칙으로 판정한다(domain/eligibility.ts와 같은 결과).
+ * 규칙이 없는 상품은 연령만 확인하고, 나머지 조건은 모르므로 NEEDS_VERIFICATION으로 둔다.
  */
 export function evaluatePolicyEligibility(
   customer: DemoCustomer,
   policy: PolicyProduct
 ): { status: "ELIGIBLE" | "NEEDS_VERIFICATION" | "INELIGIBLE"; reason: string } {
-  // 연령 체크
+  const subject: EligibilitySubject = {
+    age: customer.age,
+    residenceRegion: customer.residenceRegion !== undefined ? customer.residenceRegion : customer.residence.includes("대구") ? "대구광역시" : null,
+    annualIncome: customer.annualIncomeEstimated,
+    householdMedianIncomeRatio: customer.householdMedianIncomeRatio ?? null,
+    employmentType: customer.employmentType ?? null,
+    isHomeless: customer.isHomeless ?? null,
+  };
+  const rule = findPolicyRule(policy.id);
+  if (rule) {
+    const { status, reason } = summarizeCriteria(evaluateCriteria(rule, subject, policy.asOfPolicy));
+    return { status, reason };
+  }
+
   const [minAge, maxAge] = policy.targetAgeRange;
   if (customer.age < minAge || customer.age > maxAge) {
-    return {
-      status: "INELIGIBLE",
-      reason: `연령 기준(만 ${minAge}~${maxAge}세) 미충족 (고객: 만 ${customer.age}세)`,
-    };
+    return { status: "INELIGIBLE", reason: `연령 기준(만 ${minAge}~${maxAge}세) 미충족 (고객: 만 ${customer.age}세)` };
   }
-
-  // 대구 지역 특화 정책 체크
-  if (policy.category === "LOCAL_SPECIAL") {
-    if (!customer.residence.includes("대구")) {
-      return {
-        status: "INELIGIBLE",
-        reason: `대구광역시 거주 요건 미충족 (고객 거주지: ${customer.residence})`,
-      };
-    }
-  }
-
-  // 청년도약계좌: 개인소득 기준 증빙 필요
-  if (policy.id === "policy-doyak") {
-    if (customer.annualIncomeEstimated <= 75000000) {
-      return {
-        status: "NEEDS_VERIFICATION",
-        reason: "연령 및 예상 소득 요건 충족. 국세청 소득금액증명원 제출 후 최종 확정 필요",
-      };
-    } else {
-      return {
-        status: "INELIGIBLE",
-        reason: "개인소득 연 7,500만원 초과로 기준 미충족",
-      };
-    }
-  }
-
-  // 대구 청년희망적금: 근로 청년 대상
-  if (policy.id === "policy-daegu-hope") {
-    if (customer.residence.includes("대구") && customer.annualIncomeEstimated <= 36000000) {
-      return {
-        status: "ELIGIBLE",
-        reason: "대구 거주 및 연소득 3,600만원 이하 근로 청년 요건 충족",
-      };
-    } else {
-      return {
-        status: "NEEDS_VERIFICATION",
-        reason: "건강보험 자격득실확인서 및 소득 증빙 서류 확인 필요",
-      };
-    }
-  }
-
-  return {
-    status: "ELIGIBLE",
-    reason: "기본 가입 자격 요건 충족",
-  };
+  return { status: "NEEDS_VERIFICATION", reason: `연령 충족. 구조화된 자격 규칙이 없어 ${policy.incomeLimitDescription} 조건 확인 필요` };
 }

@@ -12,3 +12,6 @@ for (const product of REFERENCE_CATALOG.financialProducts) {
 }
 if (errors.length) throw new Error(errors.join("\n"));
 console.log(`Reference catalog is valid (${REFERENCE_CATALOG.youthPolicies.length} policies, 10 deposits, 10 savings).`);
+
+// 합성 고객 데이터·규칙 엔진·Mock API 계약 검증
+await import("./validate-mock-backend");

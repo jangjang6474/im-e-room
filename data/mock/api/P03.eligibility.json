@@ -1,0 +1,410 @@
+{
+  "contractVersion": "mock-api-v1",
+  "ruleVersion": "RULE_2026_09_V2",
+  "personaId": "P03",
+  "asOf": "2026-08-31",
+  "summary": {
+    "ELIGIBLE": 3,
+    "NEEDS_VERIFICATION": 7,
+    "INELIGIBLE": 4
+  },
+  "results": [
+    {
+      "policyId": "policy-doyak",
+      "policyName": "정부 청년도약계좌 (iM뱅크 연계)",
+      "organization": "서민금융진흥원 & iM뱅크",
+      "policyVersion": "2026-09-01",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 중위소득 비율(가구 기준 중위소득 250% 이하)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "ANNUAL_INCOME",
+          "status": "MET",
+          "required": "연소득 75,000,000원 이하",
+          "observed": "26,400,000원"
+        },
+        {
+          "key": "MEDIAN_INCOME_RATIO",
+          "status": "UNKNOWN",
+          "required": "가구 기준 중위소득 250% 이하",
+          "observed": null
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "합성 정책 상품 fixture"
+    },
+    {
+      "policyId": "policy-daegu-hope",
+      "policyName": "대구시 청년희망적금 (1:1 시비 매칭)",
+      "organization": "대구광역시 청년정책과",
+      "policyVersion": "2026-08-20",
+      "status": "INELIGIBLE",
+      "reason": "미충족: 고용 상태(재직, 확인값 프리랜서)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "RESIDENCE",
+          "status": "MET",
+          "required": "대구광역시 거주",
+          "observed": "대구광역시"
+        },
+        {
+          "key": "ANNUAL_INCOME",
+          "status": "MET",
+          "required": "연소득 36,000,000원 이하",
+          "observed": "26,400,000원"
+        },
+        {
+          "key": "EMPLOYMENT",
+          "status": "UNMET",
+          "required": "재직",
+          "observed": "프리랜서"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "합성 정책 상품 fixture"
+    },
+    {
+      "policyId": "policy-housing-dream",
+      "policyName": "iM 청년 주택드림 청약종합저축",
+      "organization": "국토교통부 & iM뱅크",
+      "policyVersion": "2026-07-01",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 무주택 여부(무주택)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "ANNUAL_INCOME",
+          "status": "MET",
+          "required": "연소득 50,000,000원 이하",
+          "observed": "26,400,000원"
+        },
+        {
+          "key": "HOMELESS",
+          "status": "UNKNOWN",
+          "required": "무주택",
+          "observed": null
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "합성 정책 상품 fixture"
+    },
+    {
+      "policyId": "policy-emergency-saver",
+      "policyName": "청년 목표 적금 예시",
+      "organization": "iM뱅크 예시",
+      "policyVersion": "202609",
+      "status": "ELIGIBLE",
+      "reason": "충족: 연령 조건",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~39세",
+          "observed": "만 33세"
+        }
+      ],
+      "autoAllocatable": true,
+      "sourceNote": "금융상품 한눈에 응답 구조 기반 합성 레코드"
+    },
+    {
+      "policyId": "mock-youth-001",
+      "policyName": "대구 청년 자산형성 지원",
+      "organization": "대구광역시",
+      "policyVersion": "2026-09-19",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 중위소득 비율(가구 기준 중위소득 140% 이하)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "RESIDENCE",
+          "status": "MET",
+          "required": "대구광역시 거주",
+          "observed": "대구광역시"
+        },
+        {
+          "key": "MEDIAN_INCOME_RATIO",
+          "status": "UNKNOWN",
+          "required": "가구 기준 중위소득 140% 이하",
+          "observed": null
+        },
+        {
+          "key": "EMPLOYMENT",
+          "status": "MET",
+          "required": "재직·프리랜서",
+          "observed": "프리랜서"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-002",
+      "policyName": "청년 주거비 지원 예시",
+      "organization": "대구광역시",
+      "policyVersion": "2026-09-19",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 중위소득 비율(가구 기준 중위소득 150% 이하), 무주택 여부(무주택), 신청 기간(신청 기간 공고)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "RESIDENCE",
+          "status": "MET",
+          "required": "대구광역시 거주",
+          "observed": "대구광역시"
+        },
+        {
+          "key": "MEDIAN_INCOME_RATIO",
+          "status": "UNKNOWN",
+          "required": "가구 기준 중위소득 150% 이하",
+          "observed": null
+        },
+        {
+          "key": "HOMELESS",
+          "status": "UNKNOWN",
+          "required": "무주택",
+          "observed": null
+        },
+        {
+          "key": "APPLICATION_PERIOD",
+          "status": "UNKNOWN",
+          "required": "신청 기간 공고",
+          "observed": "공고 전"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-003",
+      "policyName": "청년 재무상담 지원 예시",
+      "organization": "한국고용정보원",
+      "policyVersion": "2026-09-19",
+      "status": "ELIGIBLE",
+      "reason": "충족: 연령 조건",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~39세",
+          "observed": "만 33세"
+        }
+      ],
+      "autoAllocatable": true,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-004",
+      "policyName": "청년 취업역량 강화 예시",
+      "organization": "고용노동부",
+      "policyVersion": "2026-09-19",
+      "status": "INELIGIBLE",
+      "reason": "미충족: 고용 상태(미취업, 확인값 프리랜서)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 18~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "EMPLOYMENT",
+          "status": "UNMET",
+          "required": "미취업",
+          "observed": "프리랜서"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-005",
+      "policyName": "청년 생활안정 지원 예시",
+      "organization": "대구광역시",
+      "policyVersion": "2026-09-19",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 중위소득 비율(가구 기준 중위소득 120% 이하)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "RESIDENCE",
+          "status": "MET",
+          "required": "대구광역시 거주",
+          "observed": "대구광역시"
+        },
+        {
+          "key": "MEDIAN_INCOME_RATIO",
+          "status": "UNKNOWN",
+          "required": "가구 기준 중위소득 120% 이하",
+          "observed": null
+        },
+        {
+          "key": "APPLICATION_PERIOD",
+          "status": "MET",
+          "required": "2026-03-01 ~ 2026-08-31",
+          "observed": "신청 기간"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님) · 예산 소진으로 2026-08-31 마감 가정"
+    },
+    {
+      "policyId": "mock-youth-006",
+      "policyName": "청년 창업 초기비용 지원 예시",
+      "organization": "중소벤처기업부",
+      "policyVersion": "2026-09-19",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 신청 기간(2026-10-01 ~ 2026-10-31)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~39세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "EMPLOYMENT",
+          "status": "MET",
+          "required": "프리랜서",
+          "observed": "프리랜서"
+        },
+        {
+          "key": "APPLICATION_PERIOD",
+          "status": "UNKNOWN",
+          "required": "2026-10-01 ~ 2026-10-31",
+          "observed": "신청 시작 전"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-007",
+      "policyName": "청년 교통비 지원 예시",
+      "organization": "대구광역시",
+      "policyVersion": "2026-09-19",
+      "status": "NEEDS_VERIFICATION",
+      "reason": "확인 필요: 신청 기간(신청 기간 공고)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "RESIDENCE",
+          "status": "MET",
+          "required": "대구광역시 거주",
+          "observed": "대구광역시"
+        },
+        {
+          "key": "ANNUAL_INCOME",
+          "status": "MET",
+          "required": "연소득 40,000,000원 이하",
+          "observed": "26,400,000원"
+        },
+        {
+          "key": "APPLICATION_PERIOD",
+          "status": "UNKNOWN",
+          "required": "신청 기간 공고",
+          "observed": "공고 전"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-008",
+      "policyName": "청년 직무교육 지원 예시",
+      "organization": "고용노동부",
+      "policyVersion": "2026-09-19",
+      "status": "INELIGIBLE",
+      "reason": "미충족: 고용 상태(재직·미취업, 확인값 프리랜서)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 18~34세",
+          "observed": "만 33세"
+        },
+        {
+          "key": "EMPLOYMENT",
+          "status": "UNMET",
+          "required": "재직·미취업",
+          "observed": "프리랜서"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-009",
+      "policyName": "청년 문화생활 지원 예시",
+      "organization": "문화체육관광부",
+      "policyVersion": "2026-09-19",
+      "status": "INELIGIBLE",
+      "reason": "미충족: 연령(만 19~24세, 확인값 만 33세)",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "UNMET",
+          "required": "만 19~24세",
+          "observed": "만 33세"
+        }
+      ],
+      "autoAllocatable": false,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    },
+    {
+      "policyId": "mock-youth-010",
+      "policyName": "청년 부채상담 지원 예시",
+      "organization": "서민금융진흥원",
+      "policyVersion": "2026-09-19",
+      "status": "ELIGIBLE",
+      "reason": "충족: 연령 조건",
+      "criteria": [
+        {
+          "key": "AGE",
+          "status": "MET",
+          "required": "만 19~39세",
+          "observed": "만 33세"
+        }
+      ],
+      "autoAllocatable": true,
+      "sourceNote": "온통청년 응답 구조 기반 합성 레코드 (실제 정책 조건 아님)"
+    }
+  ],
+  "isSynthetic": true
+}
