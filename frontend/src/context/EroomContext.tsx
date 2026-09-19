@@ -17,9 +17,6 @@ import {
   ScenarioPresetId,
 } from "../types";
 import {
-  DEFAULT_CUSTOMER,
-  INITIAL_CONSENT,
-  DEFAULT_GOALS,
   POLICIES_DATA,
   generate12MonthTransactions,
 } from "../fixtures/syntheticData";
@@ -29,6 +26,8 @@ import {
   detectChanges,
   evaluatePolicyEligibility,
 } from "../domain/financialEngine";
+import { DEFAULT_PERSONA, PERSONA_SCENARIOS, type PersonaScenarioId } from "../fixtures/personaScenarios";
+import type { ProductBoundaryId } from "../data/contracts";
 
 interface EroomContextType {
   // 상태
@@ -45,6 +44,8 @@ interface EroomContextType {
   consultationCases: ConsultationCase[];
   executions: MockExecutionRecord[];
   activeScenario: ScenarioPresetId;
+  activePersonaId: PersonaScenarioId;
+  productBoundaryId: ProductBoundaryId;
   activeTab: "diagnostics" | "goals" | "replan" | "policies" | "history";
   viewMode: "intro" | "youth" | "consultant";
   isSimulatingMonth: boolean;
@@ -62,6 +63,8 @@ interface EroomContextType {
   resolveConsultationCase: (caseId: string, notes: string) => void;
   requestAiExplanation: () => Promise<void>;
   resetDemo: () => void;
+  selectPersona: (personaId: PersonaScenarioId) => void;
+  setProductBoundaryId: (boundaryId: ProductBoundaryId) => void;
 }
 
 const EroomContext = createContext<EroomContextType | null>(null);
@@ -85,10 +88,12 @@ function getNextPlanVersion(currentVersion: string): string {
 }
 
 export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [customer, setCustomer] = useState<DemoCustomer>(DEFAULT_CUSTOMER);
-  const [consent, setConsent] = useState<ConsentState>(INITIAL_CONSENT);
+  const [customer, setCustomer] = useState<DemoCustomer>(DEFAULT_PERSONA.customer);
+  const [consent, setConsent] = useState<ConsentState>(DEFAULT_PERSONA.consent);
   const [currentDate, setCurrentDate] = useState<string>("2026-09");
   const [activeScenario, setActiveScenario] = useState<ScenarioPresetId>("S01_INITIAL");
+  const [activePersonaId, setActivePersonaId] = useState<PersonaScenarioId>(DEFAULT_PERSONA.id);
+  const [productBoundaryId, setProductBoundaryId] = useState<ProductBoundaryId>(DEFAULT_PERSONA.boundaryId);
   const [activeTab, setActiveTab] = useState<"diagnostics" | "goals" | "replan" | "policies" | "history">("diagnostics");
   const [viewMode, setViewMode] = useState<"intro" | "youth" | "consultant">(() => {
     if (typeof window === "undefined") return "youth";
@@ -103,13 +108,13 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // 스냅샷 및 정책
   const [prevSnapshot, setPrevSnapshot] = useState<FinancialSnapshot | null>(null);
   const [snapshot, setSnapshot] = useState<FinancialSnapshot>(() => {
-    return calculateSnapshotMetrics(generate12MonthTransactions("2026-09"));
+    return calculateSnapshotMetrics(DEFAULT_PERSONA.createSnapshot());
   });
 
-  const [goals, setGoals] = useState<Goal[]>(DEFAULT_GOALS);
+  const [goals, setGoals] = useState<Goal[]>(DEFAULT_PERSONA.goals);
   const [policies, setPolicies] = useState<PolicyProduct[]>(() => {
     return POLICIES_DATA.map((p) => {
-      const evalRes = evaluatePolicyEligibility(DEFAULT_CUSTOMER, p);
+      const evalRes = evaluatePolicyEligibility(DEFAULT_PERSONA.customer, p);
       return {
         ...p,
         eligibility: evalRes.status,
@@ -120,8 +125,8 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // 계획 관리 (최초 v1.0)
   const [activePlan, setActivePlan] = useState<AllocationPlan>(() => {
-    const initialSnap = calculateSnapshotMetrics(generate12MonthTransactions("2026-09"));
-    const plan = calculateAllocationPlan(initialSnap, DEFAULT_GOALS, POLICIES_DATA, "v1.0");
+    const initialSnap = calculateSnapshotMetrics(DEFAULT_PERSONA.createSnapshot());
+    const plan = calculateAllocationPlan(initialSnap, DEFAULT_PERSONA.goals, POLICIES_DATA, "v1.0");
     return { ...plan, status: "APPROVED" };
   });
 
@@ -156,6 +161,35 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       },
     },
   ]);
+
+  const selectPersona = (personaId: PersonaScenarioId) => {
+    const persona = PERSONA_SCENARIOS.find((item) => item.id === personaId) ?? DEFAULT_PERSONA;
+    const nextSnapshot = calculateSnapshotMetrics(persona.createSnapshot());
+    const nextPolicies = POLICIES_DATA.map((policy) => {
+      const result = evaluatePolicyEligibility(persona.customer, policy);
+      return { ...policy, eligibility: result.status, eligibilityReason: result.reason };
+    });
+    const nextPlan = calculateAllocationPlan(nextSnapshot, persona.goals, nextPolicies, "v1.0");
+
+    setActivePersonaId(persona.id);
+    setProductBoundaryId(persona.boundaryId);
+    setCustomer(persona.customer);
+    setConsent(persona.consent);
+    setCurrentDate(persona.baselineMonth);
+    setSnapshot(nextSnapshot);
+    setPrevSnapshot(null);
+    setGoals(persona.goals);
+    setPolicies(nextPolicies);
+    setActivePlan({ ...nextPlan, status: "APPROVED" });
+    setProposedPlan(null);
+    setEvents([{ id: `evt-${persona.id}-initial`, type: "INFO", title: "페르소나 기준 진단 완료", message: persona.summary, metric: "시나리오", oldValue: "미선택", newValue: persona.title, detectedAt: persona.consent.consentedAt, ruleVersion: "RULE_2026_V1", suggestedAction: "MAINTAIN" }]);
+    setConsultationCases([]);
+    setExecutions([]);
+    executionKeysRef.current = new Set();
+    setActiveScenario("S01_INITIAL");
+    setViewMode("youth");
+    setActiveTab("diagnostics");
+  };
 
   // 동의 활성화 / 철회
   const toggleConsent = () => {
@@ -484,20 +518,7 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // 데모 초기화
   const resetDemo = () => {
-    setCustomer(DEFAULT_CUSTOMER);
-    setConsent(INITIAL_CONSENT);
-    setCurrentDate("2026-09");
-    setActiveScenario("S01_INITIAL");
-    const initialSnap = calculateSnapshotMetrics(generate12MonthTransactions("2026-09"));
-    setSnapshot(initialSnap);
-    setPrevSnapshot(null);
-    setGoals(DEFAULT_GOALS);
-    const plan = calculateAllocationPlan(initialSnap, DEFAULT_GOALS, POLICIES_DATA, "v1.0");
-    setActivePlan({ ...plan, status: "APPROVED" });
-    setProposedPlan(null);
-    setConsultationCases([]);
-    executionKeysRef.current = new Set(["INIT_MOCK_20260915"]);
-    setActiveTab("diagnostics");
+    selectPersona(DEFAULT_PERSONA.id);
   };
 
   return (
@@ -516,6 +537,8 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         consultationCases,
         executions,
         activeScenario,
+        activePersonaId,
+        productBoundaryId,
         activeTab,
         viewMode,
         isSimulatingMonth,
@@ -531,6 +554,8 @@ export const EroomProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         resolveConsultationCase,
         requestAiExplanation,
         resetDemo,
+        selectPersona,
+        setProductBoundaryId,
       }}
     >
       {children}

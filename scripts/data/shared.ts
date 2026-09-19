@@ -4,7 +4,7 @@ import path from "node:path";
 export const projectRoot = process.cwd();
 export const rawDir = path.join(projectRoot, "data", "raw");
 export const mockRawDir = path.join(projectRoot, "data", "mock", "raw");
-export const generatedFile = path.join(projectRoot, "src", "fixtures", "generated", "referenceCatalog.ts");
+export const generatedFile = path.join(projectRoot, "frontend", "src", "fixtures", "generated", "referenceCatalog.ts");
 
 export async function readJson(file: string): Promise<unknown> {
   return JSON.parse(await readFile(file, "utf8"));

@@ -37,11 +37,11 @@
 현재는 AI Studio에서 생성된 단일 Node.js 프로젝트 구조를 유지한다. 구현 범위가 커지기 전까지 불필요하게 모노레포로 재구성하지 않는다.
 
 ```text
-src/components/           # 소개·고객·상담사 UI
-src/context/              # 현재 클라이언트 오케스트레이션과 상태
-src/domain/               # 계산·자격·배분·이벤트 규칙
-src/fixtures/             # 합성 고객·거래·정책 데이터
-server.ts                 # Express API와 Gemini 어댑터
+frontend/src/components/  # 소개·고객·상담사 UI
+frontend/src/context/     # 현재 클라이언트 오케스트레이션과 상태
+frontend/src/domain/      # 계산·자격·배분·이벤트 규칙
+frontend/src/fixtures/    # 합성 고객·거래·정책 데이터
+backend/index.ts          # Express API와 Gemini 어댑터
 docs/                     # PRD, TRD, IDEATION, 개발 현황
 tests/                    # 도입 예정인 단위·시나리오 검증
 AGENTS.md                 # 저장소 루트의 작업 지침

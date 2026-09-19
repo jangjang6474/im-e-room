@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useEroom } from "../../context/EroomContext";
 import { PolicyProduct } from "../../types";
 import { PRODUCT_BOUNDARIES, selectProductsByBoundary } from "../../data/adapters";
-import type { ProductBoundaryId } from "../../data/contracts";
 import { REFERENCE_CATALOG } from "../../fixtures/generated/referenceCatalog";
 import {
   FileText,
@@ -16,11 +15,10 @@ import {
 } from "lucide-react";
 
 export const PolicyCenterTab: React.FC = () => {
-  const { policies, customer } = useEroom();
+  const { policies, customer, productBoundaryId, setProductBoundaryId } = useEroom();
   const [mockAppliedId, setMockAppliedId] = useState<string | null>(null);
   const [showApplyModal, setShowApplyModal] = useState<PolicyProduct | null>(null);
-  const [boundaryId, setBoundaryId] = useState<ProductBoundaryId>("BALANCED");
-  const productCandidates = selectProductsByBoundary(REFERENCE_CATALOG.financialProducts, boundaryId);
+  const productCandidates = selectProductsByBoundary(REFERENCE_CATALOG.financialProducts, productBoundaryId);
 
   const handleMockApplyConfirm = () => {
     if (showApplyModal) {
@@ -56,9 +54,9 @@ export const PolicyCenterTab: React.FC = () => {
             <button
               key={boundary.id}
               type="button"
-              aria-pressed={boundaryId === boundary.id}
-              onClick={() => setBoundaryId(boundary.id)}
-              className={`text-left rounded-xl border p-4 transition-colors ${boundaryId === boundary.id ? "border-[#00C4A6] bg-[#EAFBF6]" : "border-[#DCE7E4] hover:border-[#00C4A6]"}`}
+              aria-pressed={productBoundaryId === boundary.id}
+              onClick={() => setProductBoundaryId(boundary.id)}
+              className={`text-left rounded-xl border p-4 transition-colors ${productBoundaryId === boundary.id ? "border-[#00C4A6] bg-[#EAFBF6]" : "border-[#DCE7E4] hover:border-[#00C4A6]"}`}
             >
               <strong className="text-sm text-[#142B29]">{boundary.label}</strong>
               <p className="text-xs text-[#526562] mt-1 leading-relaxed">{boundary.description}</p>
@@ -210,4 +208,3 @@ export const PolicyCenterTab: React.FC = () => {
     </div>
   );
 };
-

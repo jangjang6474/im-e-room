@@ -1,7 +1,7 @@
 import path from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
-import { normalizeFinlife, normalizeOntongYouth } from "../../src/data/adapters";
-import type { ReferenceCatalog } from "../../src/data/contracts";
+import { normalizeFinlife, normalizeOntongYouth } from "../../frontend/src/data/adapters";
+import type { ReferenceCatalog } from "../../frontend/src/data/contracts";
 import { generatedFile, mockRawDir, readJson } from "./shared";
 
 const generatedAt = "2026-09-19T00:00:00+09:00";

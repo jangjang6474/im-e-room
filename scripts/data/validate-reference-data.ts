@@ -1,4 +1,4 @@
-import { REFERENCE_CATALOG } from "../../src/fixtures/generated/referenceCatalog";
+import { REFERENCE_CATALOG } from "../../frontend/src/fixtures/generated/referenceCatalog";
 
 const errors: string[] = [];
 if (REFERENCE_CATALOG.mode !== "mock") errors.push("Bundled catalog must use mock mode.");

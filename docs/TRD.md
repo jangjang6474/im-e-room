@@ -47,6 +47,16 @@ flowchart TD
 | 거래 분류 | 규칙 기반 정규화 | ML 미구현 상태를 AI 학습 모델로 표기하지 않음 |
 | 생성형 AI | Gemini API / 정형 설명 Fallback | 설명 생성 및 질의응답 보조 |
 
+### 2.0 코드 경계
+
+| 영역 | 경로 | 책임 |
+|---|---|---|
+| Frontend | `frontend/src` | React UI, 사용자 입력, 데모 세션 상태, 오프라인 fixture 표시 |
+| Backend | `backend` | `/api` 라우트, 비밀키, Gemini 호출, 향후 스케줄·영속 저장 |
+| Data pipeline | `scripts/data`, `data` | 외부 기준 데이터 수집, 정규화, 합성 fixture 생성 |
+
+프론트엔드는 `GEMINI_API_KEY`, 온통청년 키, 금융상품 한눈에 키에 접근하지 않는다. 금융 실행을 의미하는 상태 변경은 향후 백엔드 명령 API로 이동하며, 현재 클라이언트 구현은 모의 실행임을 유지한다.
+
 ### 2.1 정책·상품 기준 데이터 파이프라인
 
 ```mermaid
