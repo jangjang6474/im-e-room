@@ -38,7 +38,7 @@ npm start
 
 ## 기준 데이터와 오프라인 mock
 
-온통청년 정책 API와 금융감독원 금융상품 한눈에 API는 개발 중 기준 데이터 갱신에만 사용합니다. 브라우저는 API 키나 외부 API를 직접 호출하지 않으며, ZIP 제출본은 `src/fixtures/generated/referenceCatalog.ts`에 포함된 합성 데이터만 읽습니다.
+온통청년 정책 API와 금융감독원 금융상품 한눈에 API는 개발 중 기준 데이터 갱신에만 사용합니다. 브라우저는 API 키나 외부 API를 직접 호출하지 않으며, ZIP 제출본은 `frontend/src/fixtures/generated/referenceCatalog.ts`에 포함된 합성 데이터만 읽습니다.
 
 ```bash
 # data/mock/raw을 정규화해 오프라인 fixture 재생성
