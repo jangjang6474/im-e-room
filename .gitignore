@@ -7,3 +7,7 @@ coverage/
 .env*
 !.env.example
 .npm-cache/
+
+# Live API responses can be large and may contain request metadata.
+data/raw/
+!data/raw/.gitkeep

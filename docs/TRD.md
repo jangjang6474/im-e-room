@@ -47,6 +47,41 @@ flowchart TD
 | 거래 분류 | 규칙 기반 정규화 | ML 미구현 상태를 AI 학습 모델로 표기하지 않음 |
 | 생성형 AI | Gemini API / 정형 설명 Fallback | 설명 생성 및 질의응답 보조 |
 
+### 2.1 정책·상품 기준 데이터 파이프라인
+
+```mermaid
+flowchart LR
+    O[온통청년 API] --> R[수집 스크립트]
+    F[금융상품 한눈에 API] --> R
+    R --> RAW[data/raw\nGit 제외]
+    RAW --> REVIEW[필드·약관·민감정보 검토]
+    REVIEW --> MOCK[data/mock/raw\n합성 응답]
+    MOCK --> ADAPTER[출처별 adapter]
+    ADAPTER --> CATALOG[referenceCatalog.ts]
+    CATALOG --> APP[ZIP 오프라인 앱]
+```
+
+- API 키는 서버측 수집 스크립트에서만 읽으며 URL·로그·fixture에 저장하지 않는다.
+- 원본 응답은 `data/raw`에 임시 저장하고 Git에서 제외한다.
+- `data/mock/raw`은 공개 API의 필드 구조만 재현한 합성 데이터이다.
+- 앱은 생성된 catalog만 import하므로 외부 API 장애와 네트워크 차단에도 동작한다.
+- 갱신 과정은 `data:sync` → 사람 검토 및 합성 → `data:mock` → `data:validate` 순서다.
+
+### 2.2 사용자 상품 바운더리
+
+사용자는 계획 생성 전에 상품 탐색 범위를 선택한다. 이 선택은 투자 성향 진단이 아니라 예·적금의 유동성, 만기, 월 납입 부담을 제한하는 입력값이다.
+
+```mermaid
+flowchart LR
+    U[사용자 바운더리 선택] --> B{안정형 / 균형형 / 목표집중형}
+    B --> F[유형·최대 만기·월 납입 상한 필터]
+    F --> E[연령 조건에 맞는 정책 결합]
+    E --> P[계획 재설계 후보]
+    P --> C[전후 비교 및 사용자 승인]
+```
+
+정책 mock은 연령 조건이 다른 10건, 상품 mock은 정기예금 10건과 적금 10건을 유지한다. `selectProductsByBoundary`가 사용자 선택을 결정적 규칙으로 적용하며 AI가 허용 범위를 임의로 넓히지 않는다.
+
 ## 3. 합성 데이터 계약 및 핵심 모델
 
 - 시나리오 ID (S01~S09)

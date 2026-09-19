@@ -35,6 +35,23 @@ npm run build
 npm start
 ```
 
+## 기준 데이터와 오프라인 mock
+
+온통청년 정책 API와 금융감독원 금융상품 한눈에 API는 개발 중 기준 데이터 갱신에만 사용합니다. 브라우저는 API 키나 외부 API를 직접 호출하지 않으며, ZIP 제출본은 `src/fixtures/generated/referenceCatalog.ts`에 포함된 합성 데이터만 읽습니다.
+
+```bash
+# data/mock/raw을 정규화해 오프라인 fixture 재생성
+npm run data:mock
+npm run data:validate
+
+# 선택 작업: .env에 키가 있을 때 실제 응답을 gitignore된 data/raw에 수집
+npm run data:sync
+```
+
+실제 응답은 자동으로 mock에 승격하지 않습니다. 필드와 이용조건을 검토하고 개인정보·인증정보가 없음을 확인한 뒤 `data/mock/raw`에 합성 레코드로 반영합니다.
+
+브랜치는 `main`을 안정본, `dev`를 기능 통합본으로 사용합니다. 기능 브랜치는 `dev`에서 만들고 검증 후 `dev`로 합친 다음, 배포 가능한 시점에 `main`으로 병합합니다.
+
 ## 화면 모드
 
 - 고객 모드: 재무 상태, 목표, 이번 달 변경안, 지원제도 확인

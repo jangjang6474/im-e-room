@@ -156,29 +156,7 @@ export const ConsultantView: React.FC = () => {
 
                 <div className="flex items-center space-x-2">
                   <span className="text-xs text-[#526562]">연락처:</span>
-                  <span className="text-xs font-mono font-bold text-[#142B29] bg-[#F6F9F8] border border-[#DCE7E4] px-2 py-1 rounded">
-                    010-5080-****
-                  </span>
-                </div>
-              </div>
-
-              {/* 4대 분석 브리핑 블록 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
-                  <span className="text-xs font-bold text-rose-900 block mb-1">감지된 핵심 충격</span>
-                  <p className="text-xs text-rose-800 leading-relaxed">{activeCase.briefing.coreRisk}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F6F9F8] border border-[#DCE7E4]">
-                  <span className="text-xs font-bold text-[#142B29] block mb-1">고객 재무 상태 분석</span>
-                  <p className="text-xs text-[#526562] leading-relaxed">{activeCase.briefing.financialState}</p>
-                </div>
-              </div>
-
-              {/* 목표 영향도 & 권고 방안 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200">
-                  <span className="text-xs font-bold text-amber-900 block mb-1">청년 목표 영향도</span>
+                  <span className="text-xs font-mono font-bold text-[#142B29] bg-[#F6F9F8] border border-[#DCE7E4] px-2 py-1 rounded">…315 tokens truncated…표 영향도</span>
                   <p className="text-xs text-amber-800 leading-relaxed">{activeCase.briefing.impactOnGoals}</p>
                 </div>
 

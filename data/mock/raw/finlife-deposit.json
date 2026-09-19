@@ -1,0 +1,34 @@
+{
+  "result": {
+    "prdt_div": "D",
+    "total_count": 10,
+    "max_page_no": 1,
+    "now_page_no": 1,
+    "err_cd": "000",
+    "err_msg": "정상",
+    "baseList": [
+      { "dcls_month": "202609", "fin_co_no": "DBANK01", "fin_prdt_cd": "DEPOSIT001", "kor_co_nm": "iM뱅크 예시", "fin_prdt_nm": "생활안정 정기예금 예시", "join_way": "영업점, 스마트폰", "max_limit": 300000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK02", "fin_prdt_cd": "DEPOSIT002", "kor_co_nm": "가상은행 A", "fin_prdt_nm": "6개월 안심예금 예시", "join_way": "스마트폰", "max_limit": 200000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK03", "fin_prdt_cd": "DEPOSIT003", "kor_co_nm": "가상은행 B", "fin_prdt_nm": "첫 목돈 예금 예시", "join_way": "인터넷", "max_limit": 500000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK04", "fin_prdt_cd": "DEPOSIT004", "kor_co_nm": "가상은행 C", "fin_prdt_nm": "비상자금 예금 예시", "join_way": "영업점", "max_limit": 250000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK05", "fin_prdt_cd": "DEPOSIT005", "kor_co_nm": "가상은행 D", "fin_prdt_nm": "12개월 목표예금 예시", "join_way": "스마트폰", "max_limit": 600000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK06", "fin_prdt_cd": "DEPOSIT006", "kor_co_nm": "가상은행 E", "fin_prdt_nm": "급여연계 예금 예시", "join_way": "인터넷, 스마트폰", "max_limit": 700000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK07", "fin_prdt_cd": "DEPOSIT007", "kor_co_nm": "가상은행 F", "fin_prdt_nm": "9개월 단기예금 예시", "join_way": "스마트폰", "max_limit": 400000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK08", "fin_prdt_cd": "DEPOSIT008", "kor_co_nm": "가상은행 G", "fin_prdt_nm": "18개월 성장예금 예시", "join_way": "영업점, 인터넷", "max_limit": 800000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK09", "fin_prdt_cd": "DEPOSIT009", "kor_co_nm": "가상은행 H", "fin_prdt_nm": "모바일 전용예금 예시", "join_way": "스마트폰", "max_limit": 350000, "fin_co_subm_day": "https://finlife.fss.or.kr/" },
+      { "dcls_month": "202609", "fin_co_no": "DBANK10", "fin_prdt_cd": "DEPOSIT010", "kor_co_nm": "가상은행 I", "fin_prdt_nm": "24개월 목돈예금 예시", "join_way": "영업점, 스마트폰", "max_limit": 1000000, "fin_co_subm_day": "https://finlife.fss.or.kr/" }
+    ],
+    "optionList": [
+      { "fin_co_no": "DBANK01", "fin_prdt_cd": "DEPOSIT001", "save_trm": "12", "intr_rate": 3.0, "intr_rate2": 3.5 },
+      { "fin_co_no": "DBANK02", "fin_prdt_cd": "DEPOSIT002", "save_trm": "6", "intr_rate": 2.7, "intr_rate2": 3.1 },
+      { "fin_co_no": "DBANK03", "fin_prdt_cd": "DEPOSIT003", "save_trm": "12", "intr_rate": 3.1, "intr_rate2": 3.6 },
+      { "fin_co_no": "DBANK04", "fin_prdt_cd": "DEPOSIT004", "save_trm": "6", "intr_rate": 2.6, "intr_rate2": 3.0 },
+      { "fin_co_no": "DBANK05", "fin_prdt_cd": "DEPOSIT005", "save_trm": "12", "intr_rate": 3.2, "intr_rate2": 3.7 },
+      { "fin_co_no": "DBANK06", "fin_prdt_cd": "DEPOSIT006", "save_trm": "12", "intr_rate": 3.3, "intr_rate2": 3.9 },
+      { "fin_co_no": "DBANK07", "fin_prdt_cd": "DEPOSIT007", "save_trm": "9", "intr_rate": 2.9, "intr_rate2": 3.4 },
+      { "fin_co_no": "DBANK08", "fin_prdt_cd": "DEPOSIT008", "save_trm": "18", "intr_rate": 3.4, "intr_rate2": 4.0 },
+      { "fin_co_no": "DBANK09", "fin_prdt_cd": "DEPOSIT009", "save_trm": "12", "intr_rate": 3.0, "intr_rate2": 3.8 },
+      { "fin_co_no": "DBANK10", "fin_prdt_cd": "DEPOSIT010", "save_trm": "24", "intr_rate": 3.5, "intr_rate2": 4.1 }
+    ]
+  }
+}
