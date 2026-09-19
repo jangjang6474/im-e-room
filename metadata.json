@@ -1,0 +1,6 @@
+{
+  "name": "iM 이룸",
+  "description": "청년의 재무 목표를 설정하고 상황 변화에 따라 실행 가능한 저축 계획을 다시 제안하는 재무관리 서비스",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

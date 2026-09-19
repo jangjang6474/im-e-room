@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-mint: #00c4a6;
+  --color-brand-deep: #006b5b;
+  --color-accent-lime: #e0ee5f;
+  --color-accent-sky: #7cb5ff;
+  --color-accent-lavender: #d1b5fe;
+  --color-accent-cyan: #52e1e5;
+  --color-ink: #142b29;
+  --color-text-secondary: #526562;
+  --color-canvas: #f6f9f8;
+  --color-border-subtle: #dce7e4;
+  --color-control-border: #758782;
+  --color-panel-mint: #eafbf6;
+  --color-panel-lime: #f6fadc;
+  --color-panel-sky: #eef5ff;
+  --color-panel-lavender: #f5efff;
+  --color-dark-surface: #103d36;
+}
+
+:root {
+  --brand-mint: #00c4a6;
+  --brand-deep: #006b5b;
+  --accent-lime: #e0ee5f;
+  --accent-sky: #7cb5ff;
+  --accent-lavender: #d1b5fe;
+  --accent-cyan: #52e1e5;
+  --text-primary: #142b29;
+  --text-secondary: #526562;
+  --surface: #ffffff;
+  --canvas: #f6f9f8;
+  --border: #dce7e4;
+  --control-border: #758782;
+  --panel-mint: #eafbf6;
+  --panel-lime: #f6fadc;
+  --panel-sky: #eef5ff;
+  --panel-lavender: #f5efff;
+  --dark-surface: #103d36;
+  --radius-panel: 24px;
+  --radius-card: 16px;
+  --radius-control: 12px;
+  --shadow-preview: 0 8px 32px rgba(20, 43, 41, 0.06);
+  --content-max: 1120px;
+}
+
+body {
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  background-color: var(--canvas);
+  color: var(--text-primary);
+  word-break: keep-all;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: transparent;
+}
+
+:focus-visible {
+  outline: 3px solid rgba(0, 107, 91, 0.45);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Tabular nums for financial tables and metric amounts */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
