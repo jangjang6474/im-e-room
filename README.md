@@ -11,7 +11,7 @@
 - 정책 자격 상태 구분과 정책 변경 시나리오
 - 소득 변화 감지와 위험 사례의 상담사 대시보드 연결
 - 사용자 승인 후 모의 실행 기록
-- Gemini 기반 설명 및 API 장애 시 정형 설명 대체
+- Claude API 기반 결과 설명·제한형 상담·정책 요건 구조화 초안과 장애 시 대체 설명
 - 고객 페르소나 3종과 페르소나별 전체 시연 흐름
 
 상태는 현재 브라우저 메모리에만 저장됩니다. 새로고침 이후에도 계획·승인·실행 기록을 유지하는 영속 저장소는 아직 구현되지 않았습니다. 상세 현황은 [개발 현황](docs/DEVELOPMENT_STATUS.md)을 참고하세요.
@@ -26,15 +26,49 @@ copy .env.example .env.local
 npm run dev
 ```
 
-`.env.local`의 `GEMINI_API_KEY`는 선택 사항입니다. 키가 없거나 호출이 실패하면 계산 결과를 사용한 정형 설명으로 동작합니다.
+`.env.local`의 API 키는 모두 선택 사항입니다. 키가 없거나 호출이 실패하면 계산 결과를 사용한 정형 설명으로 동작합니다.
 
 검증 명령:
 
 ```bash
+npm run data:validate
+npm run ai:validate
 npm run lint
 npm run build
 npm start
 ```
+
+## AI 설명 실행 모드
+
+AI는 금액을 계산하지 않습니다. 계산은 규칙 엔진이 하고, AI는 그 결과를 문장으로 옮기는 역할만 합니다. 서버(`/api/ai/*`)에서만 외부 모델을 호출하며 브라우저는 API 키를 알지 못합니다.
+
+| `AI_MODE` | `ANTHROPIC_API_KEY` | 동작 | 화면 표시 |
+|---|---|---|---|
+| `fixture` (기본값) | 없어도 됨 | 준비된 AI 응답 사용 | 미리 준비된 AI 설명 |
+| `live` | 있음 | Claude API 호출 | Claude가 생성한 설명 |
+| `live` | 없음 | 준비된 AI 응답으로 자동 전환 | 미리 준비된 AI 설명 |
+| 무엇이든 | 호출 실패·시간 초과·형식 오류 | 준비된 응답 → 규칙 기반 설명 | 미리 준비된 AI 설명 / 규칙 기반 설명 |
+
+```bash
+# 1) 키 없이 전체 기능 실행 (기본값, 제출 ZIP 기준)
+npm run dev
+
+# 2) 준비된 AI 응답을 명시적으로 사용
+AI_MODE=fixture npm run dev
+
+# 3) 실제 Claude 호출 (.env.local에 키를 두고 실행)
+#    ANTHROPIC_API_KEY=sk-ant-...
+#    ANTHROPIC_MODEL=claude-opus-5
+#    AI_MODE=live
+npm run dev
+
+# 현재 동작 모드 확인 (키 값은 반환하지 않음)
+curl http://localhost:3000/api/ai/health
+```
+
+Windows PowerShell에서는 `$env:AI_MODE="fixture"; npm run dev` 형태로 실행합니다.
+
+API 키는 저장소, 프론트엔드 번들, 제출 ZIP, 로그에 넣지 않습니다. 배포 환경에서는 `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `AI_MODE`를 서버 측 환경변수로만 추가합니다. 자세한 계약과 대체 경로는 [TRD 4장](docs/TRD.md)을 참고하세요.
 
 ## 기준 데이터와 오프라인 mock
 
@@ -57,8 +91,11 @@ npm run data:sync
 
 ```text
 frontend/src/       React 화면, 클라이언트 상태, 합성 시나리오
-backend/            Express API, Gemini 프록시, 향후 수집·저장 작업
+backend/            Express API, 외부 모델 프록시, 향후 수집·저장 작업
+backend/ai/         Claude 호출, 비식별 처리, Schema 검증, 대체 경로
+api/ai/             AI 라우트 핸들러 (Express와 서버리스 환경 공용)
 data/mock/raw/      공개 API 응답 구조를 재현한 합성 원본
+data/mock/ai/       준비된 AI 설명·상담 답변·정책 구조화 초안
 scripts/data/       수집·정규화·fixture 생성·검증 명령
 docs/               PRD, TRD, 디자인 및 개발 현황
 ```

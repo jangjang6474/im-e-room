@@ -61,17 +61,20 @@ flowchart TD
 | 저장소 | 클라이언트/서버 인메모리 | 스냅샷·버전·계획·이벤트·실행 이력 데모 |
 | 최적화 | 우선순위 기반 결정적 배분 | 제약조건을 명시적으로 검증 |
 | 거래 분류 | 규칙 기반 정규화 | ML 미구현 상태를 AI 학습 모델로 표기하지 않음 |
-| 생성형 AI | Gemini API / 정형 설명 Fallback | 설명 생성 및 질의응답 보조 |
+| 생성형 AI | Claude API (`/api/ai/*`) · 준비된 응답 · 정형 설명 Fallback | 설명 생성, 제한형 상담, 정책 구조화 초안 (4장) |
 
 ### 2.3 코드 경계
 
 | 영역 | 경로 | 책임 |
 |---|---|---|
 | Frontend | `frontend/src` | React UI, 사용자 입력, 데모 세션 상태, 오프라인 fixture 표시 |
-| Backend | `backend` | `/api` 라우트, 비밀키, Gemini 호출, 향후 스케줄·영속 저장 |
+| Backend | `backend` | `/api` 라우트, 비밀키, 외부 모델 호출, 향후 스케줄·영속 저장 |
+| AI 라우트 | `api/ai`, `backend/ai` | Claude 호출, 비식별 처리, Schema 검증, 대체 경로 (4장) |
 | Data pipeline | `scripts/data`, `data` | 외부 기준 데이터 수집, 정규화, 합성 fixture 생성 |
 
-프론트엔드는 `GEMINI_API_KEY`, 온통청년 키, 금융상품 한눈에 키에 접근하지 않는다. 금융 실행을 의미하는 상태 변경은 향후 백엔드 명령 API로 이동하며, 현재 클라이언트 구현은 모의 실행임을 유지한다.
+`api/ai/*.ts`의 핸들러는 `(req, res)` 형태라서 현재 Express 라우터(`backend/ai/router.ts`)와 Vercel Function 같은 다른 서버 실행 환경에서 같은 코드로 동작한다. 브라우저는 어느 경우에도 `/api/ai/*`만 호출한다.
+
+프론트엔드는 `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`, 온통청년 키, 금융상품 한눈에 키에 접근하지 않는다. 금융 실행을 의미하는 상태 변경은 향후 백엔드 명령 API로 이동하며, 현재 클라이언트 구현은 모의 실행임을 유지한다.
 
 ### 2.4 정책·상품 기준 데이터 파이프라인
 
@@ -227,3 +230,131 @@ PROPOSED ─approve→ APPROVED ─execute→ MOCK_EXECUTED
 
 - `npm run data:mock`: 기준 catalog 생성 후 `data/mock/api/*.json` 예시 응답 22개 생성(결정적, 커밋 대상).
 - `npm run data:validate`: catalog 검증 + `scripts/data/validate-mock-backend.ts`(합성 표시, 데이터 관계, 결정성, 결측/0 구분, 중복·내부이체, 누수, 자격 3상태·만료, 바운더리, 배분 제약, 이벤트 분류·복합, 월말 보정, 승인·거절·중복 실행·오래된 승인, 동의 철회, EX24 수치, 기존 화면 스냅샷 일치, 예시 응답 최신 여부).
+
+## 4. AI 계약 (Claude API)
+
+계약 버전 `ai-v1`. 타입 원본은 `frontend/src/data/aiContracts.ts`, 준비된 응답은 `data/mock/ai/*.json`이다.
+
+책임 구분은 PRD 3.1과 같다. 계산·판정은 규칙 엔진, 언어 처리는 Claude API, 정책 반영은 담당자 검수, 계획 변경은 사용자 승인, 위험 대응은 상담사가 맡는다.
+
+```mermaid
+flowchart LR
+    UI[React 화면] -->|계산 결과만| R[/api/ai/*]
+    R --> S[비식별 처리\n화이트리스트]
+    S --> M{AI_MODE와 키}
+    M -->|live + 키| C[Claude API]
+    M -->|fixture 또는 키 없음| F[준비된 응답]
+    C --> V[Schema 검증]
+    V -->|통과| OUT[응답 + metadata]
+    V -->|위반| F
+    C -->|오류·시간 초과| F
+    F -->|파일 없음·검증 실패| RULE[규칙 기반 설명]
+    RULE --> OUT
+    F --> OUT
+```
+
+### 4.1 엔드포인트
+
+| 메서드 | 경로 | 입력 | 출력 |
+|---|---|---|---|
+| GET | `/api/ai/health` | – | `{ mode, hasApiKey, primarySource }` (키 값과 모델 ID는 반환하지 않음) |
+| POST | `/api/ai/explain` | `ExplainRequest` | `ExplainResponse` |
+| POST | `/api/ai/counsel` | `CounselRequest` | `CounselResponse` |
+| POST | `/api/ai/structure-policy` | `StructurePolicyRequest` | `StructuredPolicy` |
+
+요청 본문이 계약과 다르면 `400 { contractVersion, error: "INVALID_INPUT", message }`를 반환한다. 이 메시지는 개발자용이며 고객 화면에 그대로 노출하지 않는다. Claude 호출이 실패해도 상태 코드는 200이며, 대체 경로로 만든 응답을 반환한다.
+
+### 4.2 공통 응답 메타데이터
+
+```json
+{
+  "source": "CLAUDE | FIXTURE | RULE",
+  "generatedAt": "ISO-8601 또는 null",
+  "model": "모델명 또는 null",
+  "isFallback": false,
+  "disclaimer": "가상 데이터를 이용한 설명이며 금융상품 추천이나 자격 확정이 아닙니다."
+}
+```
+
+- `isFallback`은 Claude 호출을 시도했으나 실패해 대체 경로로 응답한 경우에만 true이다. `AI_MODE=fixture`로 처음부터 준비된 응답을 쓴 경우는 false다.
+- `generatedAt`은 Claude 응답이면 호출 시각, 준비된 응답이면 fixture의 준비 시각, 규칙 기반이면 null이다. 규칙 기반 응답은 시스템 시각을 쓰지 않아 같은 입력에서 같은 결과가 나온다.
+- `model`은 Claude 응답에만 있다. 화면에는 출처 라벨만 표시하고 모델 ID는 노출하지 않는다.
+
+### 4.3 동작 모드와 대체 순서
+
+| 조건 | 1순위 | 2순위 | 3순위 |
+|---|---|---|---|
+| `AI_MODE=live` + `ANTHROPIC_API_KEY` 있음 | Claude API | 준비된 응답 | 규칙 기반 설명 |
+| `AI_MODE=fixture` | 준비된 응답 | 규칙 기반 설명 | – |
+| 키 없음 | 준비된 응답 | 규칙 기반 설명 | – |
+
+Claude 호출이 아래 중 하나에 해당하면 즉시 다음 순위로 내려간다: 호출 오류, 15초 제한 시간 초과, 응답 거절, 빈 응답, JSON 파싱 실패, Schema 위반, 도구 왕복 상한(4회) 초과. 실패 로그에는 원인 코드만 남기고 프롬프트와 개인정보는 남기지 않는다.
+
+재시도는 하지 않는다. 재시도를 켜면 제한 시간이 두 배가 되어 브라우저 제한 시간(20초)을 넘고, 서버가 준비한 응답 대신 브라우저의 규칙 기반 설명으로 내려간다. 실패는 재시도 대신 대체 경로로 처리한다.
+
+브라우저도 같은 순서를 따른다. `/api/ai/*`에 연결하지 못하면 `frontend/src/domain/aiFallback.ts`의 같은 함수로 규칙 기반 설명을 만든다. 서버와 브라우저가 같은 모듈을 쓰므로 문구가 갈라지지 않는다.
+
+같은 입력의 중복 호출은 비식별 입력의 SHA-256 해시를 키로 5분간 캐시한다(`backend/ai/cache.ts`). 캐시에는 해시와 응답만 두고 입력 본문은 저장하지 않으며, Claude 응답만 캐시해 대체 경로 응답은 다음 요청에서 다시 시도한다.
+
+### 4.4 Schema 검증
+
+`backend/ai/schemas.ts`가 모델 응답과 준비된 응답을 같은 검증기로 확인한다.
+
+- 필수 문자열은 빈 값과 길이 초과(`headline` 200자, `reason`·`impact` 600자 등)를 거부한다.
+- `headline`은 줄바꿈이 있으면 한 문장이 아니므로 거부한다.
+- 날짜는 `YYYY-MM` 또는 `YYYY-MM-DD`만 허용한다. 형식이 다르면 모르는 값으로 보지 않고 위반으로 처리한다.
+- 배열은 항목 수 상한이 있다(`factsUsed` 8개, `keyPoints` 6개 등).
+- 모델이 코드 펜스나 머리말을 붙여도 JSON 본문만 읽는다. JSON이 없으면 위반이다.
+- `needsHumanReview`는 모델 응답과 무관하게 항상 true로 고정한다.
+- `structure-policy`의 `policyId`·`sourceUrl`·`sourceAsOf`는 모델 응답이 아니라 요청 값을 사용한다.
+- `counsel`의 `escalation`은 규칙 엔진 판정이 우선이다. 위험 변화나 상담 사유가 있으면 모델이 false를 반환해도 true로 바꾼다.
+
+### 4.5 비식별 처리
+
+`backend/ai/sanitize.ts`가 요청 본문을 신뢰하지 않고 필요한 필드만 새 객체로 다시 만든다. 계약에 없는 키는 화이트리스트 밖이라 그대로 사라진다.
+
+| 전달하는 값 | 전달하지 않는 값 |
+|---|---|
+| 월 소득·고정·변동·비정기 지출·부채 상환·월 저축 여력 합계 | 이름, 전화번호, 이메일, 주소 상세 |
+| 변화 유형 코드(규칙 ID), 등급, 변화 메시지 | 계좌번호, 카드번호, 거래 상대방, 거래 메모 |
+| 계획의 월 납입 합계·남기는 금액·1순위 목표 예상 달성 시점 | 원본 거래 목록과 거래 식별자 |
+| 정책명과 확인 상태(`ELIGIBLE`/`NEEDS_VERIFICATION`/`INELIGIBLE`) | 주민등록번호 등 고유식별정보 |
+| 검수된 근거 문장과 출처·기준일 | 페르소나 이름(합성 이름도 전달하지 않음) |
+
+자유 입력(사용자 질문, 정책 공고 원문)에는 패턴 삭제를 추가로 적용한다. 이메일, 주민등록번호 형식, 카드번호 형식, 전화번호 형식, 남은 긴 숫자열(계좌번호 등)을 순서대로 `[삭제됨]`으로 바꾼다. 금액은 `null`과 0을 구분하며, 숫자가 아닌 값은 0으로 채우지 않고 `null`로 남긴다.
+
+`AiFinancialSummary`에는 기획 예시에 없던 `monthlyIrregularExpense`(비정기 지출 월 환산액)를 포함한다. 월 저축 여력은 비정기 지출까지 뺀 값이라, 이 항목이 없으면 모델이 남은 항목만으로 여력을 다시 계산하려 할 수 있다.
+
+### 4.6 상담 도구 (Tool use)
+
+`counsel`은 조회 전용 도구만 정의한다: `get_financial_summary`, `get_detected_changes`, `get_active_plan`, `get_proposed_plan`, `get_policy_eligibility`, `get_consultation_reason`. 도구는 이미 비식별 처리된 컨텍스트의 일부를 그대로 돌려주며 외부 조회도 상태 변경도 하지 않는다. 도구 결과를 다시 모델에 전달해 최종 답변을 만들고, 왕복은 4회로 제한한다.
+
+`approve_plan`, `reject_plan`, `execute_transfer`, `subscribe_product`, `change_autopay`, `decide_eligibility`는 정의하지 않는다. 모델은 금융 실행과 자격 판정을 호출할 수단이 없다.
+
+사용자 질문은 데이터에 관한 질문으로만 취급한다. 질문과 정책 원문은 구분 태그 안에 넣고, 그 안의 지시를 실행하지 않도록 시스템 프롬프트에 명시한다.
+
+### 4.7 준비된 응답 (fixture)
+
+| 파일 | 내용 |
+|---|---|
+| `data/mock/ai/explanations.json` | P01 정상 점검, P02 계획 조정, P03 위험 상담, Claude 장애용 공용 설명 |
+| `data/mock/ai/counsel-responses.json` | 일반 상담 5건, 근거 부족 1건, 상담사 연결 1건 |
+| `data/mock/ai/structured-policies.json` | 정책 공고 구조화 초안 3건 |
+
+- 페르소나별 설명의 금액은 `data/mock/api/*.monthly-review.json`의 계산 결과와 같아야 한다.
+- 공용 설명과 상담 답변에는 절대 금액을 쓰지 않는다. 고객마다 값이 달라 틀린 금액이 표시될 수 있다.
+- fixture에는 실제 개인정보와 합성 고객 이름도 넣지 않는다.
+- 선택 기준: 설명은 페르소나와 변화 등급이 모두 맞을 때만 쓰고, 아니면 금액이 없는 공용 설명을 쓴다. 상담은 질문의 키워드가 겹치는 답변을 고르고 겹치지 않으면 근거 부족 답변을 쓴다.
+- 준비된 상담 답변의 출처는 요청으로 전달된 검수 근거로 바꿔 표시한다.
+
+`npm run ai:validate`가 위 항목과 비식별 처리, Schema 위반 대체 경로를 검증한다.
+
+### 4.8 환경변수
+
+| 이름 | 용도 |
+|---|---|
+| `ANTHROPIC_API_KEY` | 서버 전용. 없으면 준비된 응답과 규칙 기반 설명으로 동작 |
+| `ANTHROPIC_MODEL` | 사용할 모델명. 비워 두면 서버 기본값 |
+| `AI_MODE` | `live` 또는 `fixture`(기본값) |
+
+`.env.example`에는 이름만 둔다. 키 값은 저장소, 프론트엔드 번들, 제출 ZIP, 로그에 넣지 않는다. Vercel 등 배포 환경에서는 같은 이름의 환경변수를 서버 측에만 추가한다.

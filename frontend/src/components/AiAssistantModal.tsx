@@ -1,9 +1,13 @@
 /**
  * AI 가이드
  *
- * 외부 API 키 없이 동작해야 하므로 생성형 모델을 호출하지 않는다.
- * 백엔드가 이미 계산한 근거(전제·공지·판정 사유·이벤트 메시지)를 그대로 모아 설명한다.
- * 화면에서 새로운 수치를 만들지 않으며, 근거가 없으면 없다고 표시한다.
+ * 두 부분으로 나뉜다.
+ * - 질문하기: 서버(`/api/ai/counsel`)가 검증된 계산 결과와 검수된 근거로만 답변을 만든다.
+ *   브라우저는 외부 AI API를 직접 호출하지 않고 API 키도 알지 못한다.
+ *   서버에 연결하지 못하거나 키가 없으면 같은 계약의 준비된 답변·규칙 기반 설명으로 이어간다.
+ * - 계산 근거: 백엔드가 이미 계산한 전제·공지·판정 사유·이벤트 메시지를 그대로 모아 보여준다.
+ *
+ * 어느 경우에도 화면에서 새로운 수치를 만들지 않으며, 근거가 없으면 없다고 표시한다.
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -11,6 +15,7 @@ import { MessageCircleQuestion, X } from "lucide-react";
 import { useEroomSession } from "../api/EroomSession";
 import { won } from "../api/format";
 import { ELIGIBILITY_LABEL } from "../api/labels";
+import { AiCounselPanel } from "./ai/AiCounselPanel";
 import { Callout, StatusChip } from "./ui/Primitives";
 
 interface GuideTopic {
@@ -151,7 +156,7 @@ export const AiAssistantModal: React.FC<{ isOpen: boolean; onClose: () => void }
               AI 가이드
             </h2>
             <p className="text-xs text-[#526562] mt-1 leading-relaxed">
-              계산 결과의 근거를 그대로 보여 줍니다. 이 화면은 외부 생성형 모델을 호출하지 않습니다.
+              지금 내 상태와 계산 결과에 대해 물어보실 수 있습니다. 이름·계좌번호 같은 개인정보는 사용하지 않습니다.
             </p>
           </div>
           <button
@@ -164,8 +169,13 @@ export const AiAssistantModal: React.FC<{ isOpen: boolean; onClose: () => void }
           </button>
         </div>
 
-        <div className="mt-3">
-          <StatusChip label="규칙 기반 설명" tone="neutral" />
+        <div className="mt-4">
+          <AiCounselPanel />
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-[#DCE7E4] flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-extrabold text-[#142B29]">계산 근거 바로 보기</h3>
+          <StatusChip label="규칙 기반 설명" tone="muted" />
         </div>
 
         {topics.length === 0 ? (
