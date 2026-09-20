@@ -12,7 +12,7 @@
  * - 계획 변경은 제안이며 승인 전에는 기존 계획이 유지된다고 설명한다.
  */
 
-import { AI_DISCLAIMER } from "../data/aiContracts";
+import { AI_DISCLAIMER } from "../data/aiContracts.js";
 import type {
   AiDetectedChange,
   AiFactUsed,
