@@ -12,8 +12,10 @@ import type {
   EventType,
   GoalFeasibility,
   MockGoal,
+  MonthlyReviewResponse,
   PlanCommandOutcome,
   PlanLifecycleStatus,
+  PlanProposal,
   SuggestedAction,
 } from "../data/apiContracts";
 import type { ProductBoundaryId } from "../data/contracts";
@@ -81,6 +83,183 @@ export const ROUTING_LABEL: Record<"REPORT_ONLY" | "REPLAN" | "CONSULTATION", { 
   },
 };
 
+/**
+ * 조정안의 현재 상태.
+ *
+ * 사용자가 승인·거절·모의 실행한 뒤에는 `currentPlan`이 같은 계획의 최신 상태를 들고 있고,
+ * 아직 아무 결정도 하지 않았으면 점검 응답의 상태가 최신이다. 상태 판정은 백엔드 값이며
+ * 여기서는 둘 중 어느 쪽이 최신인지만 고른다.
+ */
+export function resolveProposedStatus(
+  review: MonthlyReviewResponse | null,
+  currentPlan: PlanProposal | null,
+): PlanLifecycleStatus | undefined {
+  if (!review) return undefined;
+  return currentPlan && currentPlan.planId === review.proposedPlan?.planId
+    ? currentPlan.status
+    : review.proposedPlan?.status;
+}
+
+export function reviewNeedsAttention(review: MonthlyReviewResponse | null, currentPlan: PlanProposal | null): boolean {
+  if (!review) return false;
+  const proposedStatus = resolveProposedStatus(review, currentPlan);
+  const planNeedsAction = proposedStatus === "PROPOSED" || proposedStatus === "APPROVED";
+  const consultationNeedsAction =
+    review.routing === "CONSULTATION" && review.consultationCase?.status !== "COMPLETED";
+  return planNeedsAction || consultationNeedsAction;
+}
+
+/** 홈 상단의 결론형 상태와 강조할 행동 하나. 탭 이동 대상은 `TabId`와 같은 값을 쓴다. */
+export interface HomeStatus {
+  /** 색이 아니라 텍스트로 상태를 알리는 짧은 라벨 */
+  statusLabel: string;
+  /** 결론형 문장 */
+  headline: string;
+  description: string;
+  tone: Tone;
+  needsAttention: boolean;
+  action: { label: string; tab: "home" | "goals" | "review" | "policy" | "history" } | null;
+}
+
+/**
+ * 홈 화면의 상태 문구를 고른다.
+ *
+ * 금액·위험도·변화 유형을 새로 계산하지 않고 백엔드가 준 `routing`·계획 상태·상담 상태와
+ * `reviewNeedsAttention()`의 판정을 문구로 옮기기만 한다.
+ */
+export function resolveHomeStatus(
+  review: MonthlyReviewResponse | null,
+  currentPlan: PlanProposal | null,
+  isConsentRevoked: boolean,
+): HomeStatus {
+  const needsAttention = reviewNeedsAttention(review, currentPlan);
+  const proposedStatus = resolveProposedStatus(review, currentPlan);
+
+  if (review) {
+    const consultationOpen =
+      review.routing === "CONSULTATION" && review.consultationCase?.status !== "COMPLETED";
+
+    if (consultationOpen) {
+      return {
+        statusLabel: "상담 확인 필요",
+        headline: "상담이 필요한 위험 신호가 발견됐어요.",
+        description: "자동 조정만으로 해결하기 어려운 변화라 상담사 연결을 권장합니다.",
+        tone: "risk",
+        needsAttention,
+        action: { label: "상담 내용 확인하기", tab: "review" },
+      };
+    }
+
+    if (proposedStatus === "PROPOSED") {
+      return {
+        statusLabel: "확인 필요",
+        headline: "확인이 필요한 변화가 있어요.",
+        description: "달라진 상황에 맞춘 조정안을 만들었습니다. 승인 전까지 기존 계획이 그대로 유지됩니다.",
+        tone: "attention",
+        needsAttention,
+        action: { label: "조정안 확인하기", tab: "review" },
+      };
+    }
+
+    if (proposedStatus === "APPROVED") {
+      return {
+        statusLabel: "실행 필요",
+        headline: "조정안을 승인했어요. 모의 실행만 남았어요.",
+        description: "모의 자동이체를 등록하면 이번 달 처리가 끝납니다. 실제 금융기관 전송은 없습니다.",
+        tone: "attention",
+        needsAttention,
+        action: { label: "모의 실행하기", tab: "review" },
+      };
+    }
+
+    if (proposedStatus === "MOCK_EXECUTED") {
+      return {
+        statusLabel: "처리 완료",
+        headline: "조정안의 모의 실행을 완료했어요.",
+        description: "이번 달에 할 일이 남아 있지 않습니다. 다음 점검일에 다시 확인합니다.",
+        tone: "positive",
+        needsAttention,
+        action: { label: "변경 내역 보기", tab: "history" },
+      };
+    }
+
+    if (proposedStatus === "REJECTED") {
+      return {
+        statusLabel: "기존 계획 유지",
+        headline: "기존 계획을 유지하기로 했어요.",
+        description: "조정안은 실행되지 않았고 이전 계획이 그대로 활성 상태입니다.",
+        tone: "neutral",
+        needsAttention,
+        action: { label: "목표 계획 보기", tab: "goals" },
+      };
+    }
+
+    return {
+      statusLabel: "정상 유지",
+      headline: "이번 달 계획은 정상적으로 유지되고 있어요.",
+      description: "계획을 바꿀 만한 변화가 없어 이번 달은 알림만 확인하면 됩니다.",
+      tone: "positive",
+      needsAttention,
+      action: { label: "점검 결과 보기", tab: "review" },
+    };
+  }
+
+  if (!currentPlan) {
+    return {
+      statusLabel: "시작 전",
+      headline: "목표 계획을 아직 시작하지 않았어요.",
+      description: "진단 결과로 만든 목표별 납입 계획을 확인하고 시작할 수 있습니다.",
+      tone: "attention",
+      needsAttention,
+      action: { label: "목표 계획 시작하기", tab: "goals" },
+    };
+  }
+
+  if (currentPlan.status === "PROPOSED") {
+    return {
+      statusLabel: "확인 필요",
+      headline: "계획 승인이 남아 있어요.",
+      description: "승인하기 전에는 아무것도 실행되지 않습니다.",
+      tone: "attention",
+      needsAttention,
+      action: { label: "계획 확인하기", tab: "goals" },
+    };
+  }
+
+  if (currentPlan.status === "APPROVED") {
+    return {
+      statusLabel: "실행 필요",
+      headline: "승인한 계획의 모의 실행이 남아 있어요.",
+      description: "모의 자동이체를 등록하면 계획이 시작된 것으로 기록됩니다. 실제 이체는 없습니다.",
+      tone: "attention",
+      needsAttention,
+      action: { label: "모의 실행하기", tab: "goals" },
+    };
+  }
+
+  if (currentPlan.status === "REJECTED") {
+    return {
+      statusLabel: "기존 계획 유지",
+      headline: "기존 계획을 유지하기로 했어요.",
+      description: "새 계획을 받으려면 이번 달 점검을 실행하세요.",
+      tone: "neutral",
+      needsAttention,
+      action: isConsentRevoked ? null : { label: "이번 달 점검하기", tab: "review" },
+    };
+  }
+
+  return {
+    statusLabel: "정상 유지",
+    headline: "이번 달 계획은 정상적으로 유지되고 있어요.",
+    description: isConsentRevoked
+      ? "수집 동의를 철회해 새로운 점검은 진행하지 않습니다. 기존 계획은 그대로 유지됩니다."
+      : "달라진 점이 있는지 이번 달 점검으로 확인해 보세요.",
+    tone: "positive",
+    needsAttention,
+    action: isConsentRevoked ? null : { label: "이번 달 점검하기", tab: "review" },
+  };
+}
+
 export const COMPLETENESS_LABEL: Record<CompletenessLevel, { label: string; tone: Tone; help: string }> = {
   COMPLETE: { label: "완전", tone: "positive", help: "분석 기간의 모든 달에서 거래를 수집했습니다." },
   PARTIAL: { label: "일부 결측", tone: "attention", help: "수집하지 못한 달이 있어 월평균에서 제외했습니다." },
@@ -121,10 +300,22 @@ export const GOAL_CATEGORY_LABEL: Record<MockGoal["category"], string> = {
   WEALTH_BUILDING: "목돈 마련",
 };
 
-export const BOUNDARY_LABEL: Record<ProductBoundaryId, { label: string; summary: string }> = {
-  STABLE: { label: "안정형", summary: "짧은 만기와 낮은 월 납입 부담을 우선합니다." },
-  BALANCED: { label: "균형형", summary: "예금과 적금을 함께 비교하고 중간 수준의 납입 부담을 허용합니다." },
-  GOAL_FOCUSED: { label: "목표집중형", summary: "목표 달성을 위해 더 긴 만기와 높은 납입 한도를 허용합니다." },
+export const BOUNDARY_LABEL: Record<ProductBoundaryId, { label: string; summary: string; detail: string }> = {
+  STABLE: {
+    label: "안정형",
+    summary: "예·적금 중심 · 변동 최소화",
+    detail: "짧은 만기와 낮은 월 납입 부담을 우선합니다.",
+  },
+  BALANCED: {
+    label: "균형형",
+    summary: "목표 기간과 월 부담의 균형",
+    detail: "예금과 적금을 함께 비교하고 중간 수준의 납입 부담을 허용합니다.",
+  },
+  GOAL_FOCUSED: {
+    label: "목표집중형",
+    summary: "빠른 달성 우선 · 월 납입 부담 증가",
+    detail: "목표 달성을 위해 더 긴 만기와 높은 납입 한도를 허용합니다.",
+  },
 };
 
 export const BOUNDARY_ORDER: ProductBoundaryId[] = ["STABLE", "BALANCED", "GOAL_FOCUSED"];

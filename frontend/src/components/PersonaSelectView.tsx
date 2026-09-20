@@ -27,7 +27,7 @@ export const PersonaSelectView: React.FC = () => {
         </button>
         <h1 className="text-2xl font-black text-[#142B29] mt-2">체험할 가상 고객을 선택하세요</h1>
         <p className="text-sm text-[#526562] mt-2 leading-relaxed">
-          고객마다 소득 구조와 이번 달 변화가 다릅니다. 선택한 고객의 합성 거래로 진단부터 재설계까지 체험합니다.
+          공모전 체험을 위한 단계입니다. 고객마다 소득 구조와 이번 달 변화가 다르고, 선택한 고객의 가상 거래로 진단부터 재설계까지 체험합니다.
         </p>
       </div>
 

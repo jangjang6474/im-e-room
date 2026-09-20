@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenGuide, onToggleDemoTool, i
           <div className="min-w-0">
             <p className="font-extrabold text-[#142B29] leading-tight truncate">iM 이룸</p>
             <p className="text-[11px] text-[#526562] leading-tight truncate">
-              {phase === "app" && persona ? `${persona.customerName} 님 (합성 고객)` : "청년 재무 목표 관리 프로토타입"}
+              {phase === "app" && persona ? `${persona.customerName} 님 (가상 고객)` : "청년 재무 목표 관리 체험판"}
             </p>
           </div>
         </div>
@@ -77,7 +77,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenGuide, onToggleDemoTool, i
           <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-2 text-xs text-[#5C5A14] flex items-start gap-2">
             <WifiOff className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
             <p className="leading-relaxed">
-              오프라인 체험 상태입니다. Mock API 서버에 연결하지 못해 같은 계약의 번들 fixture로 화면을 구성했습니다.
+              오프라인 체험 상태입니다. 서버에 연결하지 못해 앱에 담아 둔 가상 데이터로 화면을 구성했습니다. 체험
+              흐름은 그대로 확인할 수 있습니다.
             </p>
           </div>
         </div>
