@@ -1,260 +1,285 @@
-import React, { useState } from "react";
-import { useEroom } from "../../context/EroomContext";
-import { Goal } from "../../types";
+/**
+ * 나의 목표 (필수 흐름 8·9·11·14)
+ *
+ * - 목표 금액·기한·우선순위 확인
+ * - 안정형·균형형·목표집중형 상품 바운더리 선택 (백엔드가 다시 계산한 계획을 표시)
+ * - 목표별 최초 계획 등록 → 승인 → 모의 실행
+ *
+ * 배분액·달성 기간·자격은 백엔드 결과이며 화면에서 재계산하지 않는다.
+ */
+
+import React from "react";
+import { CheckCircle2, CircleSlash, Info, PlayCircle, Target } from "lucide-react";
+import { useEroomSession } from "../../api/EroomSession";
+import { months, won } from "../../api/format";
 import {
-  Target,
-  Plus,
-  ShieldCheck,
-  Calendar,
-  AlertCircle,
-  Coins,
-  CheckCircle,
-  Clock,
-  X,
-} from "lucide-react";
+  BOUNDARY_LABEL,
+  BOUNDARY_ORDER,
+  FEASIBILITY_LABEL,
+  GOAL_CATEGORY_LABEL,
+  OUTCOME_TONE,
+  PLAN_STATUS_LABEL,
+  PRODUCT_TYPE_LABEL,
+} from "../../api/labels";
+import {
+  ActionButton,
+  Callout,
+  KeyValueRow,
+  LoadingBlock,
+  MetricTile,
+  Panel,
+  SectionHeading,
+  StatusChip,
+} from "../ui/Primitives";
 
 export const GoalsTab: React.FC = () => {
-  const { goals, activePlan, snapshot, updateGoals, applyScenario } = useEroom();
+  const {
+    planPreview,
+    currentPlan,
+    products,
+    boundaryId,
+    changeBoundary,
+    registerPlan,
+    approvePlan,
+    rejectPlan,
+    executePlan,
+    setTab,
+    pending,
+    feedback,
+    clearFeedback,
+  } = useEroomSession();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const [newAmount, setNewAmount] = useState<number>(3000000);
-  const [newMonths, setNewMonths] = useState<number>(12);
-  const [newPriority, setNewPriority] = useState<number>(5);
+  const plan = currentPlan ?? planPreview;
+  if (!plan) return <LoadingBlock label="목표별 계획을 불러오는 중입니다." rows={4} />;
 
-  const handleAddGoal = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle) return;
-
-    const newGoal: Goal = {
-      id: `goal-custom-${Date.now()}`,
-      title: newTitle,
-      category: "WEALTH_BUILDING",
-      targetAmount: newAmount,
-      currentAmount: 0,
-      targetMonths: newMonths,
-      priority: newPriority,
-    };
-
-    updateGoals([...goals, newGoal]);
-    setIsModalOpen(false);
-    setNewTitle("");
-  };
-
-  const totalMonthlySavings = activePlan.totalMonthlySavings;
+  const isRegistered = currentPlan !== null;
+  const status = PLAN_STATUS_LABEL[plan.status];
 
   return (
-    <div id="goals-tab" className="space-y-6">
-      {/* 상단 요약 배너 */}
-      <div className="bg-white rounded-2xl border border-[#DCE7E4] p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-[#006B5B] text-xs font-bold mb-1">
-            <Target className="w-4 h-4" />
-            <span>청년 다중 목표 포트폴리오 배분 엔진</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-[#142B29]">
-            현재 활성 계획 ({activePlan.version}) 배분 현황
-          </h2>
-          <p className="text-xs text-[#526562] mt-1 max-w-2xl leading-relaxed">
-            결정적 알고리즘이 우선순위와 정책 상품 한도(청년도약계좌 등)를 검증하여 월 가용 여력({snapshot.availableSurplus.toLocaleString()}원) 내에서 100% 자동 배분했습니다.
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <div className="bg-[#F6F9F8] border border-[#DCE7E4] rounded-xl p-3 text-right">
-            <span className="text-[11px] text-[#526562] block">계획 총 월 저축액</span>
-            <span className="text-xl font-black text-[#006B5B] font-mono tabular-nums">
-              {totalMonthlySavings.toLocaleString()}원
-            </span>
-          </div>
-
-          <button
-            id="btn-add-goal"
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center px-4 py-2.5 bg-[#00C4A6] hover:bg-[#00b095] text-[#142B29] rounded-xl text-xs font-bold transition-colors shadow-xs"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            새 목표 추가
-          </button>
-        </div>
-      </div>
-
-      {/* 제약조건 검증 및 경고 바 */}
-      {activePlan.deficitsNotice && (
-        <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start space-x-2.5">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <span className="font-bold block">배분 제약조건 알림:</span>
-            {activePlan.deficitsNotice}
-          </div>
-        </div>
-      )}
-
-      {/* 목표 리스트 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {goals.map((g) => {
-          const allocation = activePlan.items.find((item) => item.goalId === g.id);
-          const monthly = allocation ? allocation.monthlyAmount : 0;
-          const completion = allocation ? allocation.expectedCompletionMonths : 999;
-          const percent = Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100));
-
-          return (
-            <div
-              key={g.id}
-              className="bg-white rounded-2xl border border-[#DCE7E4] p-5 shadow-2xs hover:border-[#00C4A6] transition-colors flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#F6F9F8] text-[#142B29] border border-[#DCE7E4]">
-                      우선순위 #{g.priority}
-                    </span>
-                    <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-[#EAFBF6] text-[#006B5B]">
-                      {g.category === "EMERGENCY"
-                        ? "비상금"
-                        : g.category === "POLICY_SAVINGS"
-                        ? "정책 매칭 적금"
-                        : g.category === "HOUSING_SUBSCRIPTION"
-                        ? "주택 청약"
-                        : "목돈 만들기"}
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold text-[#526562] flex items-center">
-                    <Clock className="w-3.5 h-3.5 mr-1" />
-                    목표 {g.targetMonths}개월
-                  </span>
-                </div>
-
-                <h3 className="text-base font-bold text-[#142B29] mb-1">{g.title}</h3>
-
-                {allocation && (
-                  <div className="text-xs text-[#006B5B] font-medium mb-3 flex items-center">
-                    <Coins className="w-3.5 h-3.5 mr-1" />
-                    연계 상품: {allocation.productName}
-                  </div>
-                )}
-
-                {/* 프로그레스 바 */}
-                <div className="w-full bg-[#F6F9F8] rounded-full h-2.5 mb-1.5 overflow-hidden border border-[#DCE7E4]/50">
-                  <div
-                    className="bg-[#00C4A6] h-full rounded-full transition-all duration-300"
-                    style={{ width: `${percent}%` }}
-                  />
-                </div>
-
-                <div className="flex justify-between text-xs text-[#526562] mb-4">
-                  <span>
-                    현재: <strong className="font-mono text-[#142B29]">{g.currentAmount.toLocaleString()}원</strong> ({percent}%)
-                  </span>
-                  <span>
-                    목표: <strong className="font-mono text-[#142B29]">{g.targetAmount.toLocaleString()}원</strong>
-                  </span>
-                </div>
-              </div>
-
-              {/* 하단 월 납입 결과 */}
-              <div className="pt-3 border-t border-[#DCE7E4] flex items-center justify-between">
-                <div>
-                  <span className="text-[11px] text-[#526562] block">월 추천 배분 납입액</span>
-                  <span className="text-sm font-bold text-[#142B29] font-mono tabular-nums">
-                    {monthly > 0 ? `${monthly.toLocaleString()}원 / 월` : "납입 일시 유예 (여력 부족)"}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="text-[11px] text-[#526562] block">예상 달성 소요</span>
-                  <span className="text-xs font-bold text-[#006B5B]">
-                    {completion < 900 ? `약 ${completion}개월 후` : "여력 초과 (달성 불가)"}
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 새 목표 추가 모달 */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border border-[#DCE7E4] space-y-4">
-            <div className="flex items-center justify-between border-b border-[#DCE7E4] pb-3">
-              <h3 className="text-base font-bold text-[#142B29]">새 청년 목표 추가하기</h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-slate-400 hover:text-slate-700"
-              >
-                <X className="w-5 h-5" />
+    <div className="space-y-5">
+      {feedback && (
+        <div role="status" aria-live="polite">
+          <Callout tone={feedback.outcome === "ERROR" ? "risk" : OUTCOME_TONE[feedback.outcome]} title="처리 결과">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="break-keep">{feedback.message}</span>
+              <button type="button" onClick={clearFeedback} className="min-h-[44px] text-xs font-bold underline">
+                닫기
               </button>
             </div>
-
-            <form onSubmit={handleAddGoal} className="space-y-3.5 text-xs">
-              <div>
-                <label className="font-bold text-[#142B29] block mb-1">목표명</label>
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="예: 취업 준비 자격증 취득 비용, 독립 이사비"
-                  className="w-full p-2.5 rounded-xl border border-[#DCE7E4] text-[#142B29] focus:outline-none focus:border-[#00C4A6]"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="font-bold text-[#142B29] block mb-1">목표 금액 (KRW)</label>
-                <input
-                  type="number"
-                  step="100000"
-                  value={newAmount}
-                  onChange={(e) => setNewAmount(Number(e.target.value))}
-                  className="w-full p-2.5 rounded-xl border border-[#DCE7E4] text-[#142B29] font-mono focus:outline-none focus:border-[#00C4A6]"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="font-bold text-[#142B29] block mb-1">목표 달성 기간 (개월)</label>
-                  <input
-                    type="number"
-                    value={newMonths}
-                    onChange={(e) => setNewMonths(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl border border-[#DCE7E4] text-[#142B29] font-mono focus:outline-none focus:border-[#00C4A6]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="font-bold text-[#142B29] block mb-1">우선순위 (1~10)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={newPriority}
-                    onChange={(e) => setNewPriority(Number(e.target.value))}
-                    className="w-full p-2.5 rounded-xl border border-[#DCE7E4] text-[#142B29] font-mono focus:outline-none focus:border-[#00C4A6]"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="pt-3 flex space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-[#DCE7E4] text-[#526562] font-semibold hover:bg-slate-50"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-[#00C4A6] hover:bg-[#00b095] text-[#142B29] font-bold shadow-xs"
-                >
-                  목표 등록 및 재배분
-                </button>
-              </div>
-            </form>
-          </div>
+          </Callout>
         </div>
       )}
+
+      {/* 목표 확인 */}
+      <Panel className="p-5" ariaLabelledBy="goals-list">
+        <SectionHeading
+          id="goals-list"
+          title="목표 금액과 기한"
+          icon={<Target className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />}
+          description="우선순위가 높은 목표부터 저축 여력을 배분합니다."
+        />
+        <ul className="space-y-3">
+          {plan.allocations.map((allocation, index) => {
+            const feasibility = FEASIBILITY_LABEL[allocation.feasibility];
+            return (
+              <li key={allocation.goalId} className="rounded-2xl border border-[#DCE7E4] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-[#006B5B]">{index + 1}순위 · {GOAL_CATEGORY_LABEL[allocation.category]}</p>
+                    <p className="font-extrabold text-[#142B29] mt-0.5 break-keep">{allocation.goalTitle}</p>
+                  </div>
+                  <StatusChip label={feasibility.label} tone={feasibility.tone} />
+                </div>
+                <div className="mt-3">
+                  <KeyValueRow label="남은 목표 금액" value={won(allocation.remainingAmount)} />
+                  <KeyValueRow label="목표 기한" value={months(allocation.targetMonths)} />
+                  <KeyValueRow
+                    label="기한 내 달성에 필요한 월 납입"
+                    value={won(allocation.requiredMonthly)}
+                  />
+                  <KeyValueRow
+                    label="이번 계획의 월 납입"
+                    value={won(allocation.monthlyAmount)}
+                    hint={allocation.productName}
+                  />
+                  <KeyValueRow
+                    label="예상 달성 시점"
+                    value={
+                      allocation.expectedCompletionMonth
+                        ? `${allocation.expectedCompletionMonth} (${months(allocation.expectedMonths)})`
+                        : "배분 없음"
+                    }
+                  />
+                </div>
+                {allocation.reasons.length > 0 && (
+                  <ul className="mt-2 space-y-1">
+                    {allocation.reasons.map((reason) => (
+                      <li key={reason} className="text-xs text-[#526562] leading-relaxed">
+                        · {reason}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <Callout tone="muted" title="목표 편집에 대한 안내" icon={<Info className="w-4 h-4" aria-hidden="true" />}>
+          이번 제출본은 합성 고객에 등록된 목표 금액·기한·우선순위를 사용합니다. 목표를 바꾸는 입력은 기존 승인 계획을
+          덮어쓰지 않고 새 계획 제안으로 처리해야 하므로, 백엔드 계약에 목표 편집이 추가된 뒤 연결할 예정입니다.
+        </Callout>
+      </Panel>
+
+      {/* 상품 바운더리 선택 */}
+      <Panel className="p-5" ariaLabelledBy="goals-boundary">
+        <SectionHeading
+          id="goals-boundary"
+          title="어떤 방식으로 모을까요"
+          description="선택에 따라 사용할 수 있는 상품 범위와 월 납입 한도가 달라집니다."
+        />
+        <fieldset disabled={pending.boundary || isRegistered}>
+          <legend className="sr-only">상품 바운더리 선택</legend>
+          <div className="grid gap-3 md:grid-cols-3">
+            {BOUNDARY_ORDER.map((id) => {
+              const selected = boundaryId === id;
+              return (
+                <label
+                  key={id}
+                  className={`rounded-2xl border p-4 cursor-pointer min-h-[44px] block ${
+                    selected ? "border-[#00C4A6] bg-[#EAFBF6]" : "border-[#DCE7E4] bg-white hover:bg-[#F6F9F8]"
+                  } ${pending.boundary || isRegistered ? "opacity-70 cursor-not-allowed" : ""}`}
+                >
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="boundary"
+                      value={id}
+                      checked={selected}
+                      onChange={() => void changeBoundary(id)}
+                      className="w-5 h-5 accent-[#00C4A6]"
+                    />
+                    <span className="font-extrabold text-[#142B29]">{BOUNDARY_LABEL[id].label}</span>
+                    {selected && <StatusChip label="선택함" tone="positive" />}
+                  </span>
+                  <span className="block text-xs text-[#526562] mt-2 leading-relaxed break-keep">
+                    {BOUNDARY_LABEL[id].summary}
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        {pending.boundary && <p className="text-sm text-[#526562] mt-3" aria-live="polite">선택한 기준으로 계획을 다시 계산하는 중입니다.</p>}
+
+        {isRegistered && (
+          <Callout tone="muted" title="계획 등록 후에는 기준을 바꾸지 않습니다">
+            등록한 계획은 수정하지 않습니다. 다른 기준을 보려면 이번 달 점검에서 새 계획을 받거나 처음부터 다시 시작하세요.
+          </Callout>
+        )}
+
+        {products && (
+          <div className="mt-4 rounded-2xl border border-[#DCE7E4] p-4">
+            <p className="text-sm font-extrabold text-[#142B29]">
+              {products.boundaryLabel} 기준 후보 상품 {products.includedCount}개
+            </p>
+            <p className="text-xs text-[#526562] mt-1 leading-relaxed tabular-nums">
+              {products.limits.allowedProductTypes.map((type) => PRODUCT_TYPE_LABEL[type]).join("·")} · 최대 만기{" "}
+              {months(products.limits.maxMaturityMonths)} · 월 납입 한도 {won(products.limits.maxMonthlyDeposit)}
+            </p>
+            <div className="mt-3">
+              <ActionButton variant="ghost" onClick={() => setTab("policy")}>
+                후보 상품과 정책 자격 보기
+              </ActionButton>
+            </div>
+          </div>
+        )}
+      </Panel>
+
+      {/* 계획 요약과 승인 */}
+      <Panel className="p-5" ariaLabelledBy="goals-plan">
+        <SectionHeading
+          id="goals-plan"
+          title={`목표별 납입 계획 v${plan.version}`}
+          description={isRegistered ? "등록된 계획입니다." : "아직 등록하지 않은 미리보기입니다."}
+          action={<StatusChip label={isRegistered ? status.label : "미리보기"} tone={isRegistered ? status.tone : "muted"} />}
+        />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <MetricTile label="월 저축 여력" value={won(plan.availableSurplus)} tone="muted" />
+          <MetricTile label="월 납입 합계" value={won(plan.totalMonthlyAmount)} tone="positive" />
+          <MetricTile label="남기는 금액" value={won(plan.unallocatedAmount)} tone="muted" hint="생활 유동성으로 남깁니다." />
+          <MetricTile
+            label="기한 내 달성"
+            value={plan.isFeasible ? "모든 목표 가능" : "일부 목표 지연"}
+            tone={plan.isFeasible ? "positive" : "attention"}
+          />
+        </div>
+
+        {plan.notices.length > 0 && (
+          <div className="mt-4 space-y-2">
+            {plan.notices.map((notice) => (
+              <Callout key={notice} tone="attention">
+                {notice}
+              </Callout>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-4">
+          <p className="text-xs font-bold text-[#526562] mb-1.5">계산 전제</p>
+          <ul className="space-y-1">
+            {plan.assumptions.map((assumption) => (
+              <li key={assumption} className="text-xs text-[#526562] leading-relaxed">
+                · {assumption}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="mt-5 flex flex-col sm:flex-row gap-2">
+          {!isRegistered && (
+            <ActionButton loading={pending.plan} onClick={() => void registerPlan()} icon={<CheckCircle2 className="w-4 h-4" aria-hidden="true" />}>
+              이 계획으로 시작하기
+            </ActionButton>
+          )}
+          {isRegistered && plan.status === "PROPOSED" && (
+            <>
+              <ActionButton
+                loading={pending[`approve:${plan.planId}`]}
+                onClick={() => void approvePlan(plan.planId)}
+                icon={<CheckCircle2 className="w-4 h-4" aria-hidden="true" />}
+              >
+                계획 승인하기
+              </ActionButton>
+              <ActionButton
+                variant="ghost"
+                loading={pending[`reject:${plan.planId}`]}
+                onClick={() => void rejectPlan(plan.planId)}
+                icon={<CircleSlash className="w-4 h-4" aria-hidden="true" />}
+              >
+                지금은 승인하지 않기
+              </ActionButton>
+            </>
+          )}
+          {isRegistered && plan.status === "APPROVED" && (
+            <ActionButton
+              loading={pending[`execute:${plan.planId}`]}
+              onClick={() => void executePlan(plan.planId)}
+              icon={<PlayCircle className="w-4 h-4" aria-hidden="true" />}
+            >
+              모의 실행하기 (실제 이체 없음)
+            </ActionButton>
+          )}
+          {isRegistered && plan.status === "MOCK_EXECUTED" && (
+            <ActionButton variant="secondary" onClick={() => setTab("history")}>
+              모의 실행 이력 보기
+            </ActionButton>
+          )}
+        </div>
+        <p className="text-[11px] text-[#526562] mt-3 leading-relaxed">
+          승인 전에는 아무것도 실행되지 않습니다. 모의 실행은 자동이체를 설정한 것으로 기록만 남기며 실제 금융기관 전송은 없습니다.
+        </p>
+      </Panel>
     </div>
   );
 };

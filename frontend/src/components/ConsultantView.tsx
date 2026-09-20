@@ -1,237 +1,81 @@
-import React, { useState } from "react";
-import { useEroom } from "../context/EroomContext";
+/**
+ * 상담사 대기 화면 (`?demo=true`에서만 접근)
+ *
+ * 위험 이벤트로 생성된 모의 상담 케이스를 읽기 전용으로 보여준다.
+ * 실제 상담 예약·외부 기관 전송은 하지 않으며, 상태 변경은 상담 시스템의 역할이다.
+ */
+
+import React, { useEffect } from "react";
+import { PhoneCall } from "lucide-react";
+import { useEroomSession } from "../api/EroomSession";
+import { dateTimeText } from "../api/format";
+import { CONSULTATION_STATUS_LABEL } from "../api/labels";
 import {
-  Headphones,
-  AlertOctagon,
-  ShieldAlert,
-  CheckCircle,
-  Clock,
-  Send,
-  User,
-  Phone,
-  FileText,
-  MessageSquare,
-} from "lucide-react";
+  Callout,
+  EmptyState,
+  KeyValueRow,
+  LoadingBlock,
+  Panel,
+  SectionHeading,
+  StatusChip,
+} from "./ui/Primitives";
 
 export const ConsultantView: React.FC = () => {
-  const {
-    consultationCases,
-    resolveConsultationCase,
-    applyScenario,
-    customer,
-  } = useEroom();
+  const { consultations, loadConsultations, pending } = useEroomSession();
 
-  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(
-    consultationCases[0]?.id || null
-  );
-  const [noteInput, setNoteInput] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const activeCase =
-    consultationCases.find((c) => c.id === selectedCaseId) ||
-    consultationCases[0];
-
-  const handleResolve = (caseId: string) => {
-    if (!noteInput.trim()) {
-      setErrorMessage("상담 조치 및 권고 내용을 메모란에 입력해주세요.");
-      return;
-    }
-    setErrorMessage(null);
-    resolveConsultationCase(caseId, noteInput.trim());
-    setNoteInput("");
-  };
+  useEffect(() => {
+    void loadConsultations();
+  }, [loadConsultations]);
 
   return (
-    <div id="consultant-view" className="space-y-6">
-      {/* 상단 브리핑 헤더 */}
-      <div className="bg-[#103D36] text-white rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center space-x-2 text-[#52E1E5] text-xs font-bold mb-1">
-            <Headphones className="w-4 h-4" />
-            <span>iM 청년 재무 상담사 전문 지원 대시보드</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold">
-            고위험·위기 징후 고객 집중 관리 목록
-          </h2>
-          <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-            급여 미입금, 급격한 지출 증가 등 자동화 규칙만으로 해결하기 어려운 위험 사례를 감지하여 근거 브리핑과 함께 상담 대기 목록으로 즉시 라우팅합니다. (외부 기관 전송 없음)
-          </p>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          {consultationCases.length === 0 && (
-            <button
-              onClick={() => applyScenario("S04_INCOME_STOP")}
-              className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center shadow-xs"
-            >
-              <AlertOctagon className="w-4 h-4 mr-1.5" />
-              [S04. 소득 미입금 위험 발생] 시연
-            </button>
-          )}
-        </div>
-      </div>
-
-      {consultationCases.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#DCE7E4] p-12 text-center shadow-2xs space-y-3">
-          <div className="w-12 h-12 rounded-full bg-[#EAFBF6] text-[#006B5B] flex items-center justify-center mx-auto">
-            <CheckCircle className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-[#142B29]">현재 대기 중인 위험 상담 케이스가 없습니다</h3>
-          <p className="text-xs text-[#526562] max-w-md mx-auto">
-            모든 청년 고객의 재무 상태가 안정적으로 유지되고 있습니다. 상단 도구를 통해 소득 단절 상황을 모의 발생시켜 보세요.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* 좌측: 위험 케이스 대기 목록 */}
-          <div className="bg-white rounded-2xl border border-[#DCE7E4] shadow-2xs overflow-hidden">
-            <div className="p-4 border-b border-[#DCE7E4] bg-[#F6F9F8] flex items-center justify-between">
-              <h3 className="text-xs font-bold text-[#142B29]">
-                상담 대기 큐 ({consultationCases.length})
-              </h3>
-              <span className="text-[11px] font-semibold text-rose-600">위험 순 정렬</span>
-            </div>
-
-            <div className="divide-y divide-[#DCE7E4] max-h-[500px] overflow-y-auto">
-              {consultationCases.map((c) => {
-                const isSelected = activeCase?.id === c.id;
-                const isWaiting = c.status === "WAITING";
-
-                return (
-                  <div
-                    key={c.id}
-                    onClick={() => {
-                      setSelectedCaseId(c.id);
-                      setErrorMessage(null);
-                    }}
-                    className={`p-4 cursor-pointer transition-colors ${
-                      isSelected ? "bg-[#EAFBF6] border-l-4 border-[#00C4A6]" : "hover:bg-slate-50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-xs text-[#142B29] flex items-center">
-                        <User className="w-3.5 h-3.5 mr-1 text-[#526562]" />
-                        {c.customerName} 고객
-                      </span>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                          isWaiting
-                            ? "bg-rose-100 text-rose-800"
-                            : "bg-slate-100 text-[#526562]"
-                        }`}
-                      >
-                        {isWaiting ? "상담 대기" : "조치 완료"}
-                      </span>
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+      <Panel className="p-5" ariaLabelledBy="consult-title">
+        <SectionHeading
+          id="consult-title"
+          title="상담사 대기 목록 (시연용)"
+          icon={<PhoneCall className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />}
+          description="월간 점검에서 위험으로 분류된 합성 고객 사례입니다."
+        />
+        {pending.consultations && consultations.length === 0 ? (
+          <LoadingBlock label="상담 케이스를 불러오는 중입니다." rows={2} />
+        ) : consultations.length === 0 ? (
+          <EmptyState
+            title="대기 중인 상담 케이스가 없습니다"
+            description="소득 급감처럼 위험으로 분류되는 변화가 감지되면 이곳에 사례가 등록됩니다. (예: P03 소득 변동 위험 청년)"
+          />
+        ) : (
+          <ul className="space-y-3">
+            {consultations.map((item) => {
+              const status = CONSULTATION_STATUS_LABEL[item.status];
+              return (
+                <li key={item.id} className="rounded-2xl border border-[#DCE7E4] p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-[#142B29] break-keep">{item.riskType}</p>
+                      <p className="text-xs text-[#526562] mt-0.5">
+                        {item.customerName} · 등록 {dateTimeText(item.createdAt)}
+                      </p>
                     </div>
-
-                    <div className="text-xs font-semibold text-rose-700 truncate">
-                      {c.riskType}
-                    </div>
-
-                    <div className="text-[11px] text-[#526562] font-mono mt-1">
-                      발생: {c.createdAt.replace("T", " ").substring(0, 16)}
+                    <div className="flex flex-wrap gap-1.5">
+                      <StatusChip label={item.severity === "CRITICAL" ? "긴급" : "높음"} tone="risk" />
+                      <StatusChip label={status.label} tone={status.tone} />
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 우측: 상담 브리핑 상세 및 조치 입력 */}
-          {activeCase && (
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-[#DCE7E4] shadow-2xs p-6 space-y-6">
-              {/* 케이스 헤더 */}
-              <div className="border-b border-[#DCE7E4] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
-                      {activeCase.severity} RISK
-                    </span>
-                    <span className="text-xs text-[#526562] font-mono">ID: {activeCase.id}</span>
+                  <div className="mt-3">
+                    <KeyValueRow label="핵심 위험" value={item.briefing.coreRisk} />
+                    <KeyValueRow label="재무 상태" value={item.briefing.financialState} />
+                    <KeyValueRow label="목표 영향" value={item.briefing.impactOnGoals} />
+                    <KeyValueRow label="권장 조치" value={item.briefing.recommendedHumanAction} />
                   </div>
-                  <h3 className="text-lg font-bold text-[#142B29] mt-1">
-                    {activeCase.riskType} 브리핑 리포트
-                  </h3>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-[#526562]">연락처:</span>
-                  <span className="text-xs font-mono font-bold text-[#142B29] bg-[#F6F9F8] border border-[#DCE7E4] px-2 py-1 rounded">
-                    010-5080-****
-                  </span>
-                </div>
-              </div>
-
-              {/* 4대 분석 브리핑 블록 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
-                  <span className="text-xs font-bold text-rose-900 block mb-1">감지된 핵심 충격</span>
-                  <p className="text-xs text-rose-800 leading-relaxed">{activeCase.briefing.coreRisk}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#F6F9F8] border border-[#DCE7E4]">
-                  <span className="text-xs font-bold text-[#142B29] block mb-1">고객 재무 상태 분석</span>
-                  <p className="text-xs text-[#526562] leading-relaxed">{activeCase.briefing.financialState}</p>
-                </div>
-              </div>
-
-              {/* 목표 영향도 & 권고 방안 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200">
-                  <span className="text-xs font-bold text-amber-900 block mb-1">청년 목표 영향도</span>
-                  <p className="text-xs text-amber-800 leading-relaxed">{activeCase.briefing.impactOnGoals}</p>
-                </div>
-
-                <div className="p-4 rounded-xl bg-[#EAFBF6] border border-[#DCE7E4]">
-                  <span className="text-xs font-bold text-[#006B5B] block mb-1">
-                    상담사 권고 조치 방안
-                  </span>
-                  <p className="text-xs text-[#142B29] leading-relaxed">
-                    {activeCase.briefing.recommendedHumanAction}
-                  </p>
-                </div>
-              </div>
-
-              {/* 상담 조치 입력 창 */}
-              <div className="space-y-3 pt-2">
-                <label className="text-xs font-bold text-[#142B29] block">
-                  상담사 조치 기록 및 안내 메모
-                </label>
-                {activeCase.status === "WAITING" ? (
-                  <>
-                    <textarea
-                      value={noteInput}
-                      onChange={(e) => {
-                        setNoteInput(e.target.value);
-                        setErrorMessage(null);
-                      }}
-                      placeholder="예: 고객과 유선 상담 완료. 소득 단절 기간 동안 적금 납입 유예(최대 6개월) 및 대구 청년 구직지원금 신청 절차를 유선 안내함."
-                      className="w-full h-24 p-3 rounded-xl border border-[#DCE7E4] text-xs focus:outline-none focus:border-[#00C4A6]"
-                    />
-                    {errorMessage && (
-                      <p className="text-xs text-rose-600 font-medium">{errorMessage}</p>
-                    )}
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => handleResolve(activeCase.id)}
-                        className="px-4 py-2 bg-[#00C4A6] hover:bg-[#00b095] text-[#142B29] font-bold text-xs rounded-xl transition-colors shadow-xs flex items-center"
-                      >
-                        <Send className="w-3.5 h-3.5 mr-1.5" />
-                        상담 완료 처리 및 기록 저장
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                    <span className="text-slate-500 block mb-1">조치 완료 기록:</span>
-                    <p className="text-slate-800 font-medium">{activeCase.consultantNotes}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        <Callout tone="muted" title="프로토타입 범위">
+          이 화면은 읽기 전용 시연입니다. 상담 배정·예약·상태 변경은 상담 시스템에서 처리해야 하며 현재 범위에 없습니다.
+        </Callout>
+      </Panel>
     </div>
   );
 };
