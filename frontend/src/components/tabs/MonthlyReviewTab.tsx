@@ -298,7 +298,7 @@ export const MonthlyReviewTab: React.FC = () => {
                     note={`차이 ${wonDelta(proposed.totalMonthlyAmount - previous.totalMonthlyAmount)}`}
                   />
                   <CompareRow
-                    label="생활비로 남겨두는 돈"
+                    label="잔액"
                     before={won(previous.unallocatedAmount)}
                     after={won(proposed.unallocatedAmount)}
                   />
@@ -333,7 +333,7 @@ export const MonthlyReviewTab: React.FC = () => {
                 <>
                   <SummaryRow label="유지 중인 계획" value={`v${previous.version}`} />
                   <SummaryRow label="월 납입 합계" value={won(previous.totalMonthlyAmount)} tone="strong" />
-                  <SummaryRow label="생활비로 남겨두는 돈" value={won(previous.unallocatedAmount)} />
+                  <SummaryRow label="잔액" value={won(previous.unallocatedAmount)} />
                 </>
               )
             )}

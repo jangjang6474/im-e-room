@@ -66,8 +66,8 @@ const NO_INPUT_SCHEMA = {
 const TOOL_DESCRIPTIONS: Record<AiCounselToolName, string> = {
   get_financial_summary: "이 사용자의 월 소득·고정 지출·변동 지출·부채 상환·월 저축 여력 합계를 조회합니다.",
   get_detected_changes: "이번 달 점검에서 감지된 변화 목록과 등급을 조회합니다.",
-  get_active_plan: "현재 유지 중인 계획의 월 납입액, 남기는 금액, 1순위 목표 예상 달성 시점을 조회합니다.",
-  get_proposed_plan: "아직 승인되지 않은 조정안의 월 납입액, 남기는 금액, 예상 달성 시점을 조회합니다.",
+  get_active_plan: "현재 유지 중인 계획의 월 납입액, 잔액, 1순위 목표 예상 달성 시점을 조회합니다.",
+  get_proposed_plan: "아직 승인되지 않은 조정안의 월 납입액, 잔액, 예상 달성 시점을 조회합니다.",
   get_policy_eligibility: "지원제도별 확인 상태(이용 가능·확인 필요·대상 아님)를 조회합니다.",
   get_consultation_reason: "상담사 연결이 필요한 사유가 기록돼 있는지 조회합니다.",
 };

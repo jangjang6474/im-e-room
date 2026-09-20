@@ -562,8 +562,8 @@ export const GoalDesignView: React.FC = () => {
                     : "기한 안에 모으기 어려운 목표가 있습니다. 금액이나 기한을 바꿔 다시 볼 수 있습니다."}
                 </p>
                 <p className="text-xs text-[#006B5B]/90 mt-2 tabular-nums">
-                  저축 여력 {won(planPreview.availableSurplus)} 중 {won(planPreview.unallocatedAmount)}은 생활비로
-                  남겨둡니다.
+                  저축 여력 {won(planPreview.availableSurplus)} 중 목표에 배분하지 않은 잔액은
+                  {" "}{won(planPreview.unallocatedAmount)}입니다.
                 </p>
               </section>
 
