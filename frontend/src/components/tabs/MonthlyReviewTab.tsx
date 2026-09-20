@@ -55,6 +55,19 @@ export const MonthlyReviewTab: React.FC = () => {
   const proposed = review?.proposedPlan ?? null;
   const previous = review?.previousPlan ?? null;
   const decisionPlan = proposed && currentPlan?.planId === proposed.planId ? currentPlan : proposed;
+  const resolvedReplan =
+    review?.routing === "REPLAN" &&
+    decisionPlan &&
+    (decisionPlan.status === "MOCK_EXECUTED" || decisionPlan.status === "REJECTED")
+      ? {
+          title: PLAN_STATUS_LABEL[decisionPlan.status].label,
+          description:
+            decisionPlan.status === "MOCK_EXECUTED"
+              ? "승인한 조정안의 모의 실행을 완료했습니다. 실제 이체나 외부 전송은 없습니다."
+              : "기존 계획을 유지하기로 선택했습니다. 조정안은 실행되지 않습니다.",
+          tone: PLAN_STATUS_LABEL[decisionPlan.status].tone,
+        }
+      : null;
   const goalIds = Array.from(
     new Set([...(previous?.allocations ?? []), ...(proposed?.allocations ?? [])].map((item) => item.goalId)),
   );
@@ -118,12 +131,14 @@ export const MonthlyReviewTab: React.FC = () => {
               description={`감지된 변화 ${review.events.length}건`}
               action={
                 <StatusChip
-                  label={ROUTING_LABEL[review.routing].title}
-                  tone={ROUTING_LABEL[review.routing].tone}
+                  label={resolvedReplan?.title ?? ROUTING_LABEL[review.routing].title}
+                  tone={resolvedReplan?.tone ?? ROUTING_LABEL[review.routing].tone}
                 />
               }
             />
-            <Callout tone={ROUTING_LABEL[review.routing].tone}>{ROUTING_LABEL[review.routing].description}</Callout>
+            <Callout tone={resolvedReplan?.tone ?? ROUTING_LABEL[review.routing].tone}>
+              {resolvedReplan?.description ?? ROUTING_LABEL[review.routing].description}
+            </Callout>
             <ul className="mt-3 space-y-3">
               {review.events.map((event) => (
                 <li key={event.id} className="rounded-2xl border border-[#DCE7E4] p-4">
@@ -201,7 +216,9 @@ export const MonthlyReviewTab: React.FC = () => {
               id="review-compare"
               title="기존 계획과 조정안"
               description={
-                proposed
+                resolvedReplan
+                  ? resolvedReplan.description
+                  : proposed
                   ? "승인하기 전까지 기존 계획이 그대로 유지됩니다."
                   : "이번 달은 계획을 바꿀 만한 변화가 없어 조정안을 만들지 않았습니다."
               }
