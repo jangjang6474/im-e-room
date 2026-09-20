@@ -28,6 +28,7 @@ import {
   GOAL_CATEGORY_LABEL,
   PLAN_STATUS_LABEL,
   resolveHomeStatus,
+  resolveProposedStatus,
 } from "../../api/labels";
 import {
   ActionButton,
@@ -65,7 +66,12 @@ export const HomeTab: React.FC = () => {
 
   if (!diagnosis) return null;
 
-  const plan = currentPlan ?? planPreview;
+  const proposedStatus = resolveProposedStatus(review, currentPlan);
+  // 승인 전 조정안은 아직 적용 중인 계획이 아니다. 홈 요약은 기존 활성 계획을 보여준다.
+  const plan =
+    proposedStatus === "PROPOSED" && review?.previousPlan
+      ? review.previousPlan
+      : currentPlan ?? planPreview;
   const metrics = diagnosis.metrics;
   const status = resolveHomeStatus(review, currentPlan, isConsentRevoked);
   const topGoal = plan?.allocations[0] ?? null;
