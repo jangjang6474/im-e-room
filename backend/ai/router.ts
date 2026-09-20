@@ -6,12 +6,12 @@
  */
 
 import { Router, type RequestHandler } from "express";
-import { AI_CONTRACT_VERSION } from "../../frontend/src/data/aiContracts";
-import { handleCounsel } from "../../api/ai/counsel";
-import { handleExplain } from "../../api/ai/explain";
-import { handleStructurePolicy } from "../../api/ai/structure-policy";
-import { aiConfig } from "./claude-client";
-import type { AiHandler } from "./http";
+import { AI_CONTRACT_VERSION } from "../../frontend/src/data/aiContracts.js";
+import { handleCounsel } from "../../api/ai/counsel.js";
+import { handleExplain } from "../../api/ai/explain.js";
+import { handleStructurePolicy } from "../../api/ai/structure-policy.js";
+import { aiConfig } from "./claude-client.js";
+import type { AiHandler } from "./http.js";
 
 /** 핸들러가 던진 예외를 500으로 바꾼다. 내부 메시지는 응답에 넣지 않는다. */
 const route =
