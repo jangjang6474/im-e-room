@@ -12,6 +12,7 @@ import type {
   EligibilityResponse,
   ExampleJourneyResponse,
   MockExecutionRecordV1,
+  MockGoal,
   MonthlyReviewResponse,
   PersonaId,
   PersonaSummary,
@@ -26,6 +27,7 @@ import {
   getDiagnosis,
   getEligibility,
   getExampleJourney,
+  getGoals,
   getInitialPlan,
   getProductBoundary,
   listPersonas,
@@ -89,11 +91,24 @@ export function createMockApiClient(options: { baseUrl?: string; role?: "custome
     listPersonas: () => call<PersonaSummary[]>("GET", "/personas", listPersonas),
     getDiagnosis: (personaId: PersonaId) => call<DiagnosisResponse>("GET", `/personas/${personaId}/diagnosis`, () => getDiagnosis(personaId)),
     getEligibility: (personaId: PersonaId) => call<EligibilityResponse>("GET", `/personas/${personaId}/eligibility`, () => getEligibility(personaId)),
+    getGoals: (personaId: PersonaId) => call<MockGoal[]>("GET", `/personas/${personaId}/goals`, () => getGoals(personaId)),
     getProducts: (boundaryId: ProductBoundaryId) => call<ProductBoundaryResponse>("GET", `/products?boundary=${boundaryId}`, () => getProductBoundary(boundaryId)),
-    previewPlan: (personaId: PersonaId, boundaryId?: ProductBoundaryId) =>
-      call<PlanProposal>("GET", `/personas/${personaId}/plan/preview${boundaryQuery(boundaryId)}`, () => getInitialPlan(personaId, boundaryId)),
-    proposePlan: (personaId: PersonaId, boundaryId?: ProductBoundaryId) =>
-      call<PlanProposal>("POST", `/personas/${personaId}/plans`, () => offlineSession.proposeInitialPlan(personaId, boundaryId), { body: { boundaryId } }),
+    /**
+     * 계획 미리보기.
+     *
+     * `goals`를 주면 사용자가 직접 설계한 목표로 계산한다. 목표는 본문으로만 보내므로 이때는 POST를 쓰고,
+     * 기존처럼 가상 고객의 기본 목표로 볼 때는 GET 경로를 그대로 사용한다.
+     */
+    previewPlan: (personaId: PersonaId, boundaryId?: ProductBoundaryId, goals?: MockGoal[]) =>
+      goals
+        ? call<PlanProposal>("POST", `/personas/${personaId}/plan/preview`, () => getInitialPlan(personaId, boundaryId, goals), {
+            body: { boundaryId, goals },
+          })
+        : call<PlanProposal>("GET", `/personas/${personaId}/plan/preview${boundaryQuery(boundaryId)}`, () => getInitialPlan(personaId, boundaryId)),
+    proposePlan: (personaId: PersonaId, boundaryId?: ProductBoundaryId, goals?: MockGoal[]) =>
+      call<PlanProposal>("POST", `/personas/${personaId}/plans`, () => offlineSession.proposeInitialPlan(personaId, boundaryId, goals), {
+        body: { boundaryId, goals },
+      }),
     runMonthlyReview: (personaId: PersonaId, boundaryId?: ProductBoundaryId) =>
       call<MonthlyReviewResponse>("POST", `/personas/${personaId}/monthly-review`, () => offlineSession.runMonthlyReview(personaId, boundaryId), { body: { boundaryId } }),
     revokeConsent: (personaId: PersonaId) =>
