@@ -6,14 +6,14 @@
  * 어느 경로로 응답했는지는 metadata.source로 알린다.
  */
 
-import type { ExplainResponse } from "../../frontend/src/data/aiContracts";
-import { aiConfig, callClaudeJson, logAiFailure } from "../../backend/ai/claude-client";
-import { cacheKey, readCache, writeCache } from "../../backend/ai/cache";
-import { claudeMetadata, explainWithoutClaude } from "../../backend/ai/fallback";
-import { aiErrorBody, type AiHandler } from "../../backend/ai/http";
-import { EXPLAIN_SYSTEM_PROMPT, buildExplainUserMessage } from "../../backend/ai/prompts/explain";
-import { validateExplainPayload } from "../../backend/ai/schemas";
-import { AiInputError, sanitizeExplainRequest } from "../../backend/ai/sanitize";
+import type { ExplainResponse } from "../../frontend/src/data/aiContracts.js";
+import { aiConfig, callClaudeJson, logAiFailure } from "../../backend/ai/claude-client.js";
+import { cacheKey, readCache, writeCache } from "../../backend/ai/cache.js";
+import { claudeMetadata, explainWithoutClaude } from "../../backend/ai/fallback.js";
+import { aiErrorBody, type AiHandler } from "../../backend/ai/http.js";
+import { EXPLAIN_SYSTEM_PROMPT, buildExplainUserMessage } from "../../backend/ai/prompts/explain.js";
+import { validateExplainPayload } from "../../backend/ai/schemas.js";
+import { AiInputError, sanitizeExplainRequest } from "../../backend/ai/sanitize.js";
 
 const MAX_TOKENS = 6_000;
 

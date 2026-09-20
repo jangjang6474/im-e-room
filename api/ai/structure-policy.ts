@@ -5,17 +5,17 @@
  * `needsHumanReview`는 항상 true로 고정한다. 검수한 결과만 규칙 DB에 반영한다.
  */
 
-import type { StructuredPolicy } from "../../frontend/src/data/aiContracts";
-import { aiConfig, callClaudeJson, logAiFailure } from "../../backend/ai/claude-client";
-import { cacheKey, readCache, writeCache } from "../../backend/ai/cache";
-import { claudeMetadata, structuredPolicyWithoutClaude } from "../../backend/ai/fallback";
-import { aiErrorBody, type AiHandler } from "../../backend/ai/http";
+import type { StructuredPolicy } from "../../frontend/src/data/aiContracts.js";
+import { aiConfig, callClaudeJson, logAiFailure } from "../../backend/ai/claude-client.js";
+import { cacheKey, readCache, writeCache } from "../../backend/ai/cache.js";
+import { claudeMetadata, structuredPolicyWithoutClaude } from "../../backend/ai/fallback.js";
+import { aiErrorBody, type AiHandler } from "../../backend/ai/http.js";
 import {
   STRUCTURE_POLICY_SYSTEM_PROMPT,
   buildStructurePolicyUserMessage,
-} from "../../backend/ai/prompts/structure-policy";
-import { validateStructuredPolicyPayload } from "../../backend/ai/schemas";
-import { AiInputError, sanitizeStructurePolicyRequest } from "../../backend/ai/sanitize";
+} from "../../backend/ai/prompts/structure-policy.js";
+import { validateStructuredPolicyPayload } from "../../backend/ai/schemas.js";
+import { AiInputError, sanitizeStructurePolicyRequest } from "../../backend/ai/sanitize.js";
 
 const MAX_TOKENS = 10_000;
 
