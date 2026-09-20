@@ -18,6 +18,7 @@ import type {
   PlanProposal,
   SuggestedAction,
 } from "../data/apiContracts";
+import type { AiSource } from "../data/aiContracts";
 import type { ProductBoundaryId } from "../data/contracts";
 
 /** 패널·칩의 시각 톤. 색은 보조 수단이고 라벨 텍스트가 1차 정보이다. */
@@ -354,4 +355,28 @@ export const CONFIDENCE_LABEL: Record<"HIGH" | "MEDIUM" | "LOW", { label: string
   HIGH: { label: "근거 많음", tone: "attention" },
   MEDIUM: { label: "근거 보통", tone: "muted" },
   LOW: { label: "근거 적음", tone: "muted" },
+};
+
+/**
+ * AI 설명의 출처 표시.
+ *
+ * 고객 화면에는 어떤 경로로 만든 설명인지만 알린다.
+ * 내부 모델 ID는 응답 metadata에만 두고 화면에 노출하지 않는다.
+ */
+export const AI_SOURCE_LABEL: Record<AiSource, { label: string; tone: Tone; help: string }> = {
+  CLAUDE: {
+    label: "Claude가 생성한 설명",
+    tone: "positive",
+    help: "계산 결과를 바탕으로 이번에 새로 작성한 설명입니다.",
+  },
+  FIXTURE: {
+    label: "미리 준비된 AI 설명",
+    tone: "neutral",
+    help: "앱에 담아 둔 설명으로 안내하고 있습니다. 금액과 목표 상태는 계산 결과와 같습니다.",
+  },
+  RULE: {
+    label: "규칙 기반 설명",
+    tone: "muted",
+    help: "계산 결과를 정해진 문장 형식으로 그대로 옮긴 설명입니다.",
+  },
 };

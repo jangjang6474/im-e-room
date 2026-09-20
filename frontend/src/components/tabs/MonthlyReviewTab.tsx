@@ -25,6 +25,7 @@ import {
   resolveProposedStatus,
 } from "../../api/labels";
 import type { ChangeEventV1, PlanProposal } from "../../data/apiContracts";
+import { AiExplanationPanel } from "../ai/AiExplanationPanel";
 import {
   ActionButton,
   Callout,
@@ -227,6 +228,9 @@ export const MonthlyReviewTab: React.FC = () => {
               </Disclosure>
             )}
           </Section>
+
+          {/* 계산 결과를 쉬운 문장으로 (문장은 서버가 만들고 화면은 그대로 표시한다) */}
+          <AiExplanationPanel />
 
           {/* ② 목표에 어떤 영향이 있는지 */}
           {proposed && previous && (
