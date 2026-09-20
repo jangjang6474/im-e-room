@@ -29,7 +29,7 @@ export const GoalMethodExplainer: React.FC<{ plan: PlanProposal; className?: str
       title: "정한 순서대로 목표에 나눕니다",
       body: `이 여력 중 ${won(plan.totalMonthlyAmount)}을 목표에 나누고, 남은 ${won(
         plan.unallocatedAmount,
-      )}은 갑작스러운 지출에 대비해 생활비로 남겨둡니다.`,
+      )}은 목표에 배분하지 않은 잔액으로 둡니다.`,
     },
     {
       icon: <ShieldCheck className={ICON_CLASS} aria-hidden="true" />,

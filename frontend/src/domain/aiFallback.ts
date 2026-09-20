@@ -110,7 +110,7 @@ export function buildRuleExplanation(input: ExplainRequest, isFallback: boolean)
       after: krw((proposedPlan ?? previousPlan)?.monthlyContribution ?? null),
     });
     factsUsed.push({
-      label: "생활비로 남겨두는 돈",
+      label: "잔액",
       before: previousPlan ? krw(previousPlan.monthlyBalance) : null,
       after: krw((proposedPlan ?? previousPlan)?.monthlyBalance ?? null),
     });

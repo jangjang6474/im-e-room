@@ -1,8 +1,8 @@
 /**
  * AI 설명 패널
  *
- * 이번 달 점검 결과를 쉬운 문장으로 보여준다. 문장은 서버가 만들고 화면은 그대로 표시한다.
- * 금액은 계산 결과를 옮긴 값이며 이 화면에서 다시 계산하지 않는다.
+ * 이번 달 점검 결과를 쉬운 문장으로 보여준다. 계산 설명은 서버 응답을 그대로 표시하고,
+ * 승인 뒤의 다음 행동만 현재 계획 상태에 맞는 확정 문구로 바꿀 수 있다. 금액은 다시 계산하지 않는다.
  *
  * 표시 상태: 준비 중 / Claude 설명 / 미리 준비된 설명 / 규칙 기반 설명 / 상담사 연결 안내.
  * 서버 오류나 설정 문제는 고객 화면에 그대로 쓰지 않고 "설명을 불러오지 못했습니다"로만 알린다.
@@ -48,9 +48,10 @@ export const AiSourceNotice: React.FC<{ source: ExplainResponse["metadata"]; asO
   );
 };
 
-export const AiExplanationPanel: React.FC<{ title?: string; description?: string }> = ({
+export const AiExplanationPanel: React.FC<{ title?: string; description?: string; nextActionOverride?: string }> = ({
   title = "이번 결과를 쉽게 설명해 드릴게요",
   description = "계산 결과를 바탕으로 무엇이 달라졌고 무엇을 확인하면 되는지 정리했습니다.",
+  nextActionOverride,
 }) => {
   const session = useAiSessionInput();
   const [status, setStatus] = useState<PanelStatus>("idle");
@@ -121,7 +122,9 @@ export const AiExplanationPanel: React.FC<{ title?: string; description?: string
               </div>
               <div>
                 <dt className="text-xs font-bold text-[#526562]">다음에 확인할 것</dt>
-                <dd className="text-sm text-[#142B29] leading-relaxed break-keep mt-0.5">{explanation.nextAction}</dd>
+                <dd className="text-sm text-[#142B29] leading-relaxed break-keep mt-0.5">
+                  {nextActionOverride ?? explanation.nextAction}
+                </dd>
               </div>
             </dl>
 

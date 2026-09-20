@@ -93,6 +93,16 @@ export const MonthlyReviewTab: React.FC = () => {
   const decisionPlan = proposed && currentPlan?.planId === proposed.planId ? currentPlan : proposed;
   const decisionStatus = resolveProposedStatus(review, currentPlan);
   const status = resolveHomeStatus(review, currentPlan, isConsentRevoked);
+  const explanationNextAction =
+    review?.routing !== "REPLAN"
+      ? undefined
+      : decisionStatus === "APPROVED"
+        ? "조정안을 승인했습니다. 모의 자동이체 등록을 완료하면 이번 달 처리가 끝납니다. 실제 이체는 없습니다."
+        : decisionStatus === "MOCK_EXECUTED"
+          ? "모의 실행을 완료했습니다. 다음 점검일까지 추가로 할 일이 없습니다."
+          : decisionStatus === "REJECTED"
+            ? "기존 계획을 유지하기로 했습니다. 조정안은 실행되지 않습니다."
+            : undefined;
 
   const goalIds = Array.from(
     new Set([...(previous?.allocations ?? []), ...(proposed?.allocations ?? [])].map((item) => item.goalId)),
@@ -199,7 +209,12 @@ export const MonthlyReviewTab: React.FC = () => {
 
       {/* 다음 달로 넘어가는 과정을 먼저 보여준다 (실행 전에는 예고, 실행 뒤에는 처리 결과) */}
       {diagnosis && (
-        <MonthTransitionPanel review={review} asOf={diagnosis.asOf} isRunning={Boolean(pending.review)} />
+        <MonthTransitionPanel
+          review={review}
+          planStatus={decisionStatus}
+          asOf={diagnosis.asOf}
+          isRunning={Boolean(pending.review)}
+        />
       )}
 
       {isConsentRevoked && (
@@ -236,8 +251,8 @@ export const MonthlyReviewTab: React.FC = () => {
             )}
           </Section>
 
-          {/* 계산 결과를 쉬운 문장으로 (문장은 서버가 만들고 화면은 그대로 표시한다) */}
-          <AiExplanationPanel />
+          {/* 계산 설명은 서버 응답, 다음 행동은 현재 계획 상태를 표시한다. */}
+          <AiExplanationPanel nextActionOverride={explanationNextAction} />
 
           {/* ② 목표에 어떤 영향이 있는지 */}
           {proposed && previous && (
@@ -298,7 +313,7 @@ export const MonthlyReviewTab: React.FC = () => {
                     note={`차이 ${wonDelta(proposed.totalMonthlyAmount - previous.totalMonthlyAmount)}`}
                   />
                   <CompareRow
-                    label="생활비로 남겨두는 돈"
+                    label="잔액"
                     before={won(previous.unallocatedAmount)}
                     after={won(proposed.unallocatedAmount)}
                   />
@@ -333,7 +348,7 @@ export const MonthlyReviewTab: React.FC = () => {
                 <>
                   <SummaryRow label="유지 중인 계획" value={`v${previous.version}`} />
                   <SummaryRow label="월 납입 합계" value={won(previous.totalMonthlyAmount)} tone="strong" />
-                  <SummaryRow label="생활비로 남겨두는 돈" value={won(previous.unallocatedAmount)} />
+                  <SummaryRow label="잔액" value={won(previous.unallocatedAmount)} />
                 </>
               )
             )}
