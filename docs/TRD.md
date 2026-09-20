@@ -166,6 +166,17 @@ flowchart LR
 - 여력이 `null`이면 산출 보류, 음수면 전체 0원과 안내 문구. 이자·우대금리·정부기여금은 반영하지 않는다.
 - 계획 ID: `plan-{customerId}-v{version}-{baselineSnapshotId}`.
 
+#### 사용자가 설계한 목표 (`domain/goalDesign.ts`)
+
+목표 금액·기한·우선순위는 가상 고객의 기본값이 아니라 사용자 입력이 될 수 있다. 계산식은 바뀌지 않고 `buildGoalPlan()`에 들어가는 `goals`만 달라진다.
+
+- 입력은 `GoalDraft`로 받고 `goalsFromDrafts()`로 계약 타입 `MockGoal[]`로 옮긴다. 우선순위는 표시 순서대로 1부터 다시 매긴다.
+- 목표 식별자는 종류에서 파생한다(`goal-emergency` 등). 같은 입력이면 같은 목표 배열과 같은 계획이 나온다.
+- 검증(`validateGoalDrafts`)은 금액 10만원~5억원, 기한 1~120개월, 모은 금액 0원 이상이며 목표 금액 이하, 이름 24자 이내, 목표 1~5개, 연결 상품 존재 여부를 본다.
+- 요청 본문으로 들어온 목표는 신뢰하지 않는다. `parseGoalsPayload()`로 형태·범위·연결 상품을 확인한 뒤에만 계산에 넘기고, 어긋나면 400으로 거절한다.
+- 계획 ID는 목표 내용이 아니라 고객·버전·기준 스냅샷에서 나온다. 목표를 바꿔도 승인·거절·모의 실행 흐름과 멱등성 키는 그대로이다.
+- 세션은 등록 시점의 목표를 기억하고 월간 점검의 v2 계획도 같은 목표로 계산한다.
+
 ### 3.7 월간 변화 감지 · 이벤트 분류 (`domain/changeDetection.ts`)
 
 | 규칙 ID | 조건 | 등급 | 조치 |
@@ -209,8 +220,10 @@ PROPOSED ─approve→ APPROVED ─execute→ MOCK_EXECUTED
 | GET | `/personas/:id/diagnosis` | `DiagnosisResponse` |
 | GET | `/personas/:id/eligibility` | `EligibilityResponse` |
 | GET | `/products?boundary=STABLE\|BALANCED\|GOAL_FOCUSED` | `ProductBoundaryResponse` |
+| GET | `/personas/:id/goals` | `MockGoal[]`(목표 설계 화면의 시작값) |
 | GET | `/personas/:id/plan/preview?boundary=` | `PlanProposal`(저장 안 함) |
-| POST | `/personas/:id/plans` | `PlanProposal`(등록, 재요청 시 같은 계획) |
+| POST | `/personas/:id/plan/preview` | `PlanProposal`(본문 `{ boundaryId?, goals? }`, 저장 안 함) |
+| POST | `/personas/:id/plans` | `PlanProposal`(등록, 본문 `{ boundaryId?, goals? }`, 재요청 시 같은 계획) |
 | POST | `/personas/:id/monthly-review` | `MonthlyReviewResponse` |
 | POST | `/personas/:id/consent/revoke` | 철회 시각 |
 | GET | `/plans/:planId` | `PlanProposal` |
@@ -220,7 +233,9 @@ PROPOSED ─approve→ APPROVED ─execute→ MOCK_EXECUTED
 | GET | `/example-journey` | `ExampleJourneyResponse` |
 | POST | `/reset` | 세션 초기화 (`x-demo-role: demo`) |
 
-오류 형식: `{ contractVersion, error, message }`, 알 수 없는 페르소나 404, 잘못된 바운더리 400, 권한 없음 403. 서버 상태는 프로세스 메모리에만 있다. Frontend는 `frontend/src/data/mockApiClient.ts`를 사용하며 서버에 연결할 수 없으면 같은 도메인 함수를 브라우저에서 실행한다(`source: "offline-fixture"`).
+`goals`는 선택값이다. 주지 않으면 가상 고객의 기본 목표로 계산하므로 기존 호출의 응답은 달라지지 않는다.
+
+오류 형식: `{ contractVersion, error, message }`, 알 수 없는 페르소나 404, 잘못된 바운더리·잘못된 목표 400, 권한 없음 403. 서버 상태는 프로세스 메모리에만 있다. Frontend는 `frontend/src/data/mockApiClient.ts`를 사용하며 서버에 연결할 수 없으면 같은 도메인 함수를 브라우저에서 실행한다(`source: "offline-fixture"`).
 
 ### 3.10 최종기획서 24개월 적용 예시 (`domain/exampleJourney.ts`)
 
@@ -317,7 +332,7 @@ Claude 호출이 아래 중 하나에 해당하면 즉시 다음 순위로 내�
 |---|---|
 | 월 소득·고정·변동·비정기 지출·부채 상환·월 저축 여력 합계 | 이름, 전화번호, 이메일, 주소 상세 |
 | 변화 유형 코드(규칙 ID), 등급, 변화 메시지 | 계좌번호, 카드번호, 거래 상대방, 거래 메모 |
-| 계획의 월 납입 합계·남기는 금액·1순위 목표 예상 달성 시점 | 원본 거래 목록과 거래 식별자 |
+| 계획의 월 납입 합계·생활비로 남겨두는 돈·1순위 목표 예상 달성 시점 | 원본 거래 목록과 거래 식별자 |
 | 정책명과 확인 상태(`ELIGIBLE`/`NEEDS_VERIFICATION`/`INELIGIBLE`) | 주민등록번호 등 고유식별정보 |
 | 검수된 근거 문장과 출처·기준일 | 페르소나 이름(합성 이름도 전달하지 않음) |
 

@@ -13,6 +13,7 @@ import type {
   DiagnosisResponse,
   EligibilityResponse,
   MockExecutionRecordV1,
+  MockGoal,
   MonthlyReviewResponse,
   PersonaId,
   PersonaSummary,
@@ -23,8 +24,9 @@ import type {
 } from "../data/apiContracts";
 import type { ProductBoundaryId } from "../data/contracts";
 import { MockApiError, createMockApiClient, type ApiSource } from "../data/mockApiClient";
+import { draftsFromGoals, goalsFromDrafts, sameGoals, validateGoalDrafts, type GoalDraft } from "../domain/goalDesign";
 
-export type Phase = "intro" | "persona" | "consent" | "diagnosing" | "app";
+export type Phase = "intro" | "persona" | "consent" | "diagnosing" | "design" | "app";
 export type TabId = "home" | "diagnostics" | "goals" | "review" | "policy" | "history";
 
 export interface CommandFeedback {
@@ -60,6 +62,14 @@ interface EroomSessionValue {
   eligibility: EligibilityResponse | null;
   boundaryId: ProductBoundaryId;
   products: ProductBoundaryResponse | null;
+  /** 가상 고객이 이미 가지고 있는 목표. 목표 설계 화면의 시작값이다. */
+  baseGoals: MockGoal[];
+  /** 목표 설계 화면의 현재 입력값 */
+  goalDrafts: GoalDraft[];
+  /** 사용자가 설계를 마친 목표. 추천을 그대로 쓰면 null이며 계산 결과는 같다. */
+  designedGoals: MockGoal[] | null;
+  /** 목표 입력값의 문제 목록. 비어 있어야 계획을 계산한다. */
+  goalIssues: ReturnType<typeof validateGoalDrafts>;
   /** 아직 등록하지 않은 계획 미리보기 */
   planPreview: PlanProposal | null;
   /** 등록·승인·실행 상태가 있는 현재 계획 */
@@ -77,13 +87,23 @@ interface EroomSessionValue {
   isConsentRevoked: boolean;
   /* 액션 */
   setTab: (tab: TabId) => void;
+  setGoalDrafts: (drafts: GoalDraft[]) => void;
+  /** 입력한 목표로 계획 미리보기를 다시 계산한다. 값이 잘못되면 계산하지 않고 문제를 표시한다. */
+  previewDesignedPlan: (drafts: GoalDraft[]) => Promise<boolean>;
+  /** 설계를 마치고 재무 홈으로 이동한다. */
+  finishGoalDesign: () => void;
+  /** 추천 목표를 그대로 쓰고 재무 홈으로 이동한다. */
+  skipGoalDesign: () => Promise<void>;
+  /** 아직 시작하지 않은 계획의 목표를 다시 설계한다. */
+  startGoalRedesign: () => void;
   goToPersonaSelect: () => void;
   goToIntro: () => void;
   selectPersona: (personaId: PersonaId) => void;
   agreeAndDiagnose: () => Promise<void>;
   retryLoad: () => Promise<void>;
   changeBoundary: (boundaryId: ProductBoundaryId) => Promise<void>;
-  registerPlan: () => Promise<void>;
+  /** 계획을 등록한다. 등록에 성공하면 true. */
+  registerPlan: () => Promise<boolean>;
   approvePlan: (planId: string) => Promise<void>;
   rejectPlan: (planId: string) => Promise<void>;
   executePlan: (planId: string) => Promise<void>;
@@ -122,6 +142,10 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [eligibility, setEligibility] = useState<EligibilityResponse | null>(null);
   const [boundaryId, setBoundaryId] = useState<ProductBoundaryId>("BALANCED");
   const [products, setProducts] = useState<ProductBoundaryResponse | null>(null);
+  const [baseGoals, setBaseGoals] = useState<MockGoal[]>([]);
+  const [goalDrafts, setGoalDrafts] = useState<GoalDraft[]>([]);
+  const [designedGoals, setDesignedGoals] = useState<MockGoal[] | null>(null);
+  const [goalIssues, setGoalIssues] = useState<ReturnType<typeof validateGoalDrafts>>([]);
   const [planPreview, setPlanPreview] = useState<PlanProposal | null>(null);
   const [currentPlan, setCurrentPlan] = useState<PlanProposal | null>(null);
   const [review, setReview] = useState<MonthlyReviewResponse | null>(null);
@@ -197,6 +221,12 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setLoadStep(3);
       const productsResult = await client.getProducts(targetBoundary);
       setProducts(productsResult.data);
+      // 목표 설계 화면의 시작값. 사용자가 고치기 전까지는 이 목표로 계획을 계산한다.
+      const goalsResult = await client.getGoals(targetPersona);
+      setBaseGoals(goalsResult.data);
+      setGoalDrafts(draftsFromGoals(goalsResult.data));
+      setDesignedGoals(null);
+      setGoalIssues([]);
       const previewResult = await client.previewPlan(targetPersona, targetBoundary);
       setPlanPreview(previewResult.data);
       setLoadStep(4);
@@ -221,8 +251,8 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     await runExclusive("session", async () => {
       try {
         await loadSession(personaId, targetBoundary);
-        setPhase("app");
-        setTab("home");
+        // 진단이 끝나면 곧바로 홈으로 보내지 않고 사용자가 목표를 직접 설계하는 단계를 거친다.
+        setPhase("design");
       } catch (caught) {
         setError(errorMessage(caught));
       }
@@ -236,7 +266,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     await runExclusive("session", async () => {
       try {
         await loadSession(personaId, boundaryId);
-        setPhase("app");
+        setPhase("design");
       } catch (caught) {
         setError(errorMessage(caught));
       }
@@ -250,7 +280,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         try {
           setError(null);
           const productsResult = await client.getProducts(nextBoundary);
-          const previewResult = await client.previewPlan(personaId, nextBoundary);
+          const previewResult = await client.previewPlan(personaId, nextBoundary, designedGoals ?? undefined);
           setBoundaryId(nextBoundary);
           setProducts(productsResult.data);
           setPlanPreview(previewResult.data);
@@ -259,7 +289,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
       });
     },
-    [client, personaId, boundaryId, runExclusive],
+    [client, personaId, boundaryId, designedGoals, runExclusive],
   );
 
   const applyCommand = useCallback((response: PlanCommandResponse) => {
@@ -279,20 +309,23 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [client, diagnosis]);
 
-  const registerPlan = useCallback(async () => {
-    if (!personaId) return;
-    await runExclusive("plan", async () => {
+  const registerPlan = useCallback(async (): Promise<boolean> => {
+    if (!personaId) return false;
+    const result = await runExclusive("plan", async () => {
       try {
         setError(null);
-        const result = await client.proposePlan(personaId, boundaryId);
-        setCurrentPlan(result.data);
+        const response = await client.proposePlan(personaId, boundaryId, designedGoals ?? undefined);
+        setCurrentPlan(response.data);
         setFeedback({ outcome: "APPROVED", message: "계획을 등록했습니다. 확정하기 전에는 아무것도 실행되지 않습니다." });
+        return true;
       } catch (caught) {
         setError(errorMessage(caught));
         setFeedback({ outcome: "ERROR", message: errorMessage(caught) });
+        return false;
       }
     });
-  }, [client, personaId, boundaryId, runExclusive]);
+    return result === true;
+  }, [client, personaId, boundaryId, designedGoals, runExclusive]);
 
   const approvePlan = useCallback(
     async (planId: string) => {
@@ -391,6 +424,68 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     });
   }, [client, personaId, runExclusive]);
 
+  /**
+   * 입력한 목표로 계획 미리보기를 다시 계산한다.
+   *
+   * 값이 잘못됐으면 계산을 요청하지 않고 문제만 표시한다.
+   * 추천 목표를 그대로 두면 `designedGoals`를 비워 기존 흐름(가상 고객 기본 목표)과 같은 결과를 유지한다.
+   */
+  const previewDesignedPlan = useCallback(
+    async (drafts: GoalDraft[]): Promise<boolean> => {
+      if (!personaId) return false;
+      const issues = validateGoalDrafts(drafts);
+      setGoalIssues(issues);
+      if (issues.length > 0) return false;
+
+      const goals = goalsFromDrafts(drafts);
+      const isDefault = sameGoals(goals, baseGoals);
+      const result = await runExclusive("goal-preview", async () => {
+        try {
+          setError(null);
+          const preview = await client.previewPlan(personaId, boundaryId, isDefault ? undefined : goals);
+          setPlanPreview(preview.data);
+          setDesignedGoals(isDefault ? null : goals);
+          setGoalDrafts(drafts);
+          return true;
+        } catch (caught) {
+          setError(errorMessage(caught));
+          return false;
+        }
+      });
+      return result === true;
+    },
+    [client, personaId, boundaryId, baseGoals, runExclusive],
+  );
+
+  const finishGoalDesign = useCallback(() => {
+    setPhase("app");
+    setTab("home");
+  }, []);
+
+  /** 추천 목표를 그대로 쓴다. 계산 결과는 설계 단계를 거치지 않은 기존 흐름과 같다. */
+  const skipGoalDesign = useCallback(async () => {
+    setGoalIssues([]);
+    setDesignedGoals(null);
+    setGoalDrafts(draftsFromGoals(baseGoals));
+    if (personaId) {
+      await runExclusive("goal-preview", async () => {
+        try {
+          const preview = await client.previewPlan(personaId, boundaryId);
+          setPlanPreview(preview.data);
+        } catch (caught) {
+          setError(errorMessage(caught));
+        }
+      });
+    }
+    setPhase("app");
+    setTab("home");
+  }, [client, personaId, boundaryId, baseGoals, runExclusive]);
+
+  const startGoalRedesign = useCallback(() => {
+    setGoalIssues([]);
+    setPhase("design");
+  }, []);
+
   const loadConsultations = useCallback(async () => {
     await runExclusive("consultations", async () => {
       try {
@@ -416,6 +511,10 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setConsultation(null);
     setExecutions([]);
     setConsent(null);
+    setBaseGoals([]);
+    setGoalDrafts([]);
+    setDesignedGoals(null);
+    setGoalIssues([]);
   }, []);
 
   /**
@@ -442,6 +541,10 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setConsultation(null);
     setConsultations([]);
     setExecutions([]);
+    setBaseGoals([]);
+    setGoalDrafts([]);
+    setDesignedGoals(null);
+    setGoalIssues([]);
     setError(null);
     setLoadStep(0);
     setFeedback(
@@ -468,6 +571,10 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     eligibility,
     boundaryId,
     products,
+    baseGoals,
+    goalDrafts,
+    designedGoals,
+    goalIssues,
     planPreview,
     currentPlan,
     review,
@@ -480,6 +587,11 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     feedback,
     isConsentRevoked: consent?.status === "REVOKED" || (personaId !== null && revokedPersonas.current.has(personaId)),
     setTab,
+    setGoalDrafts,
+    previewDesignedPlan,
+    finishGoalDesign,
+    skipGoalDesign,
+    startGoalRedesign,
     goToPersonaSelect: () => setPhase("persona"),
     goToIntro: () => setPhase("intro"),
     selectPersona,
