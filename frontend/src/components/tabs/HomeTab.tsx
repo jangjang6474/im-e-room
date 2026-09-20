@@ -5,7 +5,7 @@
  * 모든 수치는 Mock 계약 응답 필드를 그대로 표시한다.
  */
 
-import React from "react";
+import React, { useState } from "react";
 import { ArrowRight, CalendarCheck, History, ShieldOff, Wallet } from "lucide-react";
 import { useEroomSession } from "../../api/EroomSession";
 import { dateText, dateTimeText, months, won } from "../../api/format";
@@ -40,7 +40,9 @@ export const HomeTab: React.FC = () => {
     setTab,
     revokeConsent,
     pending,
+    isConsentRevoked,
   } = useEroomSession();
+  const [confirmRevoke, setConfirmRevoke] = useState(false);
 
   if (!diagnosis) return null;
   const plan = currentPlan ?? planPreview;
@@ -225,8 +227,10 @@ export const HomeTab: React.FC = () => {
           <KeyValueRow
             label="수집 동의"
             value={
-              consent?.status === "REVOKED"
-                ? `철회함 (${dateTimeText(consent.revokedAt)})`
+              isConsentRevoked
+                ? consent?.revokedAt
+                  ? `철회함 (${dateTimeText(consent.revokedAt)})`
+                  : "철회함"
                 : "동의함 · 매월 1회 재수집"
             }
           />
@@ -235,17 +239,36 @@ export const HomeTab: React.FC = () => {
           <ActionButton variant="ghost" onClick={() => setTab("history")} icon={<History className="w-4 h-4" aria-hidden="true" />}>
             변경 내역 보기
           </ActionButton>
-          {consent?.status !== "REVOKED" && (
+          {!isConsentRevoked && !confirmRevoke && (
             <ActionButton
               variant="ghost"
-              loading={pending.consent}
-              onClick={() => void revokeConsent()}
+              onClick={() => setConfirmRevoke(true)}
               icon={<ShieldOff className="w-4 h-4" aria-hidden="true" />}
             >
               수집 동의 철회
             </ActionButton>
           )}
         </div>
+        {!isConsentRevoked && confirmRevoke && (
+          <Callout tone="attention" title="정말 철회할까요?" className="mt-3">
+            철회하면 다음 달 수집과 월간 점검이 중단됩니다. 이 체험 세션에서는 철회를 되돌릴 수 없습니다.
+            <div className="mt-3 flex flex-wrap gap-2">
+              <ActionButton
+                variant="ghost"
+                loading={pending.consent}
+                onClick={async () => {
+                  await revokeConsent();
+                  setConfirmRevoke(false);
+                }}
+              >
+                철회합니다
+              </ActionButton>
+              <ActionButton variant="ghost" onClick={() => setConfirmRevoke(false)}>
+                취소
+              </ActionButton>
+            </div>
+          </Callout>
+        )}
       </Panel>
     </div>
   );

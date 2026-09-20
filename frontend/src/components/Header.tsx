@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenGuide, onToggleDemoTool, i
           {phase === "app" && (
             <button
               type="button"
-              onClick={resetSession}
+              onClick={() => void resetSession()}
               className="min-h-[44px] min-w-[44px] px-3 rounded-2xl border border-[#DCE7E4] text-[#142B29] font-bold text-sm inline-flex items-center gap-1.5 hover:bg-[#F6F9F8]"
             >
               <RotateCcw className="w-4 h-4" aria-hidden="true" />

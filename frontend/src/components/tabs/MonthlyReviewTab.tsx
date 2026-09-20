@@ -49,6 +49,7 @@ export const MonthlyReviewTab: React.FC = () => {
     feedback,
     clearFeedback,
     persona,
+    isConsentRevoked,
   } = useEroomSession();
 
   const proposed = review?.proposedPlan ?? null;
@@ -84,14 +85,19 @@ export const MonthlyReviewTab: React.FC = () => {
               : "동의일 기준으로 매월 1회 수집합니다. 지금 다음 달 수집을 실행해 볼 수 있습니다."
           }
         />
-        {consent?.status === "REVOKED" && (
+        {isConsentRevoked && (
           <Callout tone="attention" title="수집 동의가 철회되었습니다">
-            동의를 철회한 상태에서는 새 수집을 진행하지 않습니다. 기존 계획은 그대로 유지됩니다.
+            동의를 철회한 상태에서는 새 수집을 진행하지 않습니다. 기존 계획은 그대로 유지됩니다. 이 체험 세션에서는 철회를
+            되돌릴 수 없으니, 다시 처음부터 보려면 다른 고객을 선택하거나 시연 모드에서 세션을 초기화하세요.
           </Callout>
         )}
         <div className="mt-3 flex flex-wrap gap-2">
-          <ActionButton loading={pending.review} onClick={() => void runMonthlyReview()}>
-            {review ? "점검 다시 실행" : "다음 달 수집·점검 실행"}
+          <ActionButton
+            loading={pending.review}
+            disabled={isConsentRevoked}
+            onClick={() => void runMonthlyReview()}
+          >
+            {isConsentRevoked ? "수집 중단됨 (동의 철회)" : review ? "점검 다시 실행" : "다음 달 수집·점검 실행"}
           </ActionButton>
           {review && (
             <span className="inline-flex items-center text-xs text-[#526562] tabular-nums">

@@ -103,10 +103,10 @@ export const DemoControllerBanner: React.FC<DemoControllerBannerProps> = ({
           </ActionButton>
           <ActionButton
             variant="ghost"
-            onClick={resetSession}
+            onClick={() => void resetSession()}
             icon={<RefreshCw className="w-4 h-4" aria-hidden="true" />}
           >
-            세션 초기화
+            세션 초기화 (계획·실행 이력 포함)
           </ActionButton>
         </div>
       </div>

@@ -108,6 +108,28 @@ export function createMockApiClient(options: { baseUrl?: string; role?: "custome
       call<MockExecutionRecordV1[]>("GET", `/executions${customerId ? `?customerId=${encodeURIComponent(customerId)}` : ""}`, () => offlineSession.listExecutions(customerId)),
     listConsultations: () => call<ConsultationCaseV1[]>("GET", "/consultations", () => offlineSession.listConsultations()),
     getExampleJourney: () => call<ExampleJourneyResponse>("GET", "/example-journey", getExampleJourney),
+    /**
+     * 체험 세션 초기화: 계획 상태·모의 실행 이력·상담 케이스·동의 철회를 버린다.
+     *
+     * 오프라인 fallback 세션은 이 브라우저 탭 것이므로 항상 초기화한다.
+     * 서버 세션은 시연 제어 권한이므로 역할 검사를 서버에서 하고, customer 역할이면 서버 상태가 그대로 남는다.
+     * 호출자는 serverReset 값을 보고 남은 상태를 화면에 사실대로 표시해야 한다.
+     */
+    resetSession: async (): Promise<{ serverReset: boolean; usedServer: boolean }> => {
+      offlineSession.reset();
+      const usedServer = serverAvailable && !!fetchImpl;
+      if (!usedServer || !fetchImpl) return { serverReset: false, usedServer: false };
+      try {
+        const response = await fetchImpl(`${baseUrl}/reset`, {
+          method: "POST",
+          headers: { "content-type": "application/json", "x-demo-role": role },
+        });
+        return { serverReset: response.ok, usedServer: true };
+      } catch {
+        serverAvailable = false;
+        return { serverReset: false, usedServer: false };
+      }
+    },
   };
 }
 

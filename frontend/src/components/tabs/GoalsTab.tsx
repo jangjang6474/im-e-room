@@ -270,12 +270,18 @@ export const GoalsTab: React.FC = () => {
               모의 실행하기 (실제 이체 없음)
             </ActionButton>
           )}
-          {isRegistered && plan.status === "MOCK_EXECUTED" && (
+          {isRegistered && (plan.status === "MOCK_EXECUTED" || plan.status === "REJECTED" || plan.status === "SUPERSEDED") && (
             <ActionButton variant="secondary" onClick={() => setTab("history")}>
-              모의 실행 이력 보기
+              변경 내역에서 확인하기
             </ActionButton>
           )}
         </div>
+        {isRegistered && plan.status !== "PROPOSED" && plan.status !== "APPROVED" && (
+          <Callout tone="muted" title="이 계획은 이미 결정되었습니다" className="mt-3">
+            이 체험 세션에서 {status.label} 상태가 된 계획입니다. 승인된 계획은 수정하지 않고 새 버전으로만 바꾸므로, 같은
+            고객으로 처음 흐름을 다시 보려면 시연 모드에서 세션을 초기화하거나 다른 고객을 선택하세요.
+          </Callout>
+        )}
         <p className="text-[11px] text-[#526562] mt-3 leading-relaxed">
           승인 전에는 아무것도 실행되지 않습니다. 모의 실행은 자동이체를 설정한 것으로 기록만 남기며 실제 금융기관 전송은 없습니다.
         </p>

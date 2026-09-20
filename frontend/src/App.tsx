@@ -28,6 +28,8 @@ import { GoalsTab } from "./components/tabs/GoalsTab";
 import { MonthlyReviewTab } from "./components/tabs/MonthlyReviewTab";
 import { PolicyCenterTab } from "./components/tabs/PolicyCenterTab";
 import { ExecutionHistoryTab } from "./components/tabs/ExecutionHistoryTab";
+import { Callout } from "./components/ui/Primitives";
+import { OUTCOME_TONE } from "./api/labels";
 
 const TAB_VIEWS = {
   home: <HomeTab />,
@@ -39,7 +41,7 @@ const TAB_VIEWS = {
 } as const;
 
 function MainContent() {
-  const { phase, tab, isDemoMode } = useEroomSession();
+  const { phase, tab, isDemoMode, feedback, clearFeedback } = useEroomSession();
   const [isGuideOpen, setGuideOpen] = useState(false);
   const [isDemoToolOpen, setDemoToolOpen] = useState(false);
   const [showConsultant, setShowConsultant] = useState(false);
@@ -69,6 +71,19 @@ function MainContent() {
         <AppShell>{TAB_VIEWS[tab]}</AppShell>
       ) : (
         <main className="flex-1 w-full">
+          {/* 세션 초기화 결과처럼 온보딩 화면으로 돌아온 뒤에도 알려야 하는 처리 결과 */}
+          {feedback && (
+            <div role="status" aria-live="polite" className="max-w-[880px] mx-auto px-4 sm:px-6 pt-5">
+              <Callout tone={feedback.outcome === "ERROR" ? "risk" : OUTCOME_TONE[feedback.outcome]} title="처리 결과">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="break-keep">{feedback.message}</span>
+                  <button type="button" onClick={clearFeedback} className="min-h-[44px] text-xs font-bold underline">
+                    닫기
+                  </button>
+                </div>
+              </Callout>
+            </div>
+          )}
           {phase === "intro" && <ServiceIntroView />}
           {phase === "persona" && <PersonaSelectView />}
           {phase === "consent" && <ConsentView />}

@@ -73,6 +73,8 @@ interface EroomSessionValue {
   pending: Record<string, boolean>;
   error: string | null;
   feedback: CommandFeedback | null;
+  /** 이 Mock 세션에서 수집 동의가 철회된 고객인지 (철회는 되돌릴 수 없다) */
+  isConsentRevoked: boolean;
   /* 액션 */
   setTab: (tab: TabId) => void;
   goToPersonaSelect: () => void;
@@ -89,7 +91,7 @@ interface EroomSessionValue {
   revokeConsent: () => Promise<void>;
   loadConsultations: () => Promise<void>;
   clearFeedback: () => void;
-  resetSession: () => void;
+  resetSession: () => Promise<void>;
 }
 
 const EroomSessionContext = createContext<EroomSessionValue | null>(null);
@@ -133,6 +135,12 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   /** 중복 클릭으로 같은 명령이 두 번 나가지 않게 한다. 서버·fixture 모두 멱등이지만 UI에서도 막는다. */
   const inFlight = useRef<Set<string>>(new Set());
+
+  /**
+   * Mock 세션에서 이미 동의를 철회한 고객. 철회를 되돌리는 계약이 없으므로 화면 상태를 지워도 기억한다.
+   * 서버 세션까지 초기화된 경우에만 비운다.
+   */
+  const revokedPersonas = useRef<Set<PersonaId>>(new Set());
 
   const runExclusive = useCallback(
     async <T,>(key: string, task: () => Promise<T>): Promise<T | undefined> => {
@@ -201,8 +209,9 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const target = personas.find((item) => item.personaId === personaId);
     const targetBoundary = target?.boundaryId ?? boundaryId;
     setBoundaryId(targetBoundary);
+    const alreadyRevoked = revokedPersonas.current.has(personaId);
     setConsent({
-      status: "ACTIVE",
+      status: alreadyRevoked ? "REVOKED" : "ACTIVE",
       agreedAt: target?.asOf ?? "",
       revokedAt: null,
       scopes: CONSENT_SCOPES,
@@ -340,6 +349,11 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         else setCurrentPlan(result.data.previousPlan);
         setTab("review");
       } catch (caught) {
+        // 409는 이 Mock 세션에서 이미 동의를 철회했다는 뜻이다. 다시 누르지 않도록 기억한다.
+        if (caught instanceof MockApiError && caught.status === 409) {
+          revokedPersonas.current.add(personaId);
+          setConsent((prev) => (prev ? { ...prev, status: "REVOKED" } : prev));
+        }
         setError(errorMessage(caught));
         setFeedback({ outcome: "ERROR", message: errorMessage(caught) });
       }
@@ -351,6 +365,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     await runExclusive("consent", async () => {
       try {
         const result = await client.revokeConsent(personaId);
+        revokedPersonas.current.add(personaId);
         setConsent((prev) =>
           prev ? { ...prev, status: "REVOKED", revokedAt: result.data.revokedAt } : prev,
         );
@@ -388,7 +403,17 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setConsent(null);
   }, []);
 
-  const resetSession = useCallback(() => {
+  /**
+   * 체험을 처음부터 다시 시작한다.
+   *
+   * 화면 상태만 지우면 Mock 세션의 계획 상태·모의 실행 이력·동의 철회가 남아 같은 흐름을 다시 밟을 수 없다.
+   * 그래서 Mock 세션 초기화를 먼저 요청하고, 서버가 거절하면(시연 제어 권한이 없는 고객 세션) 남은 상태를 그대로 알린다.
+   */
+  const resetSession = useCallback(async () => {
+    const result = await client.resetSession();
+    // 오프라인 체험에서는 세션 자체가 이 브라우저 것이라 항상 완전히 초기화된다.
+    const fullyReset = result.serverReset || !result.usedServer;
+    if (fullyReset) revokedPersonas.current.clear();
     setPhase("intro");
     setTab("home");
     setPersonaId(null);
@@ -403,9 +428,17 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setConsultations([]);
     setExecutions([]);
     setError(null);
-    setFeedback(null);
     setLoadStep(0);
-  }, []);
+    setFeedback(
+      fullyReset
+        ? { outcome: "APPROVED", message: "체험 세션을 초기화했습니다. 계획 상태와 모의 실행 이력, 수집 동의가 모두 처음 상태로 돌아갔습니다." }
+        : {
+            outcome: "INVALID_STATE",
+            message:
+              "화면을 처음 상태로 되돌렸습니다. 다만 Mock API 서버 세션의 계획 상태와 모의 실행 이력은 시연 권한이 있어야 지울 수 있어 그대로 남아 있습니다. 같은 고객을 다시 선택하면 이전 결정이 그대로 보입니다.",
+          },
+    );
+  }, [client]);
 
   const value: EroomSessionValue = {
     phase,
@@ -430,6 +463,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     pending,
     error,
     feedback,
+    isConsentRevoked: consent?.status === "REVOKED" || (personaId !== null && revokedPersonas.current.has(personaId)),
     setTab,
     goToPersonaSelect: () => setPhase("persona"),
     goToIntro: () => setPhase("intro"),
