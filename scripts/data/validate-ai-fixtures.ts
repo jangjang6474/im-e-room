@@ -236,7 +236,7 @@ for (const personaId of ["P01", "P02", "P03"] as PersonaId[]) {
       before: proposed ? krw(previous.totalMonthlyAmount) : null,
       after: krw(active.totalMonthlyAmount),
     },
-    "남기는 금액": {
+    "잔액": {
       before: proposed ? krw(previous.unallocatedAmount) : null,
       after: krw(active.unallocatedAmount),
     },

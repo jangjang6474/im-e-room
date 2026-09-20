@@ -147,7 +147,7 @@ export const GoalsTab: React.FC = () => {
             : "기한 안에 모으기 어려운 목표가 있습니다. 아래에서 목표별 상태를 확인하세요."
         }
         tone={isRegistered ? status.tone : "neutral"}
-        meta={`저축 여력 ${won(plan.availableSurplus)} 중 ${won(plan.unallocatedAmount)}은 생활비로 남겨둡니다.`}
+        meta={`저축 여력 ${won(plan.availableSurplus)} 중 목표에 배분하지 않은 잔액은 ${won(plan.unallocatedAmount)}입니다.`}
       />
 
       {/* 목표별 카드 */}
@@ -260,7 +260,7 @@ export const GoalsTab: React.FC = () => {
             label="1순위 목표 예상 달성"
             value={topGoal?.expectedCompletionMonth ? monthText(topGoal.expectedCompletionMonth) : "배분 없음"}
           />
-          <SummaryRow label="생활비로 남겨두는 돈" value={won(plan.unallocatedAmount)} />
+          <SummaryRow label="잔액" value={won(plan.unallocatedAmount)} />
         </div>
 
         {products && (
