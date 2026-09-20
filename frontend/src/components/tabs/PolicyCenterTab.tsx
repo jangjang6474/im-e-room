@@ -1,210 +1,203 @@
+/**
+ * 받을 수 있는 혜택 (필수 흐름 10)
+ *
+ * 정책 자격 판정과 상품 후보는 백엔드 결과이다. 확인되지 않은 요건을 충족으로 채우지 않는다.
+ */
+
 import React, { useState } from "react";
-import { useEroom } from "../../context/EroomContext";
-import { PolicyProduct } from "../../types";
-import { PRODUCT_BOUNDARIES, selectProductsByBoundary } from "../../data/adapters";
-import { REFERENCE_CATALOG } from "../../fixtures/generated/referenceCatalog";
+import { Gift, PackageSearch } from "lucide-react";
+import { useEroomSession } from "../../api/EroomSession";
+import { dateText, months, percent, won } from "../../api/format";
 import {
-  FileText,
-  ShieldCheck,
-  AlertCircle,
-  ExternalLink,
-  CheckCircle,
-  Clock,
-  Send,
-  Sparkles,
-} from "lucide-react";
+  CRITERION_LABEL,
+  CRITERION_STATUS_LABEL,
+  ELIGIBILITY_LABEL,
+  PRODUCT_TYPE_LABEL,
+} from "../../api/labels";
+import type { EligibilityStatus } from "../../data/apiContracts";
+import {
+  ActionButton,
+  Callout,
+  LoadingBlock,
+  Panel,
+  SectionHeading,
+  StatusChip,
+} from "../ui/Primitives";
+
+const STATUS_ORDER: EligibilityStatus[] = ["ELIGIBLE", "NEEDS_VERIFICATION", "INELIGIBLE"];
 
 export const PolicyCenterTab: React.FC = () => {
-  const { policies, customer, productBoundaryId, setProductBoundaryId } = useEroom();
-  const [mockAppliedId, setMockAppliedId] = useState<string | null>(null);
-  const [showApplyModal, setShowApplyModal] = useState<PolicyProduct | null>(null);
-  const productCandidates = selectProductsByBoundary(REFERENCE_CATALOG.financialProducts, productBoundaryId);
+  const { eligibility, products, pending } = useEroomSession();
+  const [statusFilter, setStatusFilter] = useState<EligibilityStatus | "ALL">("ALL");
+  const [showExcluded, setShowExcluded] = useState(false);
 
-  const handleMockApplyConfirm = () => {
-    if (showApplyModal) {
-      setMockAppliedId(showApplyModal.id);
-      setShowApplyModal(null);
-    }
-  };
+  if (pending.session && !eligibility) return <LoadingBlock label="정책 자격을 판정하는 중입니다." rows={4} />;
+  if (!eligibility) return null;
+
+  const filtered =
+    statusFilter === "ALL" ? eligibility.results : eligibility.results.filter((item) => item.status === statusFilter);
+  const includedProducts = products?.products.filter((product) => product.included) ?? [];
+  const excludedProducts = products?.products.filter((product) => !product.included) ?? [];
 
   return (
-    <div id="policy-center-tab" className="space-y-6">
-      {/* 상단 안내 배너 */}
-      <div className="bg-white rounded-2xl border border-[#DCE7E4] p-6 shadow-2xs">
-        <div className="flex items-center space-x-2 text-[#006B5B] text-xs font-bold mb-1">
-          <FileText className="w-4 h-4" />
-          <span>청년 정책 및 제휴 금융상품 자격 진단 센터</span>
-        </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-[#142B29]">
-          {customer.name}님 맞춤 청년 지원제도 적격 진단
-        </h2>
-        <p className="text-xs text-[#526562] mt-1 max-w-3xl leading-relaxed">
-          공식 정책 고시 및 약관 기준일에 기반하여 연령(만 {customer.age}세)·거주지({customer.residence})·소득 구간별 적격 여부를 자동 평가했습니다. 본 화면의 신청은 안전한 모의 연계입니다.
-        </p>
-      </div>
+    <div className="space-y-5">
+      <Panel className="p-5" ariaLabelledBy="policy-list">
+        <SectionHeading
+          id="policy-list"
+          title="정책 자격"
+          icon={<Gift className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />}
+          description={`${dateText(eligibility.asOf)} 기준 판정 · 확인되지 않은 요건은 충족으로 보지 않습니다.`}
+        />
 
-      <section className="bg-white rounded-2xl border border-[#DCE7E4] p-5 shadow-2xs" aria-labelledby="product-boundary-title">
-        <div className="mb-4">
-          <p className="text-xs font-bold text-[#006B5B]">상품 탐색 범위</p>
-          <h3 id="product-boundary-title" className="text-lg font-bold text-[#142B29]">어느 정도의 기간과 납입 부담이 편한가요?</h3>
-          <p className="text-xs text-[#526562] mt-1">투자위험 진단이 아니라 예·적금의 유형, 만기, 월 납입 상한을 정하는 선택입니다.</p>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {PRODUCT_BOUNDARIES.map((boundary) => (
+        <div className="flex flex-wrap gap-2" role="group" aria-label="자격 상태 필터">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("ALL")}
+            aria-pressed={statusFilter === "ALL"}
+            className={`min-h-[44px] px-4 rounded-2xl border text-sm font-bold ${
+              statusFilter === "ALL" ? "bg-[#142B29] text-white border-transparent" : "bg-white border-[#DCE7E4] text-[#526562]"
+            }`}
+          >
+            전체 {eligibility.results.length}건
+          </button>
+          {STATUS_ORDER.map((status) => (
             <button
-              key={boundary.id}
+              key={status}
               type="button"
-              aria-pressed={productBoundaryId === boundary.id}
-              onClick={() => setProductBoundaryId(boundary.id)}
-              className={`text-left rounded-xl border p-4 transition-colors ${productBoundaryId === boundary.id ? "border-[#00C4A6] bg-[#EAFBF6]" : "border-[#DCE7E4] hover:border-[#00C4A6]"}`}
+              onClick={() => setStatusFilter(status)}
+              aria-pressed={statusFilter === status}
+              className={`min-h-[44px] px-4 rounded-2xl border text-sm font-bold ${
+                statusFilter === status
+                  ? "bg-[#142B29] text-white border-transparent"
+                  : "bg-white border-[#DCE7E4] text-[#526562]"
+              }`}
             >
-              <strong className="text-sm text-[#142B29]">{boundary.label}</strong>
-              <p className="text-xs text-[#526562] mt-1 leading-relaxed">{boundary.description}</p>
+              {ELIGIBILITY_LABEL[status].label} {eligibility.summary[status]}건
             </button>
           ))}
         </div>
-        <div className="mt-4 rounded-xl bg-[#F6F9F8] border border-[#DCE7E4] p-4">
-          <p className="text-xs font-semibold text-[#142B29]">현재 범위에 맞는 합성 상품 {productCandidates.length}건</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {productCandidates.slice(0, 5).map((product) => (
-              <span key={product.id} className="px-2.5 py-1 rounded-full bg-white border border-[#DCE7E4] text-[11px] text-[#526562]">
-                {product.productType === "DEPOSIT" ? "예금" : "적금"} · {product.name} · {product.maturityMonths}개월
-              </span>
-            ))}
-            {productCandidates.length > 5 && <span className="px-2.5 py-1 text-[11px] text-[#526562]">외 {productCandidates.length - 5}건</span>}
-          </div>
-        </div>
-      </section>
 
-      {/* 정책 카드 그리드 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {policies.map((p) => {
-          const isEligible = p.eligibility === "ELIGIBLE";
-          const isNeedsVerif = p.eligibility === "NEEDS_VERIFICATION";
-          const isApplied = mockAppliedId === p.id;
-
-          return (
-            <div
-              key={p.id}
-              className="bg-white rounded-2xl border border-[#DCE7E4] p-5 shadow-2xs flex flex-col justify-between hover:border-[#00C4A6] transition-colors"
-            >
-              <div>
-                {/* 헤더 & 기관 */}
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <span className="text-[11px] font-semibold text-[#526562]">{p.provider}</span>
-                    <h3 className="text-base font-bold text-[#142B29]">{p.name}</h3>
+        <ul className="mt-4 space-y-3">
+          {filtered.map((policy) => {
+            const label = ELIGIBILITY_LABEL[policy.status];
+            return (
+              <li key={policy.policyId} className="rounded-2xl border border-[#DCE7E4] p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-extrabold text-[#142B29] break-keep">{policy.policyName}</p>
+                    <p className="text-xs text-[#526562] mt-0.5">{policy.organization}</p>
                   </div>
-
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                      isEligible
-                        ? "bg-[#EAFBF6] text-[#006B5B] border-[#DCE7E4]"
-                        : isNeedsVerif
-                        ? "bg-amber-50 text-amber-800 border-amber-200"
-                        : "bg-slate-100 text-slate-500 border-slate-200"
-                    }`}
-                  >
-                    {isEligible ? "✓ 자격 충족" : isNeedsVerif ? "서류 확인 필요" : "기준 미달"}
-                  </span>
+                  <StatusChip label={label.label} tone={label.tone} />
                 </div>
+                <p className="text-sm text-[#526562] mt-2 leading-relaxed break-keep">{policy.reason}</p>
 
-                <p className="text-xs text-[#526562] mb-3 leading-relaxed">{p.eligibilityReason}</p>
+                <ul className="mt-3 flex flex-wrap gap-1.5">
+                  {policy.criteria.map((criterion) => {
+                    const criterionStatus = CRITERION_STATUS_LABEL[criterion.status];
+                    return (
+                      <li key={`${policy.policyId}-${criterion.key}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs font-bold ${
+                            criterionStatus.tone === "positive"
+                              ? "bg-[#EAFBF6] text-[#006B5B] border-[#B6E7DA]"
+                              : criterionStatus.tone === "risk"
+                                ? "bg-[#FFF1EE] text-[#9A3412] border-[#FBD5C8]"
+                                : "bg-[#F6FADC] text-[#5C5A14] border-[#E3E9A8]"
+                          }`}
+                          title={`요건: ${criterion.required}${criterion.observed ? ` / 확인된 값: ${criterion.observed}` : ""}`}
+                        >
+                          {CRITERION_LABEL[criterion.key]} {criterionStatus.label}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
 
-                {/* 혜택 요약 */}
-                <div className="p-3 bg-[#F6F9F8] rounded-xl border border-[#DCE7E4] space-y-1.5 text-xs mb-3">
-                  <div className="flex justify-between">
-                    <span className="text-[#526562]">최대 납입 한도:</span>
-                    <strong className="font-mono text-[#142B29]">월 {p.maxMonthlyDeposit.toLocaleString()}원</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#526562]">적용 금리 / 기여율:</span>
-                    <strong className="font-mono text-[#006B5B]">
-                      {p.baseRate > 0 ? `기본 ${p.baseRate}% ~ 최고 연 ${p.maxRate}%` : `최고 연 ${p.maxRate}%`}
-                    </strong>
-                  </div>
-                  <div className="flex justify-between text-[#1d4ed8]">
-                    <span>소득 요건:</span>
-                    <strong className="truncate max-w-[200px] text-right">{p.incomeLimitDescription}</strong>
-                  </div>
-                </div>
-
-                {/* 자격 조건 요약 */}
-                <div className="text-[11px] text-[#526562] space-y-1">
-                  <div>• 대상 연령: 만 {p.targetAgeRange[0]}세 ~ 만 {p.targetAgeRange[1]}세</div>
-                  <div>• 공시 근거: {p.officialReference}</div>
-                </div>
-              </div>
-
-              {/* 하단 모의 신청 버튼 */}
-              <div className="pt-3 border-t border-[#DCE7E4] mt-4 flex items-center justify-between">
-                <span className="text-[10px] text-[#526562]">약관 기준일: {p.asOfPolicy}</span>
-
-                <button
-                  onClick={() => setShowApplyModal(p)}
-                  disabled={!isEligible || isApplied}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1 ${
-                    isApplied
-                      ? "bg-[#EAFBF6] text-[#006B5B] border border-[#DCE7E4] cursor-default"
-                      : isEligible
-                      ? "bg-[#00C4A6] hover:bg-[#00b095] text-[#142B29] shadow-2xs"
-                      : "bg-slate-100 text-slate-400 cursor-not-allowed"
-                  }`}
-                >
-                  {isApplied ? (
-                    <>
-                      <CheckCircle className="w-3.5 h-3.5" />
-                      <span>모의 신청 완료</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-3.5 h-3.5" />
-                      <span>모의 간편 연계</span>
-                    </>
+                <div className="mt-3 text-[11px] text-[#526562] space-y-0.5">
+                  {policy.criteria.map((criterion) => (
+                    <p key={`${policy.policyId}-${criterion.key}-detail`} className="leading-relaxed">
+                      · {CRITERION_LABEL[criterion.key]}: {criterion.required} / 확인된 값 {criterion.observed ?? "없음"}
+                    </p>
+                  ))}
+                  <p className="leading-relaxed">· {policy.sourceNote} (정책 버전 {policy.policyVersion})</p>
+                  {!policy.autoAllocatable && (
+                    <p className="leading-relaxed font-bold">· 자동 배분 대상이 아닙니다. 자격 확인 후 다시 계산합니다.</p>
                   )}
-                </button>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+
+        {filtered.length === 0 && (
+          <Callout tone="muted">선택한 상태에 해당하는 제도가 없습니다.</Callout>
+        )}
+
+        <Callout tone="muted" title="이 판정의 의미">
+          대출 승인이나 정책 최종 수혜 여부를 확정하지 않습니다. 실제 신청과 심사는 각 기관에서 진행됩니다.
+        </Callout>
+      </Panel>
+
+      <Panel className="p-5" ariaLabelledBy="policy-products">
+        <SectionHeading
+          id="policy-products"
+          title="상품 후보"
+          icon={<PackageSearch className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />}
+          description={
+            products
+              ? `${products.boundaryLabel} 기준 · 포함 ${products.includedCount}개 / 전체 ${products.products.length}개`
+              : "상품 목록을 불러오는 중입니다."
+          }
+        />
+        {products && (
+          <>
+            <ul className="space-y-3">
+              {includedProducts.map((product) => (
+                <li key={product.productId} className="rounded-2xl border border-[#DCE7E4] p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-extrabold text-[#142B29] break-keep">{product.name}</p>
+                      <p className="text-xs text-[#526562] mt-0.5">{product.provider}</p>
+                    </div>
+                    <StatusChip label={`${PRODUCT_TYPE_LABEL[product.productType]} · 후보 포함`} tone="positive" />
+                  </div>
+                  <p className="text-xs text-[#526562] mt-2 tabular-nums leading-relaxed">
+                    만기 {months(product.maturityMonths)} · 월 납입 한도 {won(product.maxMonthlyDeposit)} · 기본 금리{" "}
+                    {percent(product.baseRate, 2)} / 최고 {percent(product.maxRate, 2)}
+                  </p>
+                </li>
+              ))}
+            </ul>
+
+            {excludedProducts.length > 0 && (
+              <div className="mt-4">
+                <ActionButton variant="ghost" onClick={() => setShowExcluded((prev) => !prev)}>
+                  {showExcluded ? "제외된 상품 접기" : `이 기준에서 제외된 상품 ${excludedProducts.length}개 보기`}
+                </ActionButton>
+                {showExcluded && (
+                  <ul className="mt-3 space-y-2">
+                    {excludedProducts.map((product) => (
+                      <li key={product.productId} className="rounded-2xl border border-[#DCE7E4] bg-[#F6F9F8] p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-2">
+                          <p className="font-bold text-[#142B29] break-keep">{product.name}</p>
+                          <StatusChip label="이 기준에서 제외" tone="muted" />
+                        </div>
+                        <ul className="mt-2 space-y-0.5">
+                          {product.exclusionReasons.map((reason) => (
+                            <li key={reason} className="text-xs text-[#526562] leading-relaxed">
+                              · {reason}
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* 모의 연계 신청 확인 모달 (window.alert 대신 인앱 모달) */}
-      {showApplyModal && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-xl border border-[#DCE7E4] space-y-4">
-            <div className="flex items-center space-x-2 text-[#006B5B]">
-              <ShieldCheck className="w-5 h-5" />
-              <h3 className="text-base font-bold text-[#142B29]">모의 상품 연계 안내</h3>
-            </div>
-
-            <p className="text-xs text-[#526562] leading-relaxed">
-              선택하신 <strong className="text-[#142B29]">[{showApplyModal.name}]</strong> 상품에 대한 모의 연계 신청을 진행합니다.
-            </p>
-
-            <div className="p-3 bg-[#F6F9F8] rounded-xl border border-[#DCE7E4] text-xs text-[#526562] space-y-1">
-              <div>• 제공 기관: {showApplyModal.provider}</div>
-              <div>• 신청자: {customer.name} (만 {customer.age}세, {customer.residence})</div>
-              <div>• 안내: 본 시스템은 공모전 프로토타입으로 실제 금융기관 계정계로 전송되지 않습니다.</div>
-            </div>
-
-            <div className="flex space-x-2 pt-2">
-              <button
-                onClick={() => setShowApplyModal(null)}
-                className="flex-1 py-2.5 rounded-xl border border-[#DCE7E4] text-[#526562] font-semibold hover:bg-slate-50 text-xs"
-              >
-                취소
-              </button>
-              <button
-                onClick={handleMockApplyConfirm}
-                className="flex-1 py-2.5 rounded-xl bg-[#00C4A6] hover:bg-[#00b095] text-[#142B29] font-bold text-xs shadow-xs"
-              >
-                모의 신청 접수
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            )}
+          </>
+        )}
+      </Panel>
     </div>
   );
 };
