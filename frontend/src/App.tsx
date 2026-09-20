@@ -6,7 +6,7 @@
 /**
  * iM 이룸 고객 웹앱 진입점
  *
- * 흐름: 서비스 소개 → 가상 고객 선택 → 모의 동의 → 3분 재무진단 → 홈/목표/점검/혜택/변경 내역
+ * 흐름: 서비스 소개 → 가상 고객 선택 → 모의 동의 → 3분 재무진단 → 목표 설계 → 홈/목표/점검/혜택/변경 내역
  * `?example=true`는 24개월 적용 예시 대시보드, `?demo=true`는 시연 도구와 상담사 화면을 노출한다.
  */
 
@@ -18,6 +18,7 @@ import { ServiceIntroView } from "./components/ServiceIntroView";
 import { PersonaSelectView } from "./components/PersonaSelectView";
 import { ConsentView } from "./components/ConsentView";
 import { DiagnosisProgressView } from "./components/DiagnosisProgressView";
+import { GoalDesignView } from "./components/GoalDesignView";
 import { ConsultantView } from "./components/ConsultantView";
 import { DemoControllerBanner } from "./components/DemoControllerBanner";
 import { AiAssistantModal } from "./components/AiAssistantModal";
@@ -69,6 +70,8 @@ function MainContent() {
         </main>
       ) : phase === "app" ? (
         <AppShell>{TAB_VIEWS[tab]}</AppShell>
+      ) : phase === "design" ? (
+        <GoalDesignView />
       ) : (
         <main className="flex-1 w-full">
           {/* 세션 초기화 결과처럼 온보딩 화면으로 돌아온 뒤에도 알려야 하는 처리 결과 */}
