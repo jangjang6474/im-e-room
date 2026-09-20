@@ -12,8 +12,10 @@ import type {
   EventType,
   GoalFeasibility,
   MockGoal,
+  MonthlyReviewResponse,
   PlanCommandOutcome,
   PlanLifecycleStatus,
+  PlanProposal,
   SuggestedAction,
 } from "../data/apiContracts";
 import type { ProductBoundaryId } from "../data/contracts";
@@ -80,6 +82,16 @@ export const ROUTING_LABEL: Record<"REPORT_ONLY" | "REPLAN" | "CONSULTATION", { 
     tone: "risk",
   },
 };
+
+export function reviewNeedsAttention(review: MonthlyReviewResponse | null, currentPlan: PlanProposal | null): boolean {
+  if (!review) return false;
+  const proposedStatus =
+    currentPlan && currentPlan.planId === review.proposedPlan?.planId ? currentPlan.status : review.proposedPlan?.status;
+  const planNeedsAction = proposedStatus === "PROPOSED" || proposedStatus === "APPROVED";
+  const consultationNeedsAction =
+    review.routing === "CONSULTATION" && review.consultationCase?.status !== "COMPLETED";
+  return planNeedsAction || consultationNeedsAction;
+}
 
 export const COMPLETENESS_LABEL: Record<CompletenessLevel, { label: string; tone: Tone; help: string }> = {
   COMPLETE: { label: "완전", tone: "positive", help: "분석 기간의 모든 달에서 거래를 수집했습니다." },
