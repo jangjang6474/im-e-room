@@ -130,7 +130,7 @@ export function buildGoalPlan(input: PlanInput): PlanProposal {
   const unallocatedAmount = surplus === null ? 0 : Math.max(0, surplus - totalMonthlyAmount);
   const shortfall = allocations.reduce((acc, item) => acc + item.monthlyShortfall, 0);
   if (shortfall > 0 && surplus !== null && surplus >= 0) notices.push(`모든 목표를 기한 내 달성하려면 월 ${formatWon(shortfall)}이 더 필요합니다. 기한 연장 또는 목표 금액 조정을 검토하세요.`);
-  if (unallocatedAmount > 0) notices.push(`월 ${formatWon(unallocatedAmount)}은 배분하지 않고 생활 유동성으로 남깁니다.`);
+  if (unallocatedAmount > 0) notices.push(`월 ${formatWon(unallocatedAmount)}은 목표에 배분하지 않고 생활비로 남겨둡니다.`);
 
   return {
     planId: planIdOf(input.customerId, input.version, input.baselineSnapshotId),
