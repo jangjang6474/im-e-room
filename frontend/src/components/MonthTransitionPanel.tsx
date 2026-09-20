@@ -11,8 +11,8 @@
 import React from "react";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 import { dateText, dateTimeText, monthText } from "../api/format";
-import { ROUTING_LABEL } from "../api/labels";
-import type { MonthlyReviewResponse } from "../data/apiContracts";
+import { PLAN_STATUS_LABEL, ROUTING_LABEL } from "../api/labels";
+import type { MonthlyReviewResponse, PlanLifecycleStatus } from "../data/apiContracts";
 import { StatusChip } from "./ui/Primitives";
 
 /** 2026-09-20 → 2026-09 */
@@ -41,11 +41,21 @@ const MonthPill: React.FC<{ label: string; caption: string; state: "done" | "pen
 
 export const MonthTransitionPanel: React.FC<{
   review: MonthlyReviewResponse | null;
+  planStatus?: PlanLifecycleStatus;
   asOf: string;
   isRunning: boolean;
   className?: string;
-}> = ({ review, asOf, isRunning, className = "" }) => {
+}> = ({ review, planStatus, asOf, isRunning, className = "" }) => {
   const done = review !== null;
+
+  const planStepResult = (() => {
+    if (!review?.proposedPlan) return "바꿀 만한 변화가 없어 기존 계획을 그대로 둡니다.";
+    const version = review.proposedPlan.version;
+    if (planStatus === "APPROVED") return `조정안 v${version}을 승인했습니다. 모의 실행이 남아 있습니다.`;
+    if (planStatus === "MOCK_EXECUTED") return `조정안 v${version}의 모의 실행을 완료했습니다.`;
+    if (planStatus === "REJECTED") return `조정안 v${version}을 거절하고 기존 계획을 유지했습니다.`;
+    return `조정안 v${version}을 만들었습니다. 승인 전까지 기존 계획이 유지됩니다.`;
+  })();
 
   const steps = [
     {
@@ -74,11 +84,7 @@ export const MonthTransitionPanel: React.FC<{
     {
       title: "필요하면 조정안을 만듭니다",
       before: "변화가 있으면 조정안을 만들고, 없으면 기존 계획을 그대로 둡니다.",
-      after: review
-        ? review.proposedPlan
-          ? `조정안 v${review.proposedPlan.version}을 만들었습니다. 승인 전까지 기존 계획이 유지됩니다.`
-          : "바꿀 만한 변화가 없어 기존 계획을 그대로 둡니다."
-        : "",
+      after: review ? planStepResult : "",
     },
   ];
 
@@ -88,7 +94,20 @@ export const MonthTransitionPanel: React.FC<{
         <p className="text-sm font-extrabold text-[#142B29] break-keep">
           {done ? "이번 달 점검에서 일어난 일" : "다음 달로 넘어가면 이렇게 진행됩니다"}
         </p>
-        {done && <StatusChip label={ROUTING_LABEL[review.routing].title} tone={ROUTING_LABEL[review.routing].tone} />}
+        {done && (
+          <StatusChip
+            label={
+              planStatus && planStatus !== "PROPOSED"
+                ? PLAN_STATUS_LABEL[planStatus].label
+                : ROUTING_LABEL[review.routing].title
+            }
+            tone={
+              planStatus && planStatus !== "PROPOSED"
+                ? PLAN_STATUS_LABEL[planStatus].tone
+                : ROUTING_LABEL[review.routing].tone
+            }
+          />
+        )}
       </div>
 
       {/* 어느 달에서 어느 달로 넘어가는지 */}

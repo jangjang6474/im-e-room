@@ -65,7 +65,7 @@ export interface AiDetectedChange {
 /** 계획 요약. 금액은 계획 엔진이 계산한 값을 그대로 옮긴다. */
 export interface AiPlanSummary {
   monthlyContribution: number | null;
-  /** 목표에 배분하지 않고 남기는 금액 */
+  /** 목표에 배분하지 않은 잔액 */
   monthlyBalance: number | null;
   /** 1순위 목표의 예상 달성 시점 (YYYY-MM). 산출 불가하면 null */
   primaryGoalDate: string | null;
