@@ -29,6 +29,7 @@ export const ExampleJourneyDashboard: React.FC = () => {
   const [source, setSource] = useState<ApiSource>("server");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(0);
 
   const load = useMemo(
     () => async () => {
@@ -37,6 +38,7 @@ export const ExampleJourneyDashboard: React.FC = () => {
       try {
         const result = await client.getExampleJourney();
         setJourney(result.data);
+        setSelectedMonth(result.data.stages[0]?.month ?? 0);
         setSource(result.source);
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : "적용 예시를 불러오지 못했습니다.");
@@ -50,6 +52,8 @@ export const ExampleJourneyDashboard: React.FC = () => {
   useEffect(() => {
     void load();
   }, [load]);
+
+  const selectedStage = journey?.stages.find((stage) => stage.month === selectedMonth) ?? journey?.stages[0];
 
   return (
     <div className="min-h-screen bg-[#F6F9F8] text-[#142B29]">
@@ -117,37 +121,65 @@ export const ExampleJourneyDashboard: React.FC = () => {
                 id="example-stages"
                 title="24개월 동안 일어난 일"
                 icon={<Flag className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />}
-                description="각 시점마다 감지된 변화와 그때 다시 계산한 금액입니다."
+                description="시점을 선택하면 감지된 변화와 그때 다시 계산한 금액을 확인할 수 있습니다."
               />
-              <ol className="space-y-4">
-                {journey.stages.map((stage) => (
-                  <li key={`${stage.month}-${stage.ruleId}`} className="rounded-2xl border border-[#DCE7E4] p-4">
+              <div className="mb-4">
+                <p id="example-stage-selector" className="text-xs font-bold text-[#526562] mb-2">
+                  확인할 시점
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-1" aria-labelledby="example-stage-selector">
+                  {journey.stages.map((stage) => {
+                    const selected = stage.month === selectedStage?.month;
+                    return (
+                      <button
+                        key={stage.month}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() => setSelectedMonth(stage.month)}
+                        className={`shrink-0 min-h-[44px] rounded-2xl border px-4 text-sm font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B5B] focus-visible:ring-offset-2 ${
+                          selected
+                            ? "border-[#006B5B] bg-[#E7F7F3] text-[#005A4D]"
+                            : "border-[#DCE7E4] bg-white text-[#526562] hover:bg-[#F6F9F8]"
+                        }`}
+                      >
+                        {stage.month === 0 ? "가입" : `${stage.month}개월`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {selectedStage && (
+                <article
+                  key={`${selectedStage.month}-${selectedStage.ruleId}`}
+                  className="rounded-2xl border border-[#DCE7E4] p-4"
+                  aria-live="polite"
+                >
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="text-xs font-bold text-[#006B5B] tabular-nums">
-                          {stage.month}개월차 · {dateText(stage.date)} · {stage.label}
+                          {selectedStage.month}개월차 · {dateText(selectedStage.date)} · {selectedStage.label}
                         </p>
-                        <p className="font-extrabold text-[#142B29] mt-1 break-keep">{stage.title}</p>
+                        <p className="font-extrabold text-[#142B29] mt-1 break-keep">{selectedStage.title}</p>
                       </div>
-                      <StatusChip label={EVENT_LABEL[stage.eventType].label} tone={EVENT_LABEL[stage.eventType].tone} />
+                      <StatusChip label={EVENT_LABEL[selectedStage.eventType].label} tone={EVENT_LABEL[selectedStage.eventType].tone} />
                     </div>
-                    <p className="text-sm text-[#526562] mt-2 leading-relaxed break-keep">{stage.summary}</p>
+                    <p className="text-sm text-[#526562] mt-2 leading-relaxed break-keep">{selectedStage.summary}</p>
 
                     <div className="grid gap-3 md:grid-cols-2 mt-3">
-                      <MetricTile label={stage.headlineLabel} value={won(stage.headlineAmount)} tone="positive" />
+                      <MetricTile label={selectedStage.headlineLabel} value={won(selectedStage.headlineAmount)} tone="positive" />
                       <MetricTile
                         label="이 시점 월 관리 금액"
-                        value={won(stage.monthlyManagedAmount)}
+                        value={won(selectedStage.monthlyManagedAmount)}
                         tone="muted"
-                        hint={stage.action}
+                        hint={selectedStage.action}
                       />
                     </div>
 
-                    {stage.allocations.length > 0 && (
+                    {selectedStage.allocations.length > 0 && (
                       <ul className="mt-3 space-y-1">
-                        {stage.allocations.map((allocation) => (
+                        {selectedStage.allocations.map((allocation) => (
                           <li
-                            key={`${stage.month}-${allocation.goalId}`}
+                            key={`${selectedStage.month}-${allocation.goalId}`}
                             className="flex items-center justify-between text-sm border-b border-[#EDF3F1] last:border-b-0 py-1.5"
                           >
                             <span className="text-[#526562]">{allocation.label}</span>
@@ -157,10 +189,10 @@ export const ExampleJourneyDashboard: React.FC = () => {
                       </ul>
                     )}
 
-                    {stage.details.length > 0 && (
+                    {selectedStage.details.length > 0 && (
                       <ul className="mt-3 space-y-1">
-                        {stage.details.map((detail) => (
-                          <li key={`${stage.month}-${detail.label}`} className="text-xs text-[#526562] leading-relaxed">
+                        {selectedStage.details.map((detail) => (
+                          <li key={`${selectedStage.month}-${detail.label}`} className="text-xs text-[#526562] leading-relaxed">
                             · {detail.label}: {detail.value}
                           </li>
                         ))}
@@ -169,17 +201,16 @@ export const ExampleJourneyDashboard: React.FC = () => {
 
                     <div className="mt-3">
                       <ProgressBar
-                        percent={stage.depositProgressPercent}
-                        label={`${stage.month}개월차 보증금 자기자금 진행률`}
+                        percent={selectedStage.depositProgressPercent}
+                        label={`${selectedStage.month}개월차 보증금 자기자금 진행률`}
                       />
                       <p className="text-[11px] text-[#526562] mt-1.5 tabular-nums">
-                        보증금 자기자금 {won(stage.depositSavedAmount)} / {won(journey.baseline.depositSelfFundTarget)} ·
-                        진행률 {percent(stage.depositProgressPercent)}
+                        보증금 자기자금 {won(selectedStage.depositSavedAmount)} / {won(journey.baseline.depositSelfFundTarget)} ·
+                        진행률 {percent(selectedStage.depositProgressPercent)}
                       </p>
                     </div>
-                  </li>
-                ))}
-              </ol>
+                </article>
+              )}
             </Panel>
 
             <Panel className="p-5" ariaLabelledBy="example-assumptions">
