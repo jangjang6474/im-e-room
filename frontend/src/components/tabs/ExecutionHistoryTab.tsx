@@ -79,7 +79,7 @@ export const ExecutionHistoryTab: React.FC = () => {
               <span className="text-sm font-bold text-[#142B29]">계획 v{currentPlan.version}</span>
             </div>
             <KeyValueRow label="월 납입 합계" value={won(currentPlan.totalMonthlyAmount)} />
-            <KeyValueRow label="남기는 금액" value={won(currentPlan.unallocatedAmount)} />
+            <KeyValueRow label="생활비로 남겨두는 돈" value={won(currentPlan.unallocatedAmount)} />
             <KeyValueRow label="기준 스냅샷" value={<span className="font-mono text-[11px] break-all">{currentPlan.baselineSnapshotId}</span>} />
             <KeyValueRow label="생성 시각" value={dateTimeText(currentPlan.createdAt)} />
           </div>

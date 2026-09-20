@@ -8,10 +8,10 @@
  */
 
 import Anthropic from "@anthropic-ai/sdk";
-import { parseJsonPayload } from "./schemas";
+import { parseJsonPayload } from "./schemas.js";
 
 /** 기본 모델. 운영에서는 환경변수로 교체한다. */
-const DEFAULT_MODEL = "claude-opus-5";
+const DEFAULT_MODEL = "claude-sonnet-5";
 
 /** 한 요청의 제한 시간. 초과하면 준비된 설명으로 대체한다. */
 const REQUEST_TIMEOUT_MS = 15_000;

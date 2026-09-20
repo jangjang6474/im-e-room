@@ -21,7 +21,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { useEroomSession } from "../../api/EroomSession";
-import { dateText, dateTimeText, won } from "../../api/format";
+import { dateText, dateTimeText, monthText, won } from "../../api/format";
 import {
   ELIGIBILITY_LABEL,
   FEASIBILITY_LABEL,
@@ -120,7 +120,7 @@ export const HomeTab: React.FC = () => {
             <SummaryRow label="남은 금액" value={won(topGoal.remainingAmount)} />
             <SummaryRow
               label="예상 달성 시점"
-              value={topGoal.expectedCompletionMonth ?? "배분 없음"}
+              value={topGoal.expectedCompletionMonth ? monthText(topGoal.expectedCompletionMonth) : "배분 없음"}
             />
           </div>
           <div className="mt-3">

@@ -16,9 +16,11 @@ import {
   getDiagnosis,
   getEligibility,
   getExampleJourney,
+  getGoals,
   getInitialPlan,
   getProductBoundary,
   listPersonas,
+  optionalGoals,
 } from "../frontend/src/domain/mockBackend";
 
 type Role = "customer" | "consultant" | "demo";
@@ -61,8 +63,27 @@ export function createMockApiRouter(session = new MockBackendSession()): Router 
   router.get("/personas/:personaId/diagnosis", handle((req) => getDiagnosis(assertPersonaId(req.params.personaId))));
   router.get("/personas/:personaId/eligibility", handle((req) => getEligibility(assertPersonaId(req.params.personaId))));
   router.get("/products", handle((req) => getProductBoundary(assertBoundaryId(String(req.query.boundary ?? "BALANCED")))));
+  router.get("/personas/:personaId/goals", handle((req) => getGoals(assertPersonaId(req.params.personaId))));
   router.get("/personas/:personaId/plan/preview", handle((req) => getInitialPlan(assertPersonaId(req.params.personaId), optionalBoundary(req.query.boundary))));
-  router.post("/personas/:personaId/plans", handle((req) => session.proposeInitialPlan(assertPersonaId(req.params.personaId), optionalBoundary(req.body?.boundaryId)), 201));
+  // 사용자가 직접 설계한 목표는 본문으로 받는다. 목표를 주지 않으면 GET 미리보기와 같은 결과를 돌려준다.
+  router.post(
+    "/personas/:personaId/plan/preview",
+    handle((req) =>
+      getInitialPlan(assertPersonaId(req.params.personaId), optionalBoundary(req.body?.boundaryId), optionalGoals(req.body?.goals)),
+    ),
+  );
+  router.post(
+    "/personas/:personaId/plans",
+    handle(
+      (req) =>
+        session.proposeInitialPlan(
+          assertPersonaId(req.params.personaId),
+          optionalBoundary(req.body?.boundaryId),
+          optionalGoals(req.body?.goals),
+        ),
+      201,
+    ),
+  );
   router.post("/personas/:personaId/monthly-review", handle((req) => session.runMonthlyReview(assertPersonaId(req.params.personaId), optionalBoundary(req.body?.boundaryId))));
   router.post("/personas/:personaId/consent/revoke", handle((req) => session.revokeConsent(assertPersonaId(req.params.personaId))));
 

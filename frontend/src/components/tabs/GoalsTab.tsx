@@ -9,9 +9,9 @@
  */
 
 import React, { useState } from "react";
-import { CheckCircle2, CircleSlash, Info, PlayCircle } from "lucide-react";
+import { CheckCircle2, CircleSlash, Info, PlayCircle, Sliders, Wallet } from "lucide-react";
 import { useEroomSession } from "../../api/EroomSession";
-import { months, won } from "../../api/format";
+import { monthText, months, percent, won } from "../../api/format";
 import {
   BOUNDARY_LABEL,
   BOUNDARY_ORDER,
@@ -21,7 +21,8 @@ import {
   PLAN_STATUS_LABEL,
   PRODUCT_TYPE_LABEL,
 } from "../../api/labels";
-import type { GoalAllocation } from "../../data/apiContracts";
+import type { BoundaryProductDecision, GoalAllocation } from "../../data/apiContracts";
+import { GoalMethodExplainer } from "../GoalMethodExplainer";
 import {
   ActionButton,
   BottomSheet,
@@ -45,6 +46,7 @@ export const GoalsTab: React.FC = () => {
     boundaryId,
     changeBoundary,
     registerPlan,
+    startGoalRedesign,
     approvePlan,
     rejectPlan,
     executePlan,
@@ -54,6 +56,8 @@ export const GoalsTab: React.FC = () => {
     clearFeedback,
   } = useEroomSession();
   const [detailGoal, setDetailGoal] = useState<GoalAllocation | null>(null);
+  /** 후보 상품은 목표를 고르는 흐름을 막지 않도록 바텀시트에서만 연다. */
+  const [isProductSheetOpen, setProductSheetOpen] = useState(false);
 
   const plan = currentPlan ?? planPreview;
   if (!plan) return <LoadingBlock label="목표별 계획을 불러오는 중입니다." rows={4} />;
@@ -143,7 +147,7 @@ export const GoalsTab: React.FC = () => {
             : "기한 안에 모으기 어려운 목표가 있습니다. 아래에서 목표별 상태를 확인하세요."
         }
         tone={isRegistered ? status.tone : "neutral"}
-        meta={`저축 여력 ${won(plan.availableSurplus)} 중 ${won(plan.unallocatedAmount)}은 생활 유동성으로 남깁니다.`}
+        meta={`저축 여력 ${won(plan.availableSurplus)} 중 ${won(plan.unallocatedAmount)}은 생활비로 남겨둡니다.`}
       />
 
       {/* 목표별 카드 */}
@@ -167,7 +171,7 @@ export const GoalsTab: React.FC = () => {
                   <SummaryRow label="남은 금액" value={won(allocation.remainingAmount)} />
                   <SummaryRow
                     label="예상 달성 시점"
-                    value={allocation.expectedCompletionMonth ?? "배분 없음"}
+                    value={allocation.expectedCompletionMonth ? monthText(allocation.expectedCompletionMonth) : "배분 없음"}
                   />
                 </div>
                 <div className="mt-3">
@@ -180,10 +184,27 @@ export const GoalsTab: React.FC = () => {
           })}
         </ul>
 
-        <Callout tone="muted" title="목표 편집 안내" icon={<Info className="w-4 h-4" aria-hidden="true" />} className="mt-3">
-          이번 체험판은 가상 고객에게 등록된 목표 금액·기한·우선순위를 사용합니다. 목표를 바꾸는 입력은 기존 계획을
-          덮어쓰지 않고 새 계획 제안으로 처리해야 해서 다음 단계로 남겨 두었습니다.
-        </Callout>
+        {isRegistered ? (
+          <Callout tone="muted" title="시작한 계획의 목표는 바꾸지 않습니다" className="mt-3">
+            시작한 계획은 덮어쓰지 않습니다. 목표를 바꾸려면 이번 달 점검에서 새 계획을 받거나 처음부터 다시 시작하세요.
+          </Callout>
+        ) : (
+          <div className="mt-3">
+            <ActionButton
+              variant="secondary"
+              full
+              onClick={startGoalRedesign}
+              icon={<Sliders className="w-4 h-4" aria-hidden="true" />}
+            >
+              목표 금액·기한·우선순위 다시 정하기
+            </ActionButton>
+          </div>
+        )}
+      </Section>
+
+      {/* 목표를 어떻게 달성하는지 */}
+      <Section id="goals-method" title="달성 방법">
+        <GoalMethodExplainer plan={plan} />
       </Section>
 
       {/* 상품 바운더리 = 모으는 방식 */}
@@ -237,30 +258,22 @@ export const GoalsTab: React.FC = () => {
           <SummaryRow label="월 납입 합계" value={won(plan.totalMonthlyAmount)} tone="strong" />
           <SummaryRow
             label="1순위 목표 예상 달성"
-            value={topGoal?.expectedCompletionMonth ?? "배분 없음"}
+            value={topGoal?.expectedCompletionMonth ? monthText(topGoal.expectedCompletionMonth) : "배분 없음"}
           />
-          <SummaryRow label="남기는 금액" value={won(plan.unallocatedAmount)} />
+          <SummaryRow label="생활비로 남겨두는 돈" value={won(plan.unallocatedAmount)} />
         </div>
 
-        {isRegistered && (
-          <Callout tone="muted" title="시작한 뒤에는 방식을 바꾸지 않습니다" className="mt-3">
-            시작한 계획은 수정하지 않습니다. 다른 방식을 보려면 이번 달 점검에서 새 계획을 받거나 처음부터 다시
-            시작하세요.
-          </Callout>
-        )}
-
         {products && (
-          <Disclosure summary={`이 방식의 후보 상품 ${products.includedCount}개 보기`} className="mt-3">
-            <p className="text-xs text-[#526562] leading-relaxed tabular-nums">
-              {products.limits.allowedProductTypes.map((type) => PRODUCT_TYPE_LABEL[type]).join("·")} · 최대 만기{" "}
-              {months(products.limits.maxMaturityMonths)} · 월 납입 한도 {won(products.limits.maxMonthlyDeposit)}
-            </p>
-            <div className="mt-3">
-              <ActionButton variant="ghost" full onClick={() => setTab("policy")}>
-                후보 상품과 정책 자격 보기
-              </ActionButton>
-            </div>
-          </Disclosure>
+          <div className="mt-3">
+            <ActionButton
+              variant="ghost"
+              full
+              onClick={() => setProductSheetOpen(true)}
+              icon={<Wallet className="w-4 h-4" aria-hidden="true" />}
+            >
+              이 방식에서 쓰는 상품 {products.includedCount}개 보기
+            </ActionButton>
+          </div>
         )}
       </Section>
 
@@ -301,6 +314,57 @@ export const GoalsTab: React.FC = () => {
       </Section>
 
       <StickyActions note={EXECUTION_NOTE}>{primaryActions}</StickyActions>
+
+      {/* 후보 상품 — 목표를 고르는 흐름을 막지 않도록 바텀시트에서만 보여준다 */}
+      <BottomSheet
+        isOpen={isProductSheetOpen}
+        onClose={() => setProductSheetOpen(false)}
+        title={products ? `${products.boundaryLabel}에서 쓰는 상품` : "후보 상품"}
+      >
+        {products && (
+          <>
+            <p className="text-sm text-[#526562] leading-relaxed break-keep tabular-nums">
+              {products.limits.allowedProductTypes.map((type) => PRODUCT_TYPE_LABEL[type]).join("·")} · 최대 만기{" "}
+              {months(products.limits.maxMaturityMonths)} · 월 납입 한도 {won(products.limits.maxMonthlyDeposit)}
+            </p>
+            <ul className="mt-3 space-y-2">
+              {products.products
+                .filter((product: BoundaryProductDecision) => product.included)
+                .map((product: BoundaryProductDecision) => (
+                  <li key={product.productId} className="rounded-2xl border border-[#DCE7E4] p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-[#142B29] break-keep">{product.name}</p>
+                        <p className="text-xs text-[#526562] mt-0.5 break-keep">{product.provider}</p>
+                      </div>
+                      <StatusChip label={PRODUCT_TYPE_LABEL[product.productType]} tone="neutral" />
+                    </div>
+                    <p className="text-xs text-[#526562] mt-2 tabular-nums leading-relaxed">
+                      만기 {months(product.maturityMonths)} · 월 납입 한도 {won(product.maxMonthlyDeposit)} · 금리{" "}
+                      {percent(product.baseRate, 2)} ~ {percent(product.maxRate, 2)}
+                    </p>
+                  </li>
+                ))}
+            </ul>
+            <Callout tone="muted" className="mt-3">
+              상품은 계산에 쓰는 후보일 뿐이며 권유가 아닙니다. 자격이 확인되지 않은 제도에는 자동으로 배분하지
+              않습니다.
+            </Callout>
+            <div className="mt-3">
+              <ActionButton
+                variant="ghost"
+                full
+                onClick={() => {
+                  setProductSheetOpen(false);
+                  setTab("policy");
+                }}
+              >
+                제도별 자격까지 확인하기
+              </ActionButton>
+            </div>
+          </>
+        )}
+      </BottomSheet>
 
       {/* 목표 상세 — 필요한 월 납입액·부족액·근거·연결 상품 */}
       <BottomSheet
