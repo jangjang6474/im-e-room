@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 import { createMockApiRouter } from "./mockApi";
+import { createAiRouter } from "./ai/router";
 
 dotenv.config();
 
@@ -18,6 +19,9 @@ app.use(express.json());
 
 // 외부 API 키 없이 동작하는 합성 데이터 Mock API
 app.use("/api/mock", createMockApiRouter());
+
+// Claude API 설명·상담·정책 구조화. 키가 없으면 준비된 응답과 규칙 기반 설명으로 동작한다.
+app.use("/api/ai", createAiRouter());
 
 // Gemini SDK lazy initialization
 let genAIClient: GoogleGenAI | null = null;
