@@ -11,6 +11,7 @@ import { REFERENCE_CATALOG } from "../../frontend/src/fixtures/generated/referen
 import { MOCK_DATASETS } from "../../frontend/src/fixtures/mockDatasets";
 import { PERSONA_SCENARIOS } from "../../frontend/src/fixtures/personaScenarios";
 import { POLICIES_DATA } from "../../frontend/src/fixtures/syntheticData";
+import { reviewNeedsAttention } from "../../frontend/src/api/labels";
 import { detectMonthlyChanges } from "../../frontend/src/domain/changeDetection";
 import { ageAt, nextCollectionDate } from "../../frontend/src/domain/dateUtils";
 import { buildDiagnosis, customerAt } from "../../frontend/src/domain/diagnosis";
@@ -144,8 +145,17 @@ const r1 = getMonthlyReview("P01");
 check(r1.overallType === "INFO" && r1.routing === "REPORT_ONLY" && r1.proposedPlan === null, "P01 review should be INFO/REPORT_ONLY");
 const r2 = getMonthlyReview("P02");
 check(r2.overallType === "ADJUSTMENT" && r2.routing === "REPLAN" && r2.events.some((e) => e.ruleId === "CHG-RENT-CHANGE"), "P02 review should detect rent change");
+check(reviewNeedsAttention(r2, r2.proposedPlan), "P02: proposed review must need attention");
+check(
+  !reviewNeedsAttention(r2, r2.proposedPlan ? { ...r2.proposedPlan, status: "MOCK_EXECUTED" } : null),
+  "P02: executed review must not keep the attention badge",
+);
 const r3 = getMonthlyReview("P03");
 check(r3.overallType === "RISK" && r3.routing === "CONSULTATION" && !!r3.consultationCase, "P03 review should route to consultation");
+check(
+  reviewNeedsAttention(r3, r3.proposedPlan ? { ...r3.proposedPlan, status: "MOCK_EXECUTED" } : null),
+  "P03: unresolved consultation must keep the attention badge after plan execution",
+);
 check(
   r3.consultationCase?.briefing.financialState.includes("소득 1,300,000원") &&
     r3.consultationCase.briefing.financialState.includes("월 저축 여력 -318,300원"),
