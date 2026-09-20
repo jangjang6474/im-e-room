@@ -314,12 +314,27 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         try {
           const result = await client.rejectPlan(planId);
           applyCommand(result.data);
+
+          // 월간 조정안을 거절하면 거절 상태는 비교 화면에 남기되,
+          // 현재 활성 계획은 사용자가 유지하기로 한 기존 계획으로 되돌린다.
+          if (
+            result.data.plan &&
+            review?.proposedPlan?.planId === planId &&
+            (result.data.outcome === "REJECTED" || result.data.outcome === "ALREADY_REJECTED")
+          ) {
+            setReview((previousReview) =>
+              previousReview?.proposedPlan?.planId === planId
+                ? { ...previousReview, proposedPlan: result.data.plan }
+                : previousReview,
+            );
+            setCurrentPlan(review.previousPlan);
+          }
         } catch (caught) {
           setFeedback({ outcome: "ERROR", message: errorMessage(caught) });
         }
       });
     },
-    [client, applyCommand, runExclusive],
+    [client, applyCommand, review, runExclusive],
   );
 
   const executePlan = useCallback(
