@@ -117,6 +117,7 @@ export function getMonthlyReview(personaId: PersonaId, boundaryId?: ProductBound
     dataAsOf: currentAsOf,
   });
   const overallType = overallEventType(events);
+  const currentMonth = current.monthly.find((item) => item.month === reviewMonth);
 
   const proposedPlan =
     overallType === "INFO"
@@ -135,15 +136,18 @@ export function getMonthlyReview(personaId: PersonaId, boundaryId?: ProductBound
           extraNotices: events.filter((event) => event.type !== "INFO").map((event) => `[${event.type}] ${event.title}: ${event.message}`),
         });
 
-  const consultationCase = buildConsultationCase({
-    customer,
-    events,
-    metrics: current.metrics,
-    goals: dataset.goals,
-    previousPlan,
-    proposedPlan,
-    reviewMonth,
-  });
+  const consultationCase = currentMonth
+    ? buildConsultationCase({
+        customer,
+        events,
+        currentMonth,
+        emergencyFundBalance: current.metrics.emergencyFundBalance,
+        goals: dataset.goals,
+        previousPlan,
+        proposedPlan,
+        reviewMonth,
+      })
+    : null;
 
   return {
     contractVersion: API_CONTRACT_VERSION,

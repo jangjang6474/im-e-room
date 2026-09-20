@@ -146,6 +146,11 @@ const r2 = getMonthlyReview("P02");
 check(r2.overallType === "ADJUSTMENT" && r2.routing === "REPLAN" && r2.events.some((e) => e.ruleId === "CHG-RENT-CHANGE"), "P02 review should detect rent change");
 const r3 = getMonthlyReview("P03");
 check(r3.overallType === "RISK" && r3.routing === "CONSULTATION" && !!r3.consultationCase, "P03 review should route to consultation");
+check(
+  r3.consultationCase?.briefing.financialState.includes("소득 1,300,000원") &&
+    r3.consultationCase.briefing.financialState.includes("월 저축 여력 -318,300원"),
+  `P03: consultation briefing must use current-month metrics (got ${r3.consultationCase?.briefing.financialState})`,
+);
 check(r3.events.some((e) => e.type === "INFO") && r3.events.some((e) => e.type === "RISK"), "P03: composite events must keep RISK alongside INFO");
 check(r3.proposedPlan !== null && r3.proposedPlan.totalMonthlyAmount < r3.previousPlan.totalMonthlyAmount, "P03: risk replan must reduce contributions");
 check(r3.nextCollectionAt.startsWith("2026-10-31"), `P03: month-end anchor 31 → 2026-10-31 (got ${r3.nextCollectionAt})`);

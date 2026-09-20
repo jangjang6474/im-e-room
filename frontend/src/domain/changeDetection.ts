@@ -269,7 +269,8 @@ export function detectMonthlyChanges(input: ChangeDetectionInput): ChangeDetecti
 export function buildConsultationCase(input: {
   customer: CustomerProfile;
   events: ChangeEventV1[];
-  metrics: DiagnosisMetrics;
+  currentMonth: MonthlyAggregate;
+  emergencyFundBalance: DiagnosisMetrics["emergencyFundBalance"];
   goals: MockGoal[];
   previousPlan: PlanProposal;
   proposedPlan: PlanProposal | null;
@@ -278,7 +279,7 @@ export function buildConsultationCase(input: {
   const risks = input.events.filter((e) => e.type === "RISK");
   if (!risks.length) return null;
   const critical = risks.some((e) => e.ruleId === "CHG-INCOME-STOP" || e.ruleId === "CHG-NEGATIVE-SURPLUS");
-  const m = input.metrics;
+  const m = input.currentMonth;
   const delayed = input.proposedPlan?.allocations.filter((a) => a.feasibility !== "ON_TRACK" && a.feasibility !== "ACHIEVED") ?? [];
   return {
     id: `case-${input.customer.id}-${input.reviewMonth}`,
@@ -289,7 +290,7 @@ export function buildConsultationCase(input: {
     severity: critical ? "CRITICAL" : "HIGH",
     briefing: {
       coreRisk: risks.map((e) => e.message).join(" "),
-      financialState: `이번 달 기준 소득 ${formatWon(m.monthlyIncome)}, 고정 ${formatWon(m.fixedExpenses)}, 변동 ${formatWon(m.variableExpenses)}, 부채 상환 ${formatWon(m.debtPayment)}, 월 저축 여력 ${formatWon(m.availableSurplus)}, 비상자금 ${formatWon(m.emergencyFundBalance)}.`,
+      financialState: `이번 달 기준 소득 ${formatWon(m.income)}, 고정 ${formatWon(m.fixed)}, 변동 ${formatWon(m.variable)}, 비정기 ${formatWon(m.irregular)}, 부채 상환 ${formatWon(m.debt)}, 월 저축 여력 ${formatWon(m.surplus)}, 비상자금 ${formatWon(input.emergencyFundBalance)}.`,
       impactOnGoals: `기존 계획 월 ${formatWon(input.previousPlan.totalMonthlyAmount)} → 조정안 월 ${formatWon(input.proposedPlan?.totalMonthlyAmount ?? 0)}. ${
         delayed.length ? `지연·보류 목표: ${delayed.map((a) => a.goalTitle).join(", ")}.` : "모든 목표가 기한 내 유지됩니다."
       } 목표 ${input.goals.length}개.`,
