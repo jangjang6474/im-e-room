@@ -26,6 +26,7 @@ import {
 } from "../../api/labels";
 import type { ChangeEventV1, PlanProposal } from "../../data/apiContracts";
 import { AiExplanationPanel } from "../ai/AiExplanationPanel";
+import { MonthTransitionPanel } from "../MonthTransitionPanel";
 import {
   ActionButton,
   Callout,
@@ -82,6 +83,7 @@ export const MonthlyReviewTab: React.FC = () => {
     feedback,
     clearFeedback,
     persona,
+    diagnosis,
     isConsentRevoked,
   } = useEroomSession();
 
@@ -195,6 +197,11 @@ export const MonthlyReviewTab: React.FC = () => {
         />
       </div>
 
+      {/* 다음 달로 넘어가는 과정을 먼저 보여준다 (실행 전에는 예고, 실행 뒤에는 처리 결과) */}
+      {diagnosis && (
+        <MonthTransitionPanel review={review} asOf={diagnosis.asOf} isRunning={Boolean(pending.review)} />
+      )}
+
       {isConsentRevoked && (
         <Callout tone="attention" title="데이터 수집 동의를 철회했습니다" icon={<Info className="w-4 h-4" aria-hidden="true" />}>
           철회한 상태에서는 새 수집을 진행하지 않습니다. 기존 계획은 그대로 유지됩니다. 이 체험에서는 철회를 되돌릴 수
@@ -252,7 +259,7 @@ export const MonthlyReviewTab: React.FC = () => {
                       after={after ? won(after.monthlyAmount) : "배분 없음"}
                       note={
                         before && after
-                          ? `예상 달성 ${before.expectedCompletionMonth ?? "산출 불가"} → ${after.expectedCompletionMonth ?? "산출 불가"}`
+                          ? `예상 달성 ${before.expectedCompletionMonth ? monthText(before.expectedCompletionMonth) : "산출 불가"} → ${after.expectedCompletionMonth ? monthText(after.expectedCompletionMonth) : "산출 불가"}`
                           : undefined
                       }
                     />
@@ -291,7 +298,7 @@ export const MonthlyReviewTab: React.FC = () => {
                     note={`차이 ${wonDelta(proposed.totalMonthlyAmount - previous.totalMonthlyAmount)}`}
                   />
                   <CompareRow
-                    label="생활 유동성 (남기는 금액)"
+                    label="생활비로 남겨두는 돈"
                     before={won(previous.unallocatedAmount)}
                     after={won(proposed.unallocatedAmount)}
                   />
@@ -326,7 +333,7 @@ export const MonthlyReviewTab: React.FC = () => {
                 <>
                   <SummaryRow label="유지 중인 계획" value={`v${previous.version}`} />
                   <SummaryRow label="월 납입 합계" value={won(previous.totalMonthlyAmount)} tone="strong" />
-                  <SummaryRow label="남기는 금액" value={won(previous.unallocatedAmount)} />
+                  <SummaryRow label="생활비로 남겨두는 돈" value={won(previous.unallocatedAmount)} />
                 </>
               )
             )}
