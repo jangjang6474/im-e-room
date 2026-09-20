@@ -5,14 +5,14 @@
  * Claude에게는 조회 전용 도구만 준다. 승인·거절·이체·가입·자격 판정 도구는 없다.
  */
 
-import type { CounselResponse } from "../../frontend/src/data/aiContracts";
-import { aiConfig, callClaudeJsonWithTools, logAiFailure } from "../../backend/ai/claude-client";
-import { cacheKey, readCache, writeCache } from "../../backend/ai/cache";
-import { claudeMetadata, counselWithoutClaude } from "../../backend/ai/fallback";
-import { aiErrorBody, type AiHandler } from "../../backend/ai/http";
-import { COUNSEL_SYSTEM_PROMPT, COUNSEL_TOOLS, buildCounselUserMessage, runCounselTool } from "../../backend/ai/prompts/counsel";
-import { validateCounselPayload } from "../../backend/ai/schemas";
-import { AiInputError, sanitizeCounselRequest } from "../../backend/ai/sanitize";
+import type { CounselResponse } from "../../frontend/src/data/aiContracts.js";
+import { aiConfig, callClaudeJsonWithTools, logAiFailure } from "../../backend/ai/claude-client.js";
+import { cacheKey, readCache, writeCache } from "../../backend/ai/cache.js";
+import { claudeMetadata, counselWithoutClaude } from "../../backend/ai/fallback.js";
+import { aiErrorBody, type AiHandler } from "../../backend/ai/http.js";
+import { COUNSEL_SYSTEM_PROMPT, COUNSEL_TOOLS, buildCounselUserMessage, runCounselTool } from "../../backend/ai/prompts/counsel.js";
+import { validateCounselPayload } from "../../backend/ai/schemas.js";
+import { AiInputError, sanitizeCounselRequest } from "../../backend/ai/sanitize.js";
 
 const MAX_TOKENS = 6_000;
 
