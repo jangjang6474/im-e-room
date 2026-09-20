@@ -18,15 +18,15 @@
 
 ## 실행
 
-Node.js가 필요합니다.
+Node.js 22.12 이상(권장: Node.js 24 LTS)과 npm이 필요합니다. 최초 npm ci 설치에는 인터넷이 필요하며, 설치 후 기본 체험은 API 키 없이 동작합니다.
 
 ```bash
-npm install
-copy .env.example .env.local
+npm ci
+ # 기본 체험은 .env 생성 없이 실행합니다.
 npm run dev
 ```
 
-`.env.local`의 API 키는 모두 선택 사항입니다. 키가 없거나 호출이 실패하면 계산 결과를 사용한 정형 설명으로 동작합니다.
+`.env`의 API 키는 모두 선택 사항입니다. 키가 없거나 호출이 실패하면 계산 결과를 사용한 정형 설명으로 동작합니다.
 
 검증 명령:
 
@@ -56,9 +56,9 @@ npm run dev
 # 2) 준비된 AI 응답을 명시적으로 사용
 AI_MODE=fixture npm run dev
 
-# 3) 실제 Claude 호출 (.env.local에 키를 두고 실행)
+# 3) 실제 Claude 호출 (.env에 키를 두고 실행)
 #    ANTHROPIC_API_KEY=sk-ant-...
-#    ANTHROPIC_MODEL=claude-opus-5
+#    ANTHROPIC_MODEL=claude-sonnet-4-6
 #    AI_MODE=live
 npm run dev
 
