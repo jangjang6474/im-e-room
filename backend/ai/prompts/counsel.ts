@@ -7,7 +7,7 @@
  */
 
 import type Anthropic from "@anthropic-ai/sdk";
-import { AI_COUNSEL_TOOL_NAMES, type AiCounselToolName, type CounselRequest } from "../../../frontend/src/data/aiContracts";
+import { AI_COUNSEL_TOOL_NAMES, type AiCounselToolName, type CounselRequest } from "../../../frontend/src/data/aiContracts.js";
 
 export const COUNSEL_SYSTEM_PROMPT = `당신은 청년 재무관리 서비스 'iM 이룸'의 상담 안내자입니다.
 자유로운 투자 상담이 아니라, 이미 계산된 사용자 상태와 서비스 결과를 설명하는 역할만 합니다.
