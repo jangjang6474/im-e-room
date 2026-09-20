@@ -40,7 +40,7 @@ export interface ConsentRecord {
 }
 
 export const CONSENT_SCOPES = [
-  "합성 계좌 잔액과 거래 내역 조회",
+  "가상 계좌 잔액과 거래 내역 조회",
   "급여·고정·변동·비정기 지출 분류",
   "목표별 납입 계획 계산과 월 1회 재점검",
 ];
@@ -286,7 +286,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setError(null);
         const result = await client.proposePlan(personaId, boundaryId);
         setCurrentPlan(result.data);
-        setFeedback({ outcome: "APPROVED", message: "계획을 검토 목록에 등록했습니다. 승인 전에는 실행되지 않습니다." });
+        setFeedback({ outcome: "APPROVED", message: "계획을 등록했습니다. 확정하기 전에는 아무것도 실행되지 않습니다." });
       } catch (caught) {
         setError(errorMessage(caught));
         setFeedback({ outcome: "ERROR", message: errorMessage(caught) });
@@ -384,7 +384,7 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         setConsent((prev) =>
           prev ? { ...prev, status: "REVOKED", revokedAt: result.data.revokedAt } : prev,
         );
-        setFeedback({ outcome: "APPROVED", message: "데이터 수집 동의를 철회했습니다. 다음 달 수집이 중단됩니다." });
+        setFeedback({ outcome: "APPROVED", message: "데이터 수집 동의를 철회했습니다. 다음 달 수집과 이번 달 점검이 중단됩니다." });
       } catch (caught) {
         setFeedback({ outcome: "ERROR", message: errorMessage(caught) });
       }
@@ -446,11 +446,11 @@ export const EroomSessionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setLoadStep(0);
     setFeedback(
       fullyReset
-        ? { outcome: "APPROVED", message: "체험 세션을 초기화했습니다. 계획 상태와 모의 실행 이력, 수집 동의가 모두 처음 상태로 돌아갔습니다." }
+        ? { outcome: "APPROVED", message: "체험을 처음 상태로 되돌렸습니다. 계획 상태와 모의 실행 이력, 수집 동의가 모두 초기화됐습니다." }
         : {
             outcome: "INVALID_STATE",
             message:
-              "화면을 처음 상태로 되돌렸습니다. 다만 Mock API 서버 세션의 계획 상태와 모의 실행 이력은 시연 권한이 있어야 지울 수 있어 그대로 남아 있습니다. 같은 고객을 다시 선택하면 이전 결정이 그대로 보입니다.",
+              "화면을 처음 상태로 되돌렸습니다. 다만 서버에 남아 있는 계획 상태와 모의 실행 이력은 시연 권한이 있어야 지울 수 있어 그대로 남아 있습니다. 같은 고객을 다시 선택하면 이전 결정이 그대로 보입니다.",
           },
     );
   }, [client]);

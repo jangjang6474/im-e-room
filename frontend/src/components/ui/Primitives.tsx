@@ -6,7 +6,7 @@
  */
 
 import React from "react";
-import { AlertTriangle, Inbox, Loader2, RefreshCw } from "lucide-react";
+import { AlertTriangle, ChevronDown, Inbox, Loader2, RefreshCw, X } from "lucide-react";
 import { TONE_CLASS, type Tone } from "../../api/labels";
 import { clampPercent } from "../../api/format";
 
@@ -207,6 +207,248 @@ export const ErrorState: React.FC<{ message: string; onRetry?: () => void; retry
 /** 합성 데이터·모의 실행 고지 */
 export const SyntheticNotice: React.FC<{ className?: string }> = ({ className = "" }) => (
   <p className={`text-[11px] text-[#526562] leading-relaxed ${className}`}>
-    이 화면의 고객·계좌·거래는 모두 합성 데이터입니다. 실제 마이데이터 연결, 상품 가입, 송금, 상담 예약은 일어나지 않습니다.
+    이 화면의 고객·계좌·거래는 모두 가상 데이터입니다. 실제 마이데이터 연결, 상품 가입, 송금, 자동이체, 상담 예약은 일어나지 않습니다.
   </p>
 );
+
+/* ------------------------------------------------------------------ */
+/* 모바일 우선 레이아웃 요소                                             */
+/*                                                                    */
+/* 한 화면의 강조 카드는 1개만 쓰고 나머지는 중립 배경·여백·구분선으로     */
+/* 구분한다. 아래 요소는 그 규칙을 위한 공용 조각이다.                    */
+/* ------------------------------------------------------------------ */
+
+/** 테두리 없는 중립 구역. 모든 내용을 카드로 만들지 않기 위해 사용한다. */
+export const Section: React.FC<{
+  id?: string;
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}> = ({ id, title, description, action, children, className = "" }) => (
+  <section aria-labelledby={id} className={`pt-5 border-t border-[#DCE7E4] ${className}`}>
+    {title && (
+      <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+        <div className="min-w-0">
+          <h2 id={id} className="text-base font-extrabold text-[#142B29] break-keep">
+            {title}
+          </h2>
+          {description && <p className="text-sm text-[#526562] mt-1 leading-relaxed break-keep">{description}</p>}
+        </div>
+        {action}
+      </div>
+    )}
+    {children}
+  </section>
+);
+
+/**
+ * 결론형 상태 문장. 한 화면에서 강조 카드 역할을 맡는 유일한 요소로 쓴다.
+ * 상태는 색만으로 구분하지 않고 아이콘과 텍스트 라벨을 함께 제공한다.
+ */
+export const HeadlineCard: React.FC<{
+  statusLabel: string;
+  headline: string;
+  description?: string;
+  tone?: Tone;
+  icon?: React.ReactNode;
+  meta?: string;
+  children?: React.ReactNode;
+}> = ({ statusLabel, headline, description, tone = "neutral", icon, meta, children }) => (
+  <section className={`rounded-3xl border p-5 ${TONE_CLASS[tone]}`} aria-labelledby="headline-status">
+    <p className="inline-flex items-center gap-1.5 text-xs font-extrabold">
+      {icon}
+      {statusLabel}
+    </p>
+    <h2 id="headline-status" className="text-xl font-extrabold mt-2 leading-snug break-keep">
+      {headline}
+    </h2>
+    {description && <p className="text-sm mt-2 leading-relaxed opacity-90 break-keep">{description}</p>}
+    {meta && <p className="text-xs mt-2 opacity-80 tabular-nums">{meta}</p>}
+    {children && <div className="mt-4">{children}</div>}
+  </section>
+);
+
+/** 접을 수 있는 근거 영역. 상세 지표와 긴 목록을 기본값으로 펼치지 않는다. */
+export const Disclosure: React.FC<{
+  summary: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}> = ({ summary, children, defaultOpen = false, className = "" }) => {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <div className={`rounded-2xl border border-[#DCE7E4] bg-white ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        className="w-full min-h-[48px] px-4 py-3 flex items-center justify-between gap-3 text-sm font-bold text-[#142B29] rounded-2xl hover:bg-[#F6F9F8]"
+      >
+        <span className="text-left break-keep">{summary}</span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
+        />
+      </button>
+      {open && <div className="px-4 pb-4">{children}</div>}
+    </div>
+  );
+};
+
+/** 세로 요약 줄. KeyValueRow보다 가벼워 한 카드에 여러 줄을 넣어도 덜 답답하다. */
+export const SummaryRow: React.FC<{ label: string; value: React.ReactNode; tone?: "default" | "strong" }> = ({
+  label,
+  value,
+  tone = "default",
+}) => (
+  <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-[#EDF3F1] last:border-b-0">
+    <span className="text-sm text-[#526562] break-keep">{label}</span>
+    <span
+      className={`tabular-nums text-right shrink-0 ${
+        tone === "strong" ? "text-base font-extrabold text-[#142B29]" : "text-sm font-bold text-[#142B29]"
+      }`}
+    >
+      {value}
+    </span>
+  </div>
+);
+
+/**
+ * 세로 비교 줄. 가로 스크롤 표 대신 "이전 → 이후"를 한 줄로 읽게 한다.
+ * 두 값은 모두 백엔드 응답에서 읽은 값이어야 한다.
+ */
+export const CompareRow: React.FC<{
+  label: string;
+  before: string;
+  after: string;
+  note?: string;
+}> = ({ label, before, after, note }) => (
+  <li className="py-3 border-b border-[#EDF3F1] last:border-b-0">
+    <p className="text-sm text-[#526562] break-keep">{label}</p>
+    <p className="mt-1 flex flex-wrap items-baseline gap-2 tabular-nums">
+      <span className="text-sm text-[#526562]">{before}</span>
+      <span aria-hidden="true" className="text-[#8FA6A1] font-bold">
+        →
+      </span>
+      <span className="sr-only">에서</span>
+      <span className="text-base font-extrabold text-[#142B29]">{after}</span>
+      <span className="sr-only">(으)로</span>
+    </p>
+    {note && <p className="text-xs text-[#526562] mt-1 leading-relaxed break-keep">{note}</p>}
+  </li>
+);
+
+/**
+ * 모바일 하단 고정 행동 영역.
+ *
+ * 하단 내비게이션 위에 겹치지 않도록 간격을 두고 safe area를 반영한다.
+ * 같은 높이의 spacer를 문서 흐름에 넣어 본문 마지막 내용이 가려지지 않게 한다.
+ */
+export const StickyActions: React.FC<{
+  children: React.ReactNode;
+  note?: string;
+  /** 하단 내비게이션이 없는 화면(예: 적용 예시 모드)에서는 false */
+  aboveBottomNav?: boolean;
+}> = ({ children, note, aboveBottomNav = true }) => (
+  <>
+    <div aria-hidden="true" className="md:hidden h-[150px]" />
+    <div
+      className={`fixed inset-x-0 z-20 bg-white border-t border-[#DCE7E4] px-4 pt-3 pb-3 md:static md:border-0 md:bg-transparent md:px-0 md:pt-0 ${
+        aboveBottomNav
+          ? // 하단 내비게이션(65px)과 겹치지 않도록 간격을 둔다
+            "bottom-[calc(73px+env(safe-area-inset-bottom))]"
+          : "bottom-0 pb-[calc(12px+env(safe-area-inset-bottom))]"
+      }`}
+    >
+      <div className="max-w-[1200px] mx-auto space-y-2">
+        <div className="flex flex-col sm:flex-row gap-2">{children}</div>
+        {note && <p className="text-[11px] text-[#526562] leading-relaxed break-keep">{note}</p>}
+      </div>
+    </div>
+  </>
+);
+
+/**
+ * 바텀시트. 상세 근거처럼 첫 화면에서 빼낸 내용을 담는다.
+ * 열릴 때 초점을 옮기고 닫히면 호출한 버튼으로 초점을 되돌린다.
+ */
+export const BottomSheet: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+}> = ({ isOpen, onClose, title, children }) => {
+  const panelRef = React.useRef<HTMLDivElement>(null);
+  const restoreRef = React.useRef<HTMLElement | null>(null);
+  /**
+   * `onClose`는 호출부에서 매 렌더마다 새로 만들어지는 경우가 많다.
+   * 의존성에 그대로 넣으면 열려 있는 동안 효과가 반복 실행되어 초점 복원 대상이 사라진다.
+   */
+  const onCloseRef = React.useRef(onClose);
+  onCloseRef.current = onClose;
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+    restoreRef.current = document.activeElement as HTMLElement | null;
+    panelRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== "Tab" || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      restoreRef.current?.focus();
+    };
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-[#0B2724]/40">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bottom-sheet-title"
+        tabIndex={-1}
+        className="bg-white w-full sm:max-w-[520px] max-h-[86vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl border border-[#DCE7E4] p-5 pb-[calc(20px+env(safe-area-inset-bottom))]"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <h2 id="bottom-sheet-title" className="text-lg font-extrabold text-[#142B29] break-keep">
+            {title}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="min-h-[44px] min-w-[44px] rounded-2xl border border-[#DCE7E4] inline-flex items-center justify-center hover:bg-[#F6F9F8] shrink-0"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+            <span className="sr-only">닫기</span>
+          </button>
+        </div>
+        <div className="mt-4">{children}</div>
+      </div>
+    </div>
+  );
+};
