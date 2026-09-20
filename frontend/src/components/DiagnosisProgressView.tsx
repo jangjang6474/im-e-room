@@ -10,10 +10,10 @@ import { useEroomSession } from "../api/EroomSession";
 import { ErrorState, Panel } from "./ui/Primitives";
 
 const STEPS = [
-  "동의 확인과 합성 계좌 연결",
+  "동의 확인과 가상 계좌 연결",
   "최근 거래 수집과 중복·내부이체 정리",
   "정책 자격 판정",
-  "상품 바운더리와 목표별 계획 계산",
+  "모으는 방식과 목표별 계획 계산",
 ];
 
 export const DiagnosisProgressView: React.FC = () => {
@@ -25,7 +25,7 @@ export const DiagnosisProgressView: React.FC = () => {
         <div>
           <h1 className="text-xl font-black text-[#142B29]">재무진단을 만들고 있습니다</h1>
           <p className="text-sm text-[#526562] mt-1.5 leading-relaxed">
-            {persona ? `${persona.customerName} 님의 합성 거래를 분석하는 중입니다.` : "합성 거래를 분석하는 중입니다."}
+            {persona ? `${persona.customerName} 님의 가상 거래를 분석하는 중입니다.` : "가상 거래를 분석하는 중입니다."}
           </p>
         </div>
 

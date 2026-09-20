@@ -35,7 +35,7 @@ export const ConsentView: React.FC = () => {
           <div>
             <h1 className="text-xl font-black text-[#142B29]">모의 데이터 수집에 동의하시겠어요?</h1>
             <p className="text-sm text-[#526562] mt-1.5 leading-relaxed break-keep">
-              {persona.customerName} 님({persona.title})의 합성 계좌·거래를 불러와 재무진단을 만듭니다. 실제 마이데이터
+              {persona.customerName} 님({persona.title})의 가상 계좌·거래를 불러와 재무진단을 만듭니다. 실제 마이데이터
               기관 연결은 일어나지 않습니다.
             </p>
           </div>
@@ -66,7 +66,7 @@ export const ConsentView: React.FC = () => {
             className="w-5 h-5 mt-0.5 accent-[#00C4A6]"
           />
           <span className="text-sm text-[#142B29] leading-relaxed">
-            합성 데이터 기반 모의 수집과 모의 실행에 동의합니다. 실제 가입·송금·상담 예약이 없다는 점을 확인했습니다.
+            가상 데이터 기반 모의 수집과 모의 실행에 동의합니다. 실제 가입·송금·상담 예약이 없다는 점을 확인했습니다.
           </span>
         </label>
 

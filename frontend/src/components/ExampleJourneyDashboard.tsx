@@ -127,7 +127,12 @@ export const ExampleJourneyDashboard: React.FC = () => {
                 <p id="example-stage-selector" className="text-xs font-bold text-[#526562] mb-2">
                   확인할 시점
                 </p>
-                <div className="flex gap-2 overflow-x-auto pb-1" aria-labelledby="example-stage-selector">
+                {/* 가로 스크롤로 숨기지 않고 모든 시점을 그리드로 보여준다 */}
+                <div
+                  className="grid grid-cols-4 sm:grid-cols-7 gap-2"
+                  role="group"
+                  aria-labelledby="example-stage-selector"
+                >
                   {journey.stages.map((stage) => {
                     const selected = stage.month === selectedStage?.month;
                     return (
@@ -136,13 +141,14 @@ export const ExampleJourneyDashboard: React.FC = () => {
                         type="button"
                         aria-pressed={selected}
                         onClick={() => setSelectedMonth(stage.month)}
-                        className={`shrink-0 min-h-[44px] rounded-2xl border px-4 text-sm font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B5B] focus-visible:ring-offset-2 ${
+                        className={`min-h-[44px] rounded-2xl border px-2 text-sm font-extrabold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006B5B] focus-visible:ring-offset-2 ${
                           selected
                             ? "border-[#006B5B] bg-[#E7F7F3] text-[#005A4D]"
                             : "border-[#DCE7E4] bg-white text-[#526562] hover:bg-[#F6F9F8]"
                         }`}
                       >
                         {stage.month === 0 ? "가입" : `${stage.month}개월`}
+                        {selected && <span className="sr-only"> 선택함</span>}
                       </button>
                     );
                   })}

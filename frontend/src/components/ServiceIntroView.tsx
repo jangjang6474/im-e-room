@@ -13,7 +13,7 @@ const STEPS = [
   {
     icon: <Users className="w-5 h-5" aria-hidden="true" />,
     title: "가상 고객으로 시작",
-    body: "합성 데이터로 만든 청년 고객을 고르고 모의 데이터 수집에 동의하면 체험이 시작됩니다.",
+    body: "가상 데이터로 만든 청년 고객을 고르고 모의 데이터 수집에 동의하면 체험이 시작됩니다. 공모전 체험을 위한 단계입니다.",
   },
   {
     icon: <LineChart className="w-5 h-5" aria-hidden="true" />,
@@ -28,9 +28,9 @@ const STEPS = [
 ];
 
 const PROMISES = [
-  "금액과 자격 판정은 규칙 엔진이 계산하고 화면은 그 결과를 그대로 보여줍니다.",
+  "금액과 자격은 같은 조건이면 늘 같은 결과가 나오도록 계산하고, 화면은 그 결과를 그대로 보여줍니다.",
   "확인되지 않은 요건은 충족으로 채우지 않고 ‘서류 확인 필요’로 표시합니다.",
-  "승인 전에는 아무것도 실행되지 않습니다. 실행 기록은 모두 모의 실행입니다.",
+  "승인 전에는 아무것도 실행되지 않습니다. 모든 실행은 모의 실행이며 실제 금융 거래가 없습니다.",
 ];
 
 export const ServiceIntroView: React.FC = () => {
@@ -42,7 +42,7 @@ export const ServiceIntroView: React.FC = () => {
         <div className="space-y-5">
           <span className="inline-flex items-center gap-2 text-xs font-extrabold px-3 py-1.5 rounded-full bg-[#EAFBF6] text-[#006B5B] border border-[#B6E7DA]">
             <Sparkles className="w-3.5 h-3.5" aria-hidden="true" />
-            합성 데이터 기반 공모전 프로토타입
+            가상 데이터 기반 체험 · 실제 금융 거래 없음
           </span>
           <h1 className="text-3xl md:text-[42px] leading-tight font-black text-[#142B29] break-keep">
             상황이 바뀌어도
@@ -53,7 +53,7 @@ export const ServiceIntroView: React.FC = () => {
           </h1>
           <p className="text-base text-[#526562] leading-relaxed break-keep">
             iM 이룸은 청년의 최근 거래를 분석해 월 저축 여력을 찾고, 목표별 납입 계획을 만든 뒤 매달 변화를 감지해
-            조정안을 제안하는 재무관리 서비스입니다. 이 화면은 실제 금융 연결 없이 합성 데이터로 흐름을 체험하는 프로토타입입니다.
+            조정안을 제안하는 재무관리 서비스입니다. 이 화면은 실제 금융 거래 없이 가상 데이터로 흐름을 체험하는 화면입니다.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <ActionButton
@@ -68,14 +68,14 @@ export const ServiceIntroView: React.FC = () => {
             </ActionButton>
           </div>
           <p className="text-xs text-[#526562]">
-            체험 가능한 합성 고객 {personas.length > 0 ? `${personas.length}명` : "준비 중"} · 외부 API 키 없이 동작합니다.
+            체험 가능한 가상 고객 {personas.length > 0 ? `${personas.length}명` : "준비 중"} · 실제 금융 거래는 일어나지 않습니다.
           </p>
         </div>
 
         <Panel className="p-5 md:p-6 space-y-4">
           <h2 className="font-extrabold text-[#142B29] flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-[#006B5B]" aria-hidden="true" />
-            이 프로토타입의 약속
+            이 체험판의 약속
           </h2>
           <ul className="space-y-3">
             {PROMISES.map((item) => (
