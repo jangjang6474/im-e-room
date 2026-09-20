@@ -7,6 +7,7 @@
 import React from "react";
 import { CalendarCheck, Gift, History, Home, Stethoscope, Target } from "lucide-react";
 import { useEroomSession, type TabId } from "../api/EroomSession";
+import { reviewNeedsAttention } from "../api/labels";
 import { SyntheticNotice } from "./ui/Primitives";
 
 interface NavItem {
@@ -26,8 +27,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { tab, setTab, review } = useEroomSession();
-  const hasReviewBadge = review !== null && review.overallType !== "INFO";
+  const { tab, setTab, review, currentPlan } = useEroomSession();
+  const hasReviewBadge = reviewNeedsAttention(review, currentPlan);
 
   return (
     <>
