@@ -5,7 +5,7 @@
  * `api/ai/*.ts`의 핸들러 하나를 두 실행 환경에서 그대로 쓸 수 있다.
  */
 
-import { AI_CONTRACT_VERSION, type AiErrorResponse } from "../../frontend/src/data/aiContracts";
+import { AI_CONTRACT_VERSION, type AiErrorResponse } from "../../frontend/src/data/aiContracts.js";
 
 export interface AiHttpRequest {
   body?: unknown;
