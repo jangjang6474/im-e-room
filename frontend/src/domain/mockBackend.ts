@@ -9,6 +9,7 @@ import type {
   ConsultationCaseV1,
   DiagnosisResponse,
   EligibilityResponse,
+  MockGoal,
   MonthlyReviewResponse,
   PersonaId,
   PersonaSummary,
@@ -24,6 +25,7 @@ import { buildConsultationCase, detectMonthlyChanges, overallEventType } from ".
 import { kstTimestamp, monthOf, nextCollectionDate } from "./dateUtils";
 import { buildDiagnosis, buildEligibility, customerAt, evaluateAllPolicies, snapshotIdOf } from "./diagnosis";
 import { buildExampleJourney } from "./exampleJourney";
+import { parseGoalsPayload } from "./goalDesign";
 import { buildGoalPlan } from "./goalPlanner";
 import { MockPlanStore } from "./planLifecycle";
 import { evaluateBoundary } from "./productBoundary";
@@ -45,6 +47,19 @@ export function assertPersonaId(value: string): PersonaId {
 export function assertBoundaryId(value: string): ProductBoundaryId {
   if (value !== "STABLE" && value !== "BALANCED" && value !== "GOAL_FOCUSED") throw new MockBackendError(400, `알 수 없는 상품 바운더리입니다: ${value}`);
   return value;
+}
+
+/**
+ * 사용자가 설계한 목표 목록을 검증한다.
+ *
+ * 요청 본문으로 들어오는 값은 신뢰하지 않는다. 형태·범위·연결 상품을 확인한 뒤에만 계산에 넘긴다.
+ * 값이 없으면 `undefined`를 돌려주고 호출부가 가상 고객의 기본 목표를 쓴다.
+ */
+export function optionalGoals(value: unknown): MockGoal[] | undefined {
+  if (value === undefined || value === null) return undefined;
+  const parsed = parseGoalsPayload(value);
+  if ("errors" in parsed) throw new MockBackendError(400, parsed.errors[0]);
+  return parsed.goals;
 }
 
 /* -------------------------- 조회 (상태 없음) -------------------------- */
@@ -80,7 +95,18 @@ export function getProductBoundary(boundaryId: ProductBoundaryId): ProductBounda
   return evaluateBoundary(REFERENCE_CATALOG.financialProducts, boundaryId);
 }
 
-export function getInitialPlan(personaId: PersonaId, boundaryId?: ProductBoundaryId): PlanProposal {
+/** 목표 설계 화면의 시작값. 가상 고객이 이미 가지고 있는 목표를 그대로 돌려준다. */
+export function getGoals(personaId: PersonaId): MockGoal[] {
+  return getDataset(personaId).goals.map((goal) => ({ ...goal }));
+}
+
+/**
+ * 최초 계획을 계산한다.
+ *
+ * `goals`를 주면 사용자가 직접 설계한 목표로 계산하고, 주지 않으면 가상 고객의 기본 목표를 쓴다.
+ * 배분 규칙·금액 계산은 두 경우 모두 같다.
+ */
+export function getInitialPlan(personaId: PersonaId, boundaryId?: ProductBoundaryId, goals?: MockGoal[]): PlanProposal {
   const dataset = getDataset(personaId);
   const diagnosis = buildDiagnosis(dataset);
   return buildGoalPlan({
@@ -91,15 +117,20 @@ export function getInitialPlan(personaId: PersonaId, boundaryId?: ProductBoundar
     asOf: dataset.asOf,
     createdAt: kstTimestamp(dataset.asOf),
     availableSurplus: diagnosis.metrics.availableSurplus,
-    goals: dataset.goals,
+    goals: goals ?? dataset.goals,
     eligibility: evaluateAllPolicies(diagnosis.customer, dataset.asOf),
   });
 }
 
-export function getMonthlyReview(personaId: PersonaId, boundaryId?: ProductBoundaryId): MonthlyReviewResponse {
+export function getMonthlyReview(
+  personaId: PersonaId,
+  boundaryId?: ProductBoundaryId,
+  goals?: MockGoal[],
+): MonthlyReviewResponse {
   const dataset = getDataset(personaId);
+  const activeGoals = goals ?? dataset.goals;
   const previous = buildDiagnosis(dataset);
-  const previousPlan = getInitialPlan(personaId, boundaryId);
+  const previousPlan = getInitialPlan(personaId, boundaryId, goals);
   const currentAsOf = dataset.nextMonth.asOf;
   const customer = customerAt(dataset.customer, currentAsOf, dataset.nextMonth.customerChanges);
   const current = buildDiagnosis(dataset, {
@@ -131,7 +162,7 @@ export function getMonthlyReview(personaId: PersonaId, boundaryId?: ProductBound
           createdAt: kstTimestamp(currentAsOf),
           availableSurplus: current.metrics.availableSurplus,
           budget: salaryRiseSavingsIncrease !== null ? previousPlan.totalMonthlyAmount + salaryRiseSavingsIncrease : undefined,
-          goals: dataset.goals,
+          goals: activeGoals,
           eligibility: evaluateAllPolicies(customer, currentAsOf),
           extraNotices: events.filter((event) => event.type !== "INFO").map((event) => `[${event.type}] ${event.title}: ${event.message}`),
         });
@@ -142,7 +173,7 @@ export function getMonthlyReview(personaId: PersonaId, boundaryId?: ProductBound
         events,
         currentMonth,
         emergencyFundBalance: current.metrics.emergencyFundBalance,
-        goals: dataset.goals,
+        goals: activeGoals,
         previousPlan,
         proposedPlan,
         reviewMonth,
@@ -183,6 +214,8 @@ export class MockBackendSession {
   private consultations = new Map<string, ConsultationCaseV1>();
   private revoked = new Map<PersonaId, string>();
   private reviewed = new Set<PersonaId>();
+  /** 사용자가 직접 설계한 목표. 등록한 뒤에는 월간 점검도 같은 목표로 다시 계산한다. */
+  private designedGoals = new Map<PersonaId, MockGoal[]>();
 
   constructor() {
     this.store = new MockPlanStore(() => this.virtualNow);
@@ -194,11 +227,18 @@ export class MockBackendSession {
     this.consultations.clear();
     this.revoked.clear();
     this.reviewed.clear();
+    this.designedGoals.clear();
+  }
+
+  /** 이 세션에서 사용할 목표. 사용자가 설계한 목표가 있으면 그것을 쓴다. */
+  private goalsFor(personaId: PersonaId, goals?: MockGoal[]): MockGoal[] | undefined {
+    return goals ?? this.designedGoals.get(personaId);
   }
 
   /** 최초 계획을 제안(등록)한다. 같은 요청을 반복해도 같은 계획을 돌려준다. */
-  proposeInitialPlan(personaId: PersonaId, boundaryId?: ProductBoundaryId): PlanProposal {
-    const plan = getInitialPlan(personaId, boundaryId);
+  proposeInitialPlan(personaId: PersonaId, boundaryId?: ProductBoundaryId, goals?: MockGoal[]): PlanProposal {
+    if (goals) this.designedGoals.set(personaId, goals);
+    const plan = getInitialPlan(personaId, boundaryId, this.goalsFor(personaId));
     // 월간 점검이 이미 수집됐다면 최신 기준은 점검 스냅샷이므로 되돌리지 않는다.
     if (!this.reviewed.has(personaId)) {
       this.virtualNow = kstTimestamp(getDataset(personaId).asOf);
@@ -208,11 +248,11 @@ export class MockBackendSession {
   }
 
   /** 다음 달 모의 수집 → 변화 감지 → 조정안 등록 → 위험이면 상담 케이스 생성 */
-  runMonthlyReview(personaId: PersonaId, boundaryId?: ProductBoundaryId): MonthlyReviewResponse {
+  runMonthlyReview(personaId: PersonaId, boundaryId?: ProductBoundaryId, goals?: MockGoal[]): MonthlyReviewResponse {
     if (this.revoked.has(personaId)) {
       throw new MockBackendError(409, `${this.revoked.get(personaId)}에 수집 동의가 철회되어 신규 수집을 하지 않습니다.`);
     }
-    const review = getMonthlyReview(personaId, boundaryId);
+    const review = getMonthlyReview(personaId, boundaryId, this.goalsFor(personaId, goals));
     this.store.propose(review.previousPlan);
     this.reviewed.add(personaId);
     this.store.setLatestBaseline(review.previousPlan.customerId, snapshotIdOf(review.previousPlan.customerId, review.currentAsOf));

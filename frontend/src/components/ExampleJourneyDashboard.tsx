@@ -10,6 +10,7 @@ import { createMockApiClient, type ApiSource } from "../data/mockApiClient";
 import type { ExampleJourneyResponse } from "../data/apiContracts";
 import { dateText, percent, won } from "../api/format";
 import { EVENT_LABEL } from "../api/labels";
+import { BrandMark } from "./ui/BrandMark";
 import {
   ActionButton,
   Callout,
@@ -57,22 +58,20 @@ export const ExampleJourneyDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F6F9F8] text-[#142B29]">
-      <header className="bg-white border-b border-[#DCE7E4]">
+      <header className="bg-[#0B2724] border-b border-[#0B2724]">
         <div className="max-w-[1120px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-[#00C4A6] text-[#0B2724] font-black flex items-center justify-center">
-              iM
-            </div>
+            <BrandMark size={36} tone="light" />
             <div>
-              <p className="font-extrabold leading-tight">iM 이룸 · 24개월 적용 예시</p>
-              <p className="text-[11px] text-[#526562] leading-tight">최종기획서 시나리오를 합성 데이터로 재현한 화면</p>
+              <p className="text-white font-extrabold leading-tight">iM 이룸 · 24개월 적용 예시</p>
+              <p className="text-[11px] text-white/70 leading-tight">최종기획서 시나리오를 가상 데이터로 재현한 화면</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {source === "offline-fixture" && <StatusChip label="오프라인 체험" tone="attention" />}
             <a
               href="/"
-              className="min-h-[44px] px-4 rounded-2xl border border-[#DCE7E4] text-sm font-bold inline-flex items-center gap-2 hover:bg-[#F6F9F8]"
+              className="min-h-[44px] px-4 rounded-2xl border border-white/25 text-white text-sm font-bold inline-flex items-center gap-2 hover:bg-white/10"
             >
               <ArrowLeft className="w-4 h-4" aria-hidden="true" />
               체험 화면으로
