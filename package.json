@@ -12,9 +12,11 @@
     "lint": "tsc --noEmit",
     "data:sync": "node scripts/data/run.mjs sync-reference-data.ts",
     "data:mock": "node scripts/data/run.mjs build-mock-data.ts",
-    "data:validate": "node scripts/data/run.mjs validate-reference-data.ts"
+    "data:validate": "node scripts/data/run.mjs validate-reference-data.ts",
+    "ai:validate": "node scripts/data/run.mjs validate-ai-fixtures.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.127.0",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",
