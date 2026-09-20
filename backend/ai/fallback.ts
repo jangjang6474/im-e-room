@@ -11,7 +11,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { AI_DISCLAIMER } from "../../frontend/src/data/aiContracts";
+import { AI_DISCLAIMER } from "../../frontend/src/data/aiContracts.js";
 import type {
   AiResponseMetadata,
   CounselRequest,
@@ -20,9 +20,9 @@ import type {
   ExplainResponse,
   StructurePolicyRequest,
   StructuredPolicy,
-} from "../../frontend/src/data/aiContracts";
-import type { EventType, PersonaId } from "../../frontend/src/data/apiContracts";
-import { buildRuleCounsel, buildRuleExplanation, highestSeverity } from "../../frontend/src/domain/aiFallback";
+} from "../../frontend/src/data/aiContracts.js";
+import type { EventType, PersonaId } from "../../frontend/src/data/apiContracts.js";
+import { buildRuleCounsel, buildRuleExplanation, highestSeverity } from "../../frontend/src/domain/aiFallback.js";
 import {
   validateCounselPayload,
   validateExplainPayload,
@@ -30,7 +30,7 @@ import {
   type CounselPayload,
   type ExplainPayload,
   type StructuredPolicyPayload,
-} from "./schemas";
+} from "./schemas.js";
 
 const moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
